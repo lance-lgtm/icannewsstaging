@@ -515,6 +515,31 @@ a { color: inherit; text-decoration: none; }
   filter: drop-shadow(0 4px 10px rgba(76, 29, 149, 0.35));
 }
 
+.cert-issuer {
+  margin: 1rem 0 0;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border);
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  letter-spacing: 0.02em;
+}
+
+.cert-issuer strong { color: var(--primary-dark); }
+
+.cert-cta {
+  margin: 0.5rem 0 0;
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  line-height: 1.5;
+}
+
+.cert-cta a {
+  color: var(--primary);
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
 .cert-locked {
   text-align: center;
   background: var(--surface);

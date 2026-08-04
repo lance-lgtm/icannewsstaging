@@ -326,6 +326,8 @@ function renderCertificate(progress) {
             <h2>${COURSE.title}</h2>
             <p class="cert-date">${new Date().toLocaleDateString(undefined, { year: "numeric", month: "long", day: "numeric" })}</p>
             <div class="cert-seal"><img src="assets/logo.png" alt="" class="cert-seal-logo"></div>
+            <p class="cert-issuer">Issued by <strong>I CAN + AI</strong></p>
+            <p class="cert-cta">Want to go further for your job, business, or personal life?<br>Continue learning at <a href="https://icanjapan.ai/" target="_blank" rel="noopener">icanjapan.ai</a></p>
           </div>
         </div>
       `
