@@ -1,14 +1,11 @@
-# icannewsstaging
-AI News collection
-
-## AI for Beginners (free course)
+# AI for Beginners
 
 A free, no-signup, no-coding-required course that teaches complete
 beginners how to understand and use AI (like ChatGPT, Claude, and Gemini)
 with confidence. Inspired by the concept of the
 [ICAN Japan AI Academy](https://academyicanjapanai.lovable.app).
 
-### What's inside
+## What's inside
 
 - **6 modules** covering what AI is, how it "thinks," meeting the AI
   assistants, prompting basics, everyday use cases, and safety/ethics.
@@ -17,12 +14,12 @@ with confidence. Inspired by the concept of the
   server, no data collection).
 - **A printable completion certificate** once all modules are finished.
 
-### Tech
+## Tech
 
 Plain HTML, CSS, and JavaScript — no build step, no dependencies, no
 backend. This keeps it genuinely free and easy to run anywhere.
 
-### Run it locally
+## Run it locally
 
 Just open `index.html` in a browser, or serve the folder with any static
 file server, e.g.:
@@ -33,7 +30,7 @@ python3 -m http.server 8000
 
 Then visit `http://localhost:8000`.
 
-### Deploy for free
+## Deploy for free
 
 This is a static site, so it can be hosted at no cost on **GitHub Pages**:
 
