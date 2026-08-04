@@ -72,7 +72,7 @@ function renderHeader(progress) {
   return `
     <header class="site-header">
       <a class="brand" href="#/">
-        ${icon("sparkles", "brand-icon")}
+        <img src="assets/logo.png" alt="" class="brand-icon">
         <span>AI for Beginners</span>
       </a>
       <div class="header-progress">
@@ -324,7 +324,7 @@ function renderCertificate(progress) {
             <p>has successfully completed</p>
             <h2>${COURSE.title}</h2>
             <p class="cert-date">${new Date().toLocaleDateString(undefined, { year: "numeric", month: "long", day: "numeric" })}</p>
-            <div class="cert-seal">${icon("shield")}</div>
+            <div class="cert-seal"><img src="assets/logo.png" alt="" class="cert-seal-logo"></div>
           </div>
         </div>
       `
