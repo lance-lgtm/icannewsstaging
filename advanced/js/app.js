@@ -1,8 +1,8 @@
-// App logic for AI for Entrepreneurs: routing, rendering, progress tracking, celebration burst.
+// App logic for AI for Advanced: routing, rendering, progress tracking, celebration burst.
 // No build step, no dependencies — same engine pattern as the other courses.
 
-const STORAGE_KEY = "ai4e_progress_v1";
-const CERT_KEY = "ai4e_certificate_name";
+const STORAGE_KEY = "ai4a_progress_v1";
+const CERT_KEY = "ai4a_certificate_name";
 
 function loadProgress() {
   try {
@@ -27,12 +27,12 @@ function courseCompletion(progress) {
 }
 
 const ICONS = {
-  compass: "M12 2a10 10 0 100 20 10 10 0 000-20zM15 9l-2 6-6 2 2-6 6-2z",
-  users: "M8 12a3.5 3.5 0 100-7 3.5 3.5 0 000 7zM2 20c0-3.3 2.7-6 6-6s6 2.7 6 6M16 12a3.5 3.5 0 100-7M14 14.5c2.9.4 5 2.8 5 5.5",
-  coin: "M12 3a9 9 0 100 18 9 9 0 000-18zM12 7v10M9 9.5c0-1.4 1.3-2.5 3-2.5s3 .8 3 2c0 3-6 1.5-6 4.5 0 1.2 1.3 2 3 2s3-1.1 3-2.5",
-  megaphone: "M3 11v2a1 1 0 001 1h2l4 4V6L6 10H4a1 1 0 00-1 1zM15 8a4 4 0 010 8M18 5a8 8 0 010 14",
-  team: "M8 11a3 3 0 100-6 3 3 0 000 6zM16 11a3 3 0 100-6 3 3 0 000 6zM2 20a6 6 0 0112 0M10 20a6 6 0 0112 0",
-  shield: "M12 2l8 3v6c0 5-3.4 8.5-8 11-4.6-2.5-8-6-8-11V5l8-3z",
+  terminal: "M4 4h16a1 1 0 011 1v14a1 1 0 01-1 1H4a1 1 0 01-1-1V5a1 1 0 011-1zM7 9l3 3-3 3M13 15h4",
+  code: "M8 17l-5-5 5-5M16 7l5 5-5 5M14 3l-4 18",
+  database: "M4 6c0-1.7 3.6-3 8-3s8 1.3 8 3-3.6 3-8 3-8-1.3-8-3zM4 6v6c0 1.7 3.6 3 8 3s8-1.3 8-3V6M4 12v6c0 1.7 3.6 3 8 3s8-1.3 8-3v-6",
+  network: "M6 6a2 2 0 100-4 2 2 0 000 4zM18 6a2 2 0 100-4 2 2 0 000 4zM12 20a2 2 0 100-4 2 2 0 000 4zM7.5 5.3L11 17M16.5 5.3L13 17",
+  rocket: "M12 2c3 2 5 6 5 10 0 2-1 4-2 5l-1 3-2-2-2 2-1-3c-1-1-2-3-2-5 0-4 2-8 5-10zM9 15l-3 1 1-3M15 15l3 1-1-3",
+  chart: "M4 20V10M10 20V4M16 20v-7M22 20V8",
   check: "M20 6L9 17l-5-5",
   arrow: "M5 12h14M13 6l6 6-6 6",
 };
@@ -53,7 +53,7 @@ function levelIndex(id) {
 
 function celebrate() {
   if (window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-  const colors = ["#146c43", "#d4a017", "#0b4a34", "#e8c468"];
+  const colors = ["#f5a623", "#38bdf8", "#a78bfa", "#ffc670"];
   const layer = document.createElement("div");
   layer.className = "confetti-layer";
   for (let i = 0; i < 28; i++) {
@@ -95,7 +95,7 @@ function renderHeader(progress) {
     <header class="site-header">
       <a class="brand" href="#/">
         <img src="../assets/logo.png" alt="" class="brand-icon">
-        <span>AI for Entrepreneurs</span>
+        <span>AI for Advanced</span>
       </a>
       <div class="header-progress">
         <div class="progress-track"><div class="progress-fill" style="width:${pct}%"></div></div>
@@ -111,8 +111,8 @@ function renderDashboard(progress) {
     .map((m, i) => {
       const complete = isLevelComplete(progress, m.id);
       const started = !!progress[m.id];
-      const status = complete ? "Growing!" : started ? "In progress" : "Not started";
-      const accent = ["accent-green", "accent-gold", "accent-forest"][i % 3];
+      const status = complete ? "Shipped!" : started ? "In progress" : "Not started";
+      const accent = ["accent-amber", "accent-cyan", "accent-violet"][i % 3];
       return `
         <a class="level-card ${accent} ${complete ? "is-complete" : ""}" href="#/level/${m.id}">
           <div class="level-card-top">
@@ -131,15 +131,15 @@ function renderDashboard(progress) {
   app.innerHTML = `
     ${renderHeader(progress)}
     <section class="hero">
-      <div class="hero-lines" aria-hidden="true"></div>
+      <div class="hero-glow" aria-hidden="true"></div>
       <div class="hero-inner">
         <img src="../assets/logo.png" alt="" class="hero-logo">
-        <span class="eyebrow">100% free &middot; turn "someday" into a plan</span>
+        <span class="eyebrow">100% free &middot; no CS degree required</span>
         <h1>${COURSE.title}</h1>
         <p class="hero-tagline">${COURSE.tagline}</p>
         <div class="hero-actions">
           <a class="btn btn-primary" href="#/level/${COURSE.levels[0].id}">
-            ${done > 0 ? "Keep growing" : "Start growing"} ${icon("arrow", "cta-arrow")}
+            ${done > 0 ? "Keep shipping" : "Start building"} ${icon("arrow", "cta-arrow")}
           </a>
           ${done === total ? `<a class="btn btn-secondary" href="#/certificate">View your certificate</a>` : ""}
         </div>
@@ -152,7 +152,7 @@ function renderDashboard(progress) {
     <main class="dashboard">
       <h2 class="section-title">Choose your level</h2>
       <div class="level-grid">${cards}</div>
-      <p class="cross-link">New here? <a href="../index.html">Start with AI for Beginners</a>. Skipped a step? <a href="../creators/">Catch up with AI for Creators</a>. ${done === total ? `Ready to go even further? <a href="../advanced/">Try AI for Advanced</a> next.` : ""}</p>
+      <p class="cross-link">New here? <a href="../index.html">Start with AI for Beginners</a>. Skipped a step? <a href="../entrepreneurs/">Catch up with AI for Entrepreneurs</a>. ${done === total ? `You've completed the full I CAN + AI series &mdash; nicely done.` : ""}</p>
     </main>
     ${renderFooter()}
   `;
@@ -369,9 +369,9 @@ function renderCertificate(progress) {
       `
           : `
         <div class="cert-locked">
-          <div class="cert-locked-icon">${icon("shield")}</div>
+          <div class="cert-locked-icon">${icon("rocket")}</div>
           <h1>Your certificate is almost ready</h1>
-          <p>Finish all ${total} level challenges to unlock it. You're at ${done}/${total} so far (${pct}%) &mdash; keep going!</p>
+          <p>Finish all ${total} level challenges to unlock it. You're at ${done}/${total} so far (${pct}%) &mdash; almost there!</p>
           <a class="btn btn-primary" href="#/">Back to levels ${icon("arrow", "cta-arrow")}</a>
         </div>
       `
@@ -381,9 +381,9 @@ function renderCertificate(progress) {
   `;
 
   if (complete) {
-    if (!sessionStorage.getItem("ai4e_celebrated")) {
+    if (!sessionStorage.getItem("ai4a_celebrated")) {
       celebrate();
-      sessionStorage.setItem("ai4e_celebrated", "1");
+      sessionStorage.setItem("ai4a_celebrated", "1");
     }
     const input = document.getElementById("cert-name");
     const display = document.getElementById("cert-name-display");
@@ -398,7 +398,7 @@ function renderCertificate(progress) {
 function renderFooter() {
   return `
     <footer class="site-footer">
-      <p>Free &amp; open AI course for entrepreneurs and business owners. No account, no cost, no data leaves your browser &mdash; progress is saved locally on this device.</p>
+      <p>Free &amp; open AI course for builders ready to ship real, working systems. No account, no cost, no data leaves your browser &mdash; progress is saved locally on this device.</p>
       <button class="reset-link" type="button" data-action="reset-progress">Reset progress</button>
     </footer>
   `;
@@ -410,7 +410,7 @@ document.addEventListener("click", (e) => {
   if (!ok) return;
   localStorage.removeItem(STORAGE_KEY);
   localStorage.removeItem(CERT_KEY);
-  sessionStorage.removeItem("ai4e_celebrated");
+  sessionStorage.removeItem("ai4a_celebrated");
   location.hash = "";
   render();
 });
