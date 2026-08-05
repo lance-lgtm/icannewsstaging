@@ -127,7 +127,7 @@ function renderDashboard(progress) {
     <main class="dashboard">
       <h2 class="section-title">Course modules</h2>
       <div class="module-grid">${cards}</div>
-      <p class="cross-link">Finished the basics? <a href="intermediate/">Try AI for Intermediates</a> next.</p>
+      <p class="cross-link">${done === total ? `Finished the basics? <a href="intermediate/">Try AI for Intermediates</a> next.` : `Complete all ${total} modules to unlock AI for Intermediates.`}</p>
     </main>
     ${renderFooter()}
   `;
