@@ -135,7 +135,7 @@ function renderDashboard(progress) {
       <div class="hero-blobs" aria-hidden="true"></div>
       <div class="hero-inner">
         <img src="../assets/logo.png" alt="" class="hero-logo">
-        <span class="eyebrow">100% free &middot; no grades, just real skills</span>
+        <span class="eyebrow">100% free &middot; every level unlocks something real</span>
         <h1>${COURSE.title}</h1>
         <p class="hero-tagline">${COURSE.tagline}</p>
         <div class="hero-actions">

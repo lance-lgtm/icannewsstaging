@@ -4,7 +4,7 @@
 
 const COURSE = {
   title: "AI for Intermediates",
-  tagline: "You've got the basics down. Now let's put AI to real use — for your job, your business, or just your everyday life. No boring parts, promise.",
+  tagline: "You've got the basics down — that's the hard part behind you. Now let's turn that into real momentum: a lighter workload, sharper work, and a little more room in your day for what matters.",
   levels: [
     {
       id: "prompting-like-a-pro",
@@ -483,6 +483,10 @@ const COURSE = {
             light automation, critical evaluation, and habit-building. The best next step is
             simple: pick one habit from this level and use it for a week before adding another.
             Small, consistent use beats a single big binge every time.</p>
+            <p>Look back at where you started: a chat box and a few basic questions. You're
+            leaving with real, transferable skills that compound &mdash; the more you use them,
+            the more doors they open, at work and beyond it. That's genuinely exciting, and it's
+            entirely yours now.</p>
           `,
         },
       ],

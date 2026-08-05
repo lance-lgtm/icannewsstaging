@@ -5,7 +5,7 @@
 
 const COURSE = {
   title: "AI for Builders",
-  tagline: "You know the moves. Now let's actually build things with AI — a real assistant, a real workflow, something you'll keep using. Still fun. Still not a coding class.",
+  tagline: "You know the moves. Now let's make something that outlasts this browser tab — a real assistant, a real workflow, something genuinely yours that keeps paying off long after today.",
   levels: [
     {
       id: "build-your-first-assistant",
@@ -473,6 +473,11 @@ const COURSE = {
             keep using what you've built. Revisit your assistant in two weeks. Try the
             draft-critique-refine pattern on your next real project. Advanced skills matter far
             more once you have real, everyday habits under you &mdash; and you now do.</p>
+            <p>Take a moment to notice what just happened: you went from asking a chatbot simple
+            questions to actually building something that runs on its own, does real work, and
+            is ready whenever you need it. That's not a small thing. Whatever you build next is
+            entirely up to you now &mdash; and you're more ready for it than you probably
+            realize.</p>
           `,
         },
       ],
