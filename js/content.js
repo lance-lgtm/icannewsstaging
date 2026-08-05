@@ -3,7 +3,7 @@
 
 const COURSE = {
   title: "AI for Beginners",
-  tagline: "A free, no-signup course that teaches anyone how to understand and use AI with confidence.",
+  tagline: "You don't need a technical background or a head start. In a few short lessons, you'll go from uncertain to confident — and start seeing what's possible for you.",
   modules: [
     {
       id: "welcome",
@@ -529,11 +529,15 @@ const COURSE = {
           title: "A simple responsible-use checklist",
           html: `
             <ul>
-              <li>✅ Would I be comfortable if someone saw exactly what I typed into this chat?</li>
-              <li>✅ Have I verified any important facts independently?</li>
-              <li>✅ Am I being transparent about AI's role where it matters?</li>
-              <li>✅ Am I still the one making the final decision?</li>
+              <li>Would I be comfortable if someone saw exactly what I typed into this chat?</li>
+              <li>Have I verified any important facts independently?</li>
+              <li>Am I being transparent about AI's role where it matters?</li>
+              <li>Am I still the one making the final decision?</li>
             </ul>
+            <p>You've just covered, in a single sitting, what many people spend months feeling
+            unsure about. That's not nothing &mdash; it's a real head start. Whatever you build,
+            write, plan, or explore next, you now get to do it with a genuinely capable partner
+            at your side. The rest is just practice.</p>
           `,
         },
       ],

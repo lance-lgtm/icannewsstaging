@@ -134,7 +134,7 @@ function renderDashboard(progress) {
       <div class="hero-grid" aria-hidden="true"></div>
       <div class="hero-inner">
         <img src="../assets/logo.png" alt="" class="hero-logo">
-        <span class="eyebrow">100% free &middot; still no coding, promise</span>
+        <span class="eyebrow">100% free &middot; build something that lasts</span>
         <h1>${COURSE.title}</h1>
         <p class="hero-tagline">${COURSE.tagline}</p>
         <div class="hero-actions">

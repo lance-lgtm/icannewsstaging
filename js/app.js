@@ -109,7 +109,7 @@ function renderDashboard(progress) {
     <section class="hero">
       <div class="hero-inner">
         <img src="assets/logo.png" alt="" class="hero-logo">
-        <span class="eyebrow">100% free &middot; no signup &middot; no coding required</span>
+        <span class="eyebrow">100% free &middot; everyone starts somewhere</span>
         <h1>${COURSE.title}</h1>
         <p class="hero-tagline">${COURSE.tagline}</p>
         <div class="hero-actions">
