@@ -1,8 +1,8 @@
-// App logic for AI for Builders: routing, rendering, progress tracking, celebration burst.
-// No build step, no dependencies — same engine pattern as the other two courses.
+// App logic for AI for Creators: routing, rendering, progress tracking, celebration burst.
+// No build step, no dependencies — same engine pattern as the other courses.
 
-const STORAGE_KEY = "ai4build_progress_v1";
-const CERT_KEY = "ai4build_certificate_name";
+const STORAGE_KEY = "ai4c_progress_v1";
+const CERT_KEY = "ai4c_certificate_name";
 
 function loadProgress() {
   try {
@@ -27,12 +27,12 @@ function courseCompletion(progress) {
 }
 
 const ICONS = {
-  wrench: "M14.7 6.3a4 4 0 00-5.4 5.4L3 18v3h3l6.3-6.3a4 4 0 005.4-5.4l-2.5 2.5-2-2 2.5-2.5z",
-  flow: "M5 6h4a2 2 0 012 2v8a2 2 0 002 2h4M15 4l4 4-4 4M5 18a2 2 0 100-4 2 2 0 000 4z",
-  folder: "M3 7a1 1 0 011-1h5l2 2h9a1 1 0 011 1v9a1 1 0 01-1 1H4a1 1 0 01-1-1V7z",
-  link: "M9 15l6-6M8.5 8.5L6 6a3.5 3.5 0 000 5l1 1M15.5 15.5L18 18a3.5 3.5 0 000-5l-1-1",
-  megaphone: "M3 11v2a1 1 0 001 1h2l4 4V6L6 10H4a1 1 0 00-1 1zM15 8a4 4 0 010 8M18 5a8 8 0 010 14",
-  telescope: "M4 20l6-4M9 16L20 9l-3-3-11 8 3 2zM9 16l-2 4M18 5l2 2",
+  spark: "M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8L12 3z",
+  image: "M4 5h16a1 1 0 011 1v12a1 1 0 01-1 1H4a1 1 0 01-1-1V6a1 1 0 011-1zM8 11a2 2 0 100-4 2 2 0 000 4zM3 17l5-5 4 4 3-3 6 6",
+  clapper: "M3 9l1-4h4l-1 4M9 9l1-4h4l-1 4M15 9l1-4h4l-1 4M3 9h18v10a1 1 0 01-1 1H4a1 1 0 01-1-1V9z",
+  palette: "M12 3a9 9 0 000 18c1.1 0 2-.9 2-2 0-.5-.2-1-.5-1.4-.3-.4-.5-.8-.5-1.3 0-1 .8-1.8 1.8-1.8H17a4 4 0 004-4c0-4.4-4-7.5-9-7.5zM7 12a1.3 1.3 0 110-2.6 1.3 1.3 0 010 2.6zM9.5 8a1.3 1.3 0 110-2.6A1.3 1.3 0 019.5 8zM14.5 8a1.3 1.3 0 110-2.6 1.3 1.3 0 010 2.6zM17 12a1.3 1.3 0 110-2.6 1.3 1.3 0 010 2.6z",
+  pen: "M4 20l4-1 11-11-3-3L5 16l-1 4zM14 5l3 3",
+  stack: "M12 3l9 5-9 5-9-5 9-5zM3 13l9 5 9-5M3 17l9 5 9-5",
   check: "M20 6L9 17l-5-5",
   arrow: "M5 12h14M13 6l6 6-6 6",
 };
@@ -53,7 +53,7 @@ function levelIndex(id) {
 
 function celebrate() {
   if (window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-  const colors = ["#2e5eff", "#a8e10c", "#ff5c8a", "#5b8bff"];
+  const colors = ["#d6336c", "#f7a400", "#6b2d5c", "#ff7aa8"];
   const layer = document.createElement("div");
   layer.className = "confetti-layer";
   for (let i = 0; i < 28; i++) {
@@ -95,7 +95,7 @@ function renderHeader(progress) {
     <header class="site-header">
       <a class="brand" href="#/">
         <img src="../assets/logo.png" alt="" class="brand-icon">
-        <span>AI for Builders</span>
+        <span>AI for Creators</span>
       </a>
       <div class="header-progress">
         <div class="progress-track"><div class="progress-fill" style="width:${pct}%"></div></div>
@@ -111,8 +111,8 @@ function renderDashboard(progress) {
     .map((m, i) => {
       const complete = isLevelComplete(progress, m.id);
       const started = !!progress[m.id];
-      const status = complete ? "Built it!" : started ? "In progress" : "Not started";
-      const accent = ["accent-blue", "accent-lime", "accent-pink"][i % 3];
+      const status = complete ? "Made it!" : started ? "In progress" : "Not started";
+      const accent = ["accent-magenta", "accent-gold", "accent-plum"][i % 3];
       return `
         <a class="level-card ${accent} ${complete ? "is-complete" : ""}" href="#/level/${m.id}">
           <div class="level-card-top">
@@ -131,28 +131,28 @@ function renderDashboard(progress) {
   app.innerHTML = `
     ${renderHeader(progress)}
     <section class="hero">
-      <div class="hero-grid" aria-hidden="true"></div>
+      <div class="hero-glow" aria-hidden="true"></div>
       <div class="hero-inner">
         <img src="../assets/logo.png" alt="" class="hero-logo">
-        <span class="eyebrow">100% free &middot; still no coding, promise</span>
+        <span class="eyebrow">100% free &middot; your ideas deserve an audience</span>
         <h1>${COURSE.title}</h1>
         <p class="hero-tagline">${COURSE.tagline}</p>
         <div class="hero-actions">
           <a class="btn btn-primary" href="#/level/${COURSE.levels[0].id}">
-            ${done > 0 ? "Keep building" : "Start building"} ${icon("arrow", "cta-arrow")}
+            ${done > 0 ? "Keep creating" : "Start creating"} ${icon("arrow", "cta-arrow")}
           </a>
           ${done === total ? `<a class="btn btn-secondary" href="#/certificate">View your certificate</a>` : ""}
         </div>
         <div class="hero-progress">
           <div class="progress-track large"><div class="progress-fill" style="width:${pct}%"></div></div>
-          <span>${pct}% built</span>
+          <span>${pct}% created</span>
         </div>
       </div>
     </section>
     <main class="dashboard">
       <h2 class="section-title">Choose your level</h2>
       <div class="level-grid">${cards}</div>
-      <p class="cross-link">New here? <a href="../index.html">Start with AI for Beginners</a>. Skipped a step? <a href="../intermediate/">Catch up with AI for Intermediates</a>. ${done === total ? `Ready for more? <a href="../creators/">Try AI for Creators</a> next.` : ""}</p>
+      <p class="cross-link">New here? <a href="../index.html">Start with AI for Beginners</a>. Skipped a step? <a href="../builders/">Catch up with AI for Builders</a>. ${done === total ? `Ready for more? <a href="../entrepreneurs/">Try AI for Entrepreneurs</a> next.` : ""}</p>
     </main>
     ${renderFooter()}
   `;
@@ -369,9 +369,9 @@ function renderCertificate(progress) {
       `
           : `
         <div class="cert-locked">
-          <div class="cert-locked-icon">${icon("telescope")}</div>
+          <div class="cert-locked-icon">${icon("spark")}</div>
           <h1>Your certificate is almost ready</h1>
-          <p>Finish all ${total} level challenges to unlock it. You're at ${done}/${total} so far (${pct}%) &mdash; keep building!</p>
+          <p>Finish all ${total} level challenges to unlock it. You're at ${done}/${total} so far (${pct}%) &mdash; keep making things!</p>
           <a class="btn btn-primary" href="#/">Back to levels ${icon("arrow", "cta-arrow")}</a>
         </div>
       `
@@ -381,9 +381,9 @@ function renderCertificate(progress) {
   `;
 
   if (complete) {
-    if (!sessionStorage.getItem("ai4build_celebrated")) {
+    if (!sessionStorage.getItem("ai4c_celebrated")) {
       celebrate();
-      sessionStorage.setItem("ai4build_celebrated", "1");
+      sessionStorage.setItem("ai4c_celebrated", "1");
     }
     const input = document.getElementById("cert-name");
     const display = document.getElementById("cert-name-display");
@@ -398,7 +398,7 @@ function renderCertificate(progress) {
 function renderFooter() {
   return `
     <footer class="site-footer">
-      <p>Free &amp; open AI course for people who want to build real things. No account, no cost, no data leaves your browser &mdash; progress is saved locally on this device.</p>
+      <p>Free &amp; open AI course for creators. No account, no cost, no data leaves your browser &mdash; progress is saved locally on this device.</p>
       <button class="reset-link" type="button" data-action="reset-progress">Reset progress</button>
     </footer>
   `;
@@ -410,7 +410,7 @@ document.addEventListener("click", (e) => {
   if (!ok) return;
   localStorage.removeItem(STORAGE_KEY);
   localStorage.removeItem(CERT_KEY);
-  sessionStorage.removeItem("ai4build_celebrated");
+  sessionStorage.removeItem("ai4c_celebrated");
   location.hash = "";
   render();
 });
