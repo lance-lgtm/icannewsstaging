@@ -399,9 +399,21 @@ function renderFooter() {
   return `
     <footer class="site-footer">
       <p>Free &amp; open AI course for people who want to build real things. No account, no cost, no data leaves your browser &mdash; progress is saved locally on this device.</p>
+      <button class="reset-link" type="button" data-action="reset-progress">Reset progress</button>
     </footer>
   `;
 }
+
+document.addEventListener("click", (e) => {
+  if (!e.target.closest('[data-action="reset-progress"]')) return;
+  const ok = confirm("Reset all your progress on this course? This can't be undone.");
+  if (!ok) return;
+  localStorage.removeItem(STORAGE_KEY);
+  localStorage.removeItem(CERT_KEY);
+  sessionStorage.removeItem("ai4build_celebrated");
+  location.hash = "";
+  render();
+});
 
 window.addEventListener("hashchange", render);
 window.addEventListener("DOMContentLoaded", render);
