@@ -1,0 +1,64 @@
+/* Admin view — reuses the base pink theme, adds list/table styling */
+
+.admin-page { max-width: 640px; }
+
+.admin-toolbar {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+}
+.admin-toolbar h2 { margin: 0; }
+.admin-toolbar .link-btn { padding: 0; }
+
+.booking-day {
+  margin: 18px 0 10px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--pink-700);
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 6px;
+}
+
+.booking-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 12px 0;
+  border-bottom: 1px dashed var(--border);
+}
+.booking-row.cancelled { opacity: 0.5; }
+
+.booking-time {
+  font-weight: 700;
+  min-width: 52px;
+}
+
+.booking-info { flex: 1; font-size: 0.9rem; }
+.booking-info .b-name { font-weight: 700; }
+.booking-info .b-kana,
+.booking-info .b-phone,
+.booking-info .b-note { color: var(--muted); font-size: 0.82rem; }
+.booking-info .b-status-tag {
+  display: inline-block;
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: var(--danger-bg);
+  color: var(--danger);
+  margin-top: 4px;
+}
+
+.cancel-btn {
+  border: 1px solid var(--danger);
+  color: var(--danger);
+  background: #fff;
+  border-radius: 8px;
+  padding: 6px 10px;
+  font-size: 0.78rem;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.cancel-btn:disabled { opacity: 0.5; cursor: wait; }

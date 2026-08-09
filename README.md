@@ -41,3 +41,9 @@ This is a static site, so it can be hosted at no cost on **GitHub Pages**:
 
 It also deploys as-is on Netlify, Vercel, or Cloudflare Pages by pointing
 them at the repository root — no build command needed.
+
+## Also in this repo
+
+- **[`reservation/`](reservation/)** — a bilingual (JA/EN) appointment
+  booking system for Dr. Keiko Lee at the Saiseikai Chuo Hospital Kenshin
+  Center. See `reservation/README.md` for setup.

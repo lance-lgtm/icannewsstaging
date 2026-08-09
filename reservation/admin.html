@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+  <title>予約一覧（スタッフ用） / Bookings (Staff)</title>
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="theme-color" content="#9c2354">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/admin.css">
+</head>
+<body>
+  <div class="page admin-page">
+    <header class="site-header">
+      <div class="clinic-name">
+        <p class="jp">予約一覧（スタッフ用）</p>
+        <p class="en">Bookings — Staff View</p>
+      </div>
+    </header>
+
+    <main>
+      <section id="login-card" class="card">
+        <h2><span class="jp">管理者キーを入力してください</span><span class="en">Enter Admin Key</span></h2>
+        <div class="field">
+          <label for="admin-key">
+            <span class="jp">管理者キー</span>
+            <span class="en">Admin Key</span>
+          </label>
+          <input type="password" id="admin-key" autocomplete="off">
+        </div>
+        <div id="login-error" class="form-error" role="alert" hidden></div>
+        <button type="button" id="login-btn" class="btn-primary">
+          <span class="jp">開く</span><span class="en">Open</span>
+        </button>
+      </section>
+
+      <section id="list-card" class="card" hidden>
+        <div class="admin-toolbar">
+          <h2><span class="jp">予約一覧</span><span class="en">Upcoming Bookings</span></h2>
+          <button type="button" id="refresh-btn" class="link-btn">
+            <span class="jp">更新</span><span class="en">Refresh</span>
+          </button>
+        </div>
+        <div id="list-status" class="status-msg"></div>
+        <div id="bookings-list"></div>
+      </section>
+    </main>
+  </div>
+
+  <script src="js/config.js"></script>
+  <script src="js/admin.js"></script>
+</body>
+</html>
