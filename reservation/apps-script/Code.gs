@@ -73,6 +73,36 @@ function setup() {
     }
   }
 
+  // Force these columns to plain text so Sheets never auto-converts a
+  // date/time-looking string ("2026-08-13", "15:00") into a real Date
+  // value on write — which reads back as garbled ISO timestamps.
+  const textColumns = [2, 3, 4, 11]; // CreatedAt, Date, Time, CancelledAt
+  const formatRows = Math.max(bookings.getMaxRows() - 1, 1);
+  textColumns.forEach((col) => {
+    bookings.getRange(2, col, formatRows, 1).setNumberFormat("@");
+  });
+
+  // Repair any rows already corrupted by that auto-conversion (e.g. from
+  // before this fix, or a manual edit in the Sheet UI).
+  const lastRow = bookings.getLastRow();
+  if (lastRow >= 2) {
+    const range = bookings.getRange(2, 1, lastRow - 1, BOOKINGS_HEADERS.length);
+    const values = range.getValues();
+    let repaired = 0;
+    values.forEach((row) => {
+      const before = JSON.stringify([row[1], row[2], row[3], row[10]]);
+      row[1] = normalizeTimestampCell(row[1]);
+      row[2] = formatDateCell(row[2]);
+      row[3] = normalizeTimeCell(row[3]);
+      row[10] = row[10] ? normalizeTimestampCell(row[10]) : row[10];
+      if (JSON.stringify([row[1], row[2], row[3], row[10]]) !== before) repaired++;
+    });
+    range.setValues(values);
+    if (repaired > 0) {
+      Logger.log("Repaired " + repaired + " row(s) with auto-converted dates/times.");
+    }
+  }
+
   let closed = ss.getSheetByName(CLOSED_SHEET);
   if (!closed) closed = ss.insertSheet(CLOSED_SHEET);
   if (closed.getLastRow() === 0) {
@@ -150,9 +180,9 @@ function handleList(key) {
     if (!row[0]) continue;
     bookings.push({
       id: row[0],
-      createdAt: row[1],
-      date: row[2],
-      time: row[3],
+      createdAt: normalizeTimestampCell(row[1]),
+      date: formatDateCell(row[2]),
+      time: normalizeTimeCell(row[3]),
       blocks: Number(row[4]) || 1,
       name: row[5],
       kana: row[6],
@@ -274,9 +304,9 @@ function getTakenTimesForDate(dateStr) {
   const taken = new Set();
   for (let i = 1; i < rows.length; i++) {
     const row = rows[i];
-    if (row[2] === dateStr && row[9] === "booked") {
+    if (formatDateCell(row[2]) === dateStr && row[9] === "booked") {
       const blocks = Math.max(1, Number(row[4]) || 1);
-      expandSlotTimes(row[3], blocks).forEach((t) => taken.add(t));
+      expandSlotTimes(normalizeTimeCell(row[3]), blocks).forEach((t) => taken.add(t));
     }
   }
   return taken;
@@ -346,6 +376,20 @@ function isPastDateTime(dateStr, timeStr) {
 function formatDateCell(value) {
   if (value instanceof Date) {
     return Utilities.formatDate(value, TIMEZONE, "yyyy-MM-dd");
+  }
+  return String(value);
+}
+
+function normalizeTimeCell(value) {
+  if (value instanceof Date) {
+    return Utilities.formatDate(value, TIMEZONE, "HH:mm");
+  }
+  return String(value);
+}
+
+function normalizeTimestampCell(value) {
+  if (value instanceof Date) {
+    return Utilities.formatDate(value, TIMEZONE, "yyyy-MM-dd HH:mm:ss");
   }
   return String(value);
 }
