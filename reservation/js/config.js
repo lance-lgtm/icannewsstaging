@@ -5,7 +5,7 @@
 // works out of the box.
 const CONFIG = {
   // Example: "https://script.google.com/macros/s/AKfycb.../exec"
-  APPS_SCRIPT_URL: "PASTE_YOUR_APPS_SCRIPT_WEB_APP_URL_HERE",
+  APPS_SCRIPT_URL: "https://script.google.com/macros/s/AKfycbywYlm2tmPqxvr7qxSsuKYgvVPLdSnII4OhQF5hJjV-4W5Mo0J8I2jSGJy7obs2xAVb/exec",
 
   CLINIC: {
     nameJa: "済生会中央病院　健診センター",
