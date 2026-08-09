@@ -91,6 +91,23 @@ system, so don't share the admin URL or key outside clinic staff. For
 anything beyond quick front-desk lookups, staff can also open the Google
 Sheet directly.
 
+### Adding a booking or blocking off time
+
+The same staff page has an **Add Booking / Block Time** form for cases
+the online patient flow can't handle on its own:
+
+- A patient needs a longer visit — 20 or 30 minutes (2 or 3 consecutive
+  10-minute blocks) instead of the usual single slot.
+- Staff just want to hold a chunk of time with no real patient (e.g. a
+  break or a meeting) — put a label like "Blocked - staff meeting" in
+  the Name field and leave phone blank.
+
+Pick the date, start time, and duration (1–3 blocks), fill in a name,
+and submit. All of the covered 10-minute slots are reserved together as
+one entry — patients booking online will see every one of them as
+unavailable, and cancelling it from the list below frees all of them at
+once.
+
 ## Design notes
 
 - **Bilingual by default**: every label shows Japanese first with

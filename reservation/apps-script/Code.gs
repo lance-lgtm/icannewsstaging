@@ -13,9 +13,15 @@
  *      runtime, nothing to paste there).
  *
  * Sheet layout (created automatically by setup()):
- *   Bookings:    BookingID | CreatedAt | Date | Time | Name | Furigana |
- *                Phone | Note | Status | CancelledAt
+ *   Bookings:    BookingID | CreatedAt | Date | Time | Blocks | Name |
+ *                Furigana | Phone | Note | Status | CancelledAt
  *   ClosedDates: Date | Reason
+ *
+ * "Blocks" is how many consecutive 10-minute slots a booking occupies
+ * (1 = 10 min, 2 = 20 min, 3 = 30 min). Patients booking online always
+ * get Blocks = 1; staff can create longer bookings (or pure time blocks
+ * with no real patient) from the admin page for visits that need more
+ * than one slot.
  *
  * Keep SESSIONS / SLOT_MINUTES / OPEN_WEEKDAYS below in sync with
  * reservation/js/config.js if the clinic's hours ever change.
@@ -26,6 +32,7 @@ const SESSIONS = [
   { id: "pm", start: "14:00", end: "17:00" },
 ];
 const SLOT_MINUTES = 10;
+const MAX_BLOCKS = 6; // staff can reserve up to 6 x 10min = 60 min at once
 const OPEN_WEEKDAYS = [3, 5]; // Wed, Fri
 const TIMEZONE = "Asia/Tokyo";
 
@@ -36,6 +43,7 @@ const BOOKINGS_HEADERS = [
   "CreatedAt",
   "Date",
   "Time",
+  "Blocks",
   "Name",
   "Furigana",
   "Phone",
@@ -54,6 +62,15 @@ function setup() {
   if (bookings.getLastRow() === 0) {
     bookings.appendRow(BOOKINGS_HEADERS);
     bookings.setFrozenRows(1);
+  } else {
+    const headerRow = bookings.getRange(1, 1, 1, bookings.getLastColumn()).getValues()[0];
+    if (headerRow.indexOf("Blocks") === -1) {
+      Logger.log(
+        "This sheet predates the 'Blocks' column (multi-slot bookings). " +
+        "Insert a new column called 'Blocks' between 'Time' and 'Name', " +
+        "then fill existing rows with 1. See reservation/README.md."
+      );
+    }
   }
 
   let closed = ss.getSheetByName(CLOSED_SHEET);
@@ -97,6 +114,7 @@ function doPost(e) {
 
   try {
     if (body.action === "book") return jsonOut(handleBook(body));
+    if (body.action === "adminBook") return jsonOut(handleAdminBook(body));
     if (body.action === "cancel") return jsonOut(handleCancel(body));
     return jsonOut({ ok: false, error: "unknown_action" });
   } catch (err) {
@@ -108,16 +126,8 @@ function doPost(e) {
 
 function handleSlots(dateStr) {
   if (!isValidDateFormat(dateStr)) return { error: "invalid_date" };
-  const sheet = getSheet(BOOKINGS_SHEET);
-  const rows = sheet.getDataRange().getValues();
-  const taken = [];
-  for (let i = 1; i < rows.length; i++) {
-    const row = rows[i];
-    if (row[2] === dateStr && row[8] === "booked") {
-      taken.push(row[3]);
-    }
-  }
-  return { date: dateStr, taken: taken };
+  const taken = getTakenTimesForDate(dateStr);
+  return { date: dateStr, taken: Array.from(taken) };
 }
 
 function handleClosedDates() {
@@ -143,11 +153,12 @@ function handleList(key) {
       createdAt: row[1],
       date: row[2],
       time: row[3],
-      name: row[4],
-      kana: row[5],
-      phone: row[6],
-      note: row[7],
-      status: row[8],
+      blocks: Number(row[4]) || 1,
+      name: row[5],
+      kana: row[6],
+      phone: row[7],
+      note: row[8],
+      status: row[9],
     });
   }
   bookings.sort((a, b) => (a.date + a.time).localeCompare(b.date + b.time));
@@ -173,16 +184,57 @@ function handleBook(body) {
   const lock = LockService.getScriptLock();
   lock.waitLock(15000);
   try {
+    const taken = getTakenTimesForDate(date);
+    if (taken.has(time)) return { ok: false, error: "taken" };
+
     const sheet = getSheet(BOOKINGS_SHEET);
-    const rows = sheet.getDataRange().getValues();
-    for (let i = 1; i < rows.length; i++) {
-      if (rows[i][2] === date && rows[i][3] === time && rows[i][8] === "booked") {
-        return { ok: false, error: "taken" };
-      }
-    }
     const id = Utilities.getUuid();
     const createdAt = Utilities.formatDate(new Date(), TIMEZONE, "yyyy-MM-dd HH:mm:ss");
-    sheet.appendRow([id, createdAt, date, time, name, kana, phone, note, "booked", ""]);
+    sheet.appendRow([id, createdAt, date, time, 1, name, kana, phone, note, "booked", ""]);
+    return { ok: true, bookingId: id };
+  } finally {
+    lock.releaseLock();
+  }
+}
+
+/**
+ * Staff-only: reserve one or more consecutive 10-minute slots at once.
+ * Used for patients who need a longer visit (e.g. 3 blocks = 30 min), or
+ * to simply block off time with no real patient (name can be a label
+ * like "Blocked - staff meeting").
+ */
+function handleAdminBook(body) {
+  if (!isAdmin(body.key)) return { ok: false, error: "unauthorized" };
+
+  const date = String(body.date || "").trim();
+  const time = String(body.time || "").trim();
+  const blocks = Math.min(MAX_BLOCKS, Math.max(1, Math.round(Number(body.blocks)) || 1));
+  const name = String(body.name || "").trim().slice(0, 100);
+  const kana = String(body.kana || "").trim().slice(0, 100);
+  const phone = String(body.phone || "").trim().slice(0, 30);
+  const note = String(body.note || "").trim().slice(0, 500);
+
+  if (!name) return { ok: false, error: "missing_fields" };
+  if (!isValidDateFormat(date)) return { ok: false, error: "invalid_date" };
+  if (!isClinicOpenDate(date)) return { ok: false, error: "closed_date" };
+
+  const requestedTimes = expandSlotTimes(time, blocks);
+  for (const t of requestedTimes) {
+    if (!isValidSlotTime(t)) return { ok: false, error: "out_of_range" };
+  }
+
+  const lock = LockService.getScriptLock();
+  lock.waitLock(15000);
+  try {
+    const taken = getTakenTimesForDate(date);
+    for (const t of requestedTimes) {
+      if (taken.has(t)) return { ok: false, error: "taken" };
+    }
+
+    const sheet = getSheet(BOOKINGS_SHEET);
+    const id = Utilities.getUuid();
+    const createdAt = Utilities.formatDate(new Date(), TIMEZONE, "yyyy-MM-dd HH:mm:ss");
+    sheet.appendRow([id, createdAt, date, time, blocks, name, kana, phone, note, "booked", ""]);
     return { ok: true, bookingId: id };
   } finally {
     lock.releaseLock();
@@ -202,8 +254,8 @@ function handleCancel(body) {
     for (let i = 1; i < rows.length; i++) {
       if (rows[i][0] === id) {
         const cancelledAt = Utilities.formatDate(new Date(), TIMEZONE, "yyyy-MM-dd HH:mm:ss");
-        sheet.getRange(i + 1, 9).setValue("cancelled"); // Status column
-        sheet.getRange(i + 1, 10).setValue(cancelledAt); // CancelledAt column
+        sheet.getRange(i + 1, 10).setValue("cancelled"); // Status column
+        sheet.getRange(i + 1, 11).setValue(cancelledAt); // CancelledAt column
         return { ok: true };
       }
     }
@@ -211,6 +263,34 @@ function handleCancel(body) {
   } finally {
     lock.releaseLock();
   }
+}
+
+// ---------- Shared helpers ----------
+
+/** Every 10-minute slot time currently occupied by an active booking on a date. */
+function getTakenTimesForDate(dateStr) {
+  const sheet = getSheet(BOOKINGS_SHEET);
+  const rows = sheet.getDataRange().getValues();
+  const taken = new Set();
+  for (let i = 1; i < rows.length; i++) {
+    const row = rows[i];
+    if (row[2] === dateStr && row[9] === "booked") {
+      const blocks = Math.max(1, Number(row[4]) || 1);
+      expandSlotTimes(row[3], blocks).forEach((t) => taken.add(t));
+    }
+  }
+  return taken;
+}
+
+/** Given a start time and a block count, list every 10-minute slot it covers. */
+function expandSlotTimes(startTime, blocks) {
+  const out = [];
+  let m = toMinutes(startTime);
+  for (let i = 0; i < blocks; i++) {
+    out.push(pad2(Math.floor(m / 60)) + ":" + pad2(m % 60));
+    m += SLOT_MINUTES;
+  }
+  return out;
 }
 
 // ---------- Validation helpers ----------
