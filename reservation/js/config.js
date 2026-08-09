@@ -12,10 +12,9 @@ const CONFIG = {
     nameEn: "Saiseikai Chuo Hospital Kenshin Center",
     doctorJa: "リー　啓子　医師",
     doctorEn: "Dr. Keiko Lee",
-    // TODO: replace with the real clinic address / phone when provided.
-    addressJa: "住所は後日追加されます",
-    addressEn: "Address to be added",
-    phone: "",
+    addressJa: "〒108-0073 東京都港区三田１丁目４−17",
+    addressEn: "1-4-17 Mita, Minato-ku, Tokyo 108-0073",
+    phone: "03-3451-8211",
   },
 
   // Clinic is open Wednesdays (3) and Fridays (5) only.
