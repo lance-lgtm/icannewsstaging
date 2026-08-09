@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+  <title>ご予約 / Book an Appointment — リー啓子医師 Dr. Keiko Lee</title>
+  <meta name="description" content="済生会中央病院 健診センター リー啓子医師の予約ページ / Appointment booking for Dr. Keiko Lee at Saiseikai Chuo Hospital Kenshin Center">
+  <meta name="theme-color" content="#e8447f">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div class="page">
+    <header class="site-header">
+      <!-- LOGO PLACEHOLDER: swap this SVG for <img class="logo" src="../assets/lee-clinic-logo.png" alt="Lee Medical Clinic"> once the logo is ready -->
+      <div class="logo" aria-hidden="true">
+        <svg viewBox="0 0 48 48" width="40" height="40" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="24" cy="24" r="24" fill="#fff0f6"/>
+          <path d="M24 12v24M12 24h24" stroke="#e8447f" stroke-width="5" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <div class="clinic-name">
+        <p class="jp">済生会中央病院　健診センター</p>
+        <p class="en">Saiseikai Chuo Hospital Kenshin Center</p>
+        <p class="doctor"><span class="jp">リー　啓子　医師　予約受付</span><span class="en">Dr. Keiko Lee — Appointment Booking</span></p>
+      </div>
+    </header>
+
+    <main id="main">
+      <div id="offline-banner" class="banner" hidden>
+        <p class="jp">現在、予約システムを準備中です。しばらくしてから再度お試しください。</p>
+        <p class="en">The booking system is being set up right now. Please check back soon.</p>
+      </div>
+
+      <ol class="progress" aria-hidden="true">
+        <li id="progress-1" class="active">1</li>
+        <li id="progress-2">2</li>
+        <li id="progress-3">3</li>
+        <li id="progress-4">4</li>
+      </ol>
+
+      <section id="step-date" class="card step">
+        <h2><span class="jp">①日付を選択</span><span class="en">Step 1 · Select a Date</span></h2>
+        <p class="note"><span class="jp">診療日：毎週水曜日・金曜日</span><span class="en">Clinic days: Wednesdays &amp; Fridays only</span></p>
+        <div id="date-status" class="status-msg">
+          <span class="jp">日付を読み込み中…</span><span class="en">Loading available dates…</span>
+        </div>
+        <div id="date-list" class="date-scroll" role="listbox" aria-label="Select a date"></div>
+      </section>
+
+      <section id="step-time" class="card step" hidden>
+        <h2><span class="jp">②時間を選択</span><span class="en">Step 2 · Select a Time</span></h2>
+        <p class="note" id="selected-date-label"></p>
+        <button type="button" class="link-btn" data-action="back-to-date">
+          <span class="jp">← 日付を変更</span><span class="en">← Change date</span>
+        </button>
+        <div id="slot-status" class="status-msg">
+          <span class="jp">空き状況を確認中…</span><span class="en">Checking availability…</span>
+        </div>
+        <div class="slot-group">
+          <h3><span class="jp">午前</span><span class="en">Morning</span> <span class="session-range">10:00–13:00</span></h3>
+          <div id="slots-am" class="slot-grid"></div>
+        </div>
+        <div class="slot-group">
+          <h3><span class="jp">午後</span><span class="en">Afternoon</span> <span class="session-range">14:00–17:00</span></h3>
+          <div id="slots-pm" class="slot-grid"></div>
+        </div>
+      </section>
+
+      <section id="step-form" class="card step" hidden>
+        <h2><span class="jp">③お客様情報の入力</span><span class="en">Step 3 · Your Information</span></h2>
+        <div id="selection-summary" class="selection-summary"></div>
+        <button type="button" class="link-btn" data-action="back-to-time">
+          <span class="jp">← 時間を変更</span><span class="en">← Change time</span>
+        </button>
+
+        <form id="booking-form" novalidate>
+          <div class="field">
+            <label for="patient-name">
+              <span class="jp">お名前<span class="required">必須</span></span>
+              <span class="en">Full Name (required)</span>
+            </label>
+            <input type="text" id="patient-name" name="name" autocomplete="name" required>
+          </div>
+
+          <div class="field">
+            <label for="patient-kana">
+              <span class="jp">フリガナ<span class="optional">任意</span></span>
+              <span class="en">Furigana (optional)</span>
+            </label>
+            <input type="text" id="patient-kana" name="kana" autocomplete="off">
+          </div>
+
+          <div class="field">
+            <label for="patient-phone">
+              <span class="jp">電話番号<span class="required">必須</span></span>
+              <span class="en">Phone Number (required)</span>
+            </label>
+            <input type="tel" id="patient-phone" name="phone" autocomplete="tel" inputmode="tel" required placeholder="090-1234-5678">
+          </div>
+
+          <div class="field">
+            <label for="patient-note">
+              <span class="jp">症状・ご要望<span class="optional">任意</span></span>
+              <span class="en">Symptoms / Requests (optional)</span>
+            </label>
+            <textarea id="patient-note" name="note" rows="3"></textarea>
+          </div>
+
+          <div id="form-error" class="form-error" role="alert" hidden></div>
+
+          <button type="submit" id="submit-btn" class="btn-primary">
+            <span class="jp">この内容で予約する</span><span class="en">Confirm Booking</span>
+          </button>
+        </form>
+      </section>
+
+      <section id="step-confirm" class="card step" hidden>
+        <div class="confirm-icon" aria-hidden="true">
+          <svg viewBox="0 0 48 48" width="56" height="56" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="24" cy="24" r="24" fill="#ffe4ee"/>
+            <path d="M14 25l7 7 13-15" stroke="#c22f66" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+        <h2><span class="jp">ご予約が完了しました</span><span class="en">Booking Confirmed</span></h2>
+        <div id="confirm-details" class="confirm-details"></div>
+        <p class="note">
+          <span class="jp">診療開始の10分前までにお越しください。</span>
+          <span class="en">Please arrive at least 10 minutes before your appointment.</span>
+        </p>
+        <button type="button" id="book-another-btn" class="btn-secondary">
+          <span class="jp">別の予約を追加する</span><span class="en">Book Another Appointment</span>
+        </button>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <p class="jp">済生会中央病院　健診センター</p>
+      <p class="en">Saiseikai Chuo Hospital Kenshin Center</p>
+      <p id="footer-address"></p>
+    </footer>
+  </div>
+
+  <script src="js/config.js"></script>
+  <script src="js/booking.js"></script>
+</body>
+</html>

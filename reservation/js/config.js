@@ -1,0 +1,36 @@
+// Dr. Lee Reservation System — configuration
+//
+// After you deploy the Google Apps Script backend (see
+// reservation/README.md), paste the Web App URL below. Everything else
+// works out of the box.
+const CONFIG = {
+  // Example: "https://script.google.com/macros/s/AKfycb.../exec"
+  APPS_SCRIPT_URL: "PASTE_YOUR_APPS_SCRIPT_WEB_APP_URL_HERE",
+
+  CLINIC: {
+    nameJa: "済生会中央病院　健診センター",
+    nameEn: "Saiseikai Chuo Hospital Kenshin Center",
+    doctorJa: "リー　啓子　医師",
+    doctorEn: "Dr. Keiko Lee",
+    // TODO: replace with the real clinic address / phone when provided.
+    addressJa: "住所は後日追加されます",
+    addressEn: "Address to be added",
+    phone: "",
+  },
+
+  // Clinic is open Wednesdays (3) and Fridays (5) only.
+  OPEN_WEEKDAYS: [3, 5],
+
+  // Two sessions, 10-minute slots, last slot leaves room to finish by the
+  // session end time (e.g. last morning slot is 12:50–13:00).
+  SESSIONS: [
+    { id: "am", labelJa: "午前", labelEn: "Morning", start: "10:00", end: "13:00" },
+    { id: "pm", labelJa: "午後", labelEn: "Afternoon", start: "14:00", end: "17:00" },
+  ],
+  SLOT_MINUTES: 10,
+
+  // How many weeks of upcoming Wed/Fri dates to offer.
+  WEEKS_AHEAD: 8,
+
+  TIMEZONE: "Asia/Tokyo",
+};

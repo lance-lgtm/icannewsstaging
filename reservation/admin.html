@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+  <title>予約一覧（スタッフ用） / Bookings (Staff)</title>
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="theme-color" content="#9c2354">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/admin.css">
+</head>
+<body>
+  <div class="page admin-page">
+    <header class="site-header">
+      <div class="clinic-name">
+        <p class="jp">予約一覧（スタッフ用）</p>
+        <p class="en">Bookings — Staff View</p>
+      </div>
+    </header>
+
+    <main>
+      <section id="login-card" class="card">
+        <h2><span class="jp">管理者キーを入力してください</span><span class="en">Enter Admin Key</span></h2>
+        <div class="field">
+          <label for="admin-key">
+            <span class="jp">管理者キー</span>
+            <span class="en">Admin Key</span>
+          </label>
+          <input type="password" id="admin-key" autocomplete="off">
+        </div>
+        <div id="login-error" class="form-error" role="alert" hidden></div>
+        <button type="button" id="login-btn" class="btn-primary">
+          <span class="jp">開く</span><span class="en">Open</span>
+        </button>
+      </section>
+
+      <section id="add-booking-card" class="card" hidden>
+        <h2><span class="jp">予約・時間ブロックを追加</span><span class="en">Add Booking / Block Time</span></h2>
+        <p class="note">
+          <span class="jp">患者様が2〜3枠（20〜30分）必要な場合や、時間を確保したい場合にご利用ください。</span>
+          <span class="en">Use this for patients needing 2–3 blocks (20–30 min), or to simply hold time with no patient.</span>
+        </p>
+        <form id="add-booking-form" novalidate>
+          <div class="field-row">
+            <div class="field">
+              <label for="ab-date"><span class="jp">日付</span><span class="en">Date</span></label>
+              <input type="date" id="ab-date" required>
+            </div>
+            <div class="field">
+              <label for="ab-time"><span class="jp">開始時刻</span><span class="en">Start Time</span></label>
+              <select id="ab-time" required></select>
+            </div>
+          </div>
+          <div class="field">
+            <label for="ab-blocks"><span class="jp">枠数</span><span class="en">Duration</span></label>
+            <select id="ab-blocks">
+              <option value="1">1枠（10分）/ 1 block (10 min)</option>
+              <option value="2">2枠（20分）/ 2 blocks (20 min)</option>
+              <option value="3">3枠（30分）/ 3 blocks (30 min)</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="ab-name">
+              <span class="jp">お名前<span class="required">必須</span></span>
+              <span class="en">Name (required)</span>
+            </label>
+            <input type="text" id="ab-name" placeholder="田中太郎 / or e.g. Blocked - staff meeting" required>
+          </div>
+          <div class="field">
+            <label for="ab-kana"><span class="jp">フリガナ<span class="optional">任意</span></span><span class="en">Furigana (optional)</span></label>
+            <input type="text" id="ab-kana">
+          </div>
+          <div class="field">
+            <label for="ab-phone"><span class="jp">電話番号<span class="optional">任意</span></span><span class="en">Phone (optional)</span></label>
+            <input type="tel" id="ab-phone" placeholder="090-1234-5678">
+          </div>
+          <div class="field">
+            <label for="ab-note"><span class="jp">メモ<span class="optional">任意</span></span><span class="en">Note (optional)</span></label>
+            <input type="text" id="ab-note">
+          </div>
+          <div id="add-booking-error" class="form-error" role="alert" hidden></div>
+          <div id="add-booking-success" class="form-success" role="status" hidden></div>
+          <button type="submit" id="add-booking-btn" class="btn-primary">
+            <span class="jp">追加する</span><span class="en">Add</span>
+          </button>
+        </form>
+      </section>
+
+      <section id="list-card" class="card" hidden>
+        <div class="admin-toolbar">
+          <h2><span class="jp">予約一覧</span><span class="en">Upcoming Bookings</span></h2>
+          <button type="button" id="refresh-btn" class="link-btn">
+            <span class="jp">更新</span><span class="en">Refresh</span>
+          </button>
+        </div>
+        <div id="list-status" class="status-msg"></div>
+        <div id="bookings-list"></div>
+      </section>
+    </main>
+  </div>
+
+  <script src="js/config.js"></script>
+  <script src="js/admin.js"></script>
+</body>
+</html>
