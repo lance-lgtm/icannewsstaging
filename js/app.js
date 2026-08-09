@@ -133,11 +133,16 @@ function renderDashboard(progress) {
   `;
 }
 
+function nextCourseLinkHtml() {
+  return `Finished the basics? <a href="intermediate/">Try AI for Intermediates</a> next.`;
+}
+
 function renderModule(mod, progress) {
   const idx = moduleIndex(mod.id);
   const state = progress[mod.id] || { lessonsRead: [], quizDone: false, quizScore: 0 };
   const next = COURSE.modules[idx + 1];
   const prev = COURSE.modules[idx - 1];
+  const { done, total } = courseCompletion(progress);
 
   const lessonsHtml = mod.lessons
     .map(
@@ -180,6 +185,7 @@ function renderModule(mod, progress) {
             : `<a class="btn btn-primary" href="#/certificate">Get your certificate ${icon("arrow", "cta-arrow")}</a>`
         }
       </nav>
+      ${done === total ? `<p class="cross-link module-nav-crosslink">${nextCourseLinkHtml()}</p>` : ""}
     </main>
     ${renderFooter()}
   `;
@@ -276,6 +282,7 @@ function attachQuizHandlers(mod) {
       submitBtn.disabled = true;
 
       updateHeaderProgress();
+      showNextCourseLinkIfComplete(progress);
     });
   }
 
@@ -291,6 +298,17 @@ function attachQuizHandlers(mod) {
       document.getElementById("quiz").scrollIntoView({ behavior: "smooth" });
     });
   }
+}
+
+function showNextCourseLinkIfComplete(progress) {
+  const { done, total } = courseCompletion(progress);
+  if (done !== total) return;
+  const nav = document.querySelector(".module-nav");
+  if (!nav || document.querySelector(".module-nav-crosslink")) return;
+  const p = document.createElement("p");
+  p.className = "cross-link module-nav-crosslink";
+  p.innerHTML = nextCourseLinkHtml();
+  nav.insertAdjacentElement("afterend", p);
 }
 
 function updateHeaderProgress() {
@@ -331,6 +349,7 @@ function renderCertificate(progress) {
             <p class="cert-cta">Want to go further for your job, business, or personal life?<br>Continue learning at <a href="https://icanjapan.ai/" target="_blank" rel="noopener">icanjapan.ai</a></p>
           </div>
         </div>
+        <p class="cross-link no-print">Finished the basics? <a href="intermediate/">Try AI for Intermediates</a> next.</p>
       `
           : `
         <div class="cert-locked">
