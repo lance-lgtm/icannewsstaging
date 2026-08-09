@@ -159,11 +159,16 @@ function renderDashboard(progress) {
   `;
 }
 
+function nextCourseLinkHtml() {
+  return `Ready for more? <a href="../builders/">Try AI for Builders</a> next.`;
+}
+
 function renderLevel(lvl, progress) {
   const idx = levelIndex(lvl.id);
   const state = progress[lvl.id] || { quizDone: false, quizScore: 0 };
   const next = COURSE.levels[idx + 1];
   const prev = COURSE.levels[idx - 1];
+  const { done, total } = courseCompletion(progress);
 
   const lessonsHtml = lvl.lessons
     .map(
@@ -207,6 +212,7 @@ function renderLevel(lvl, progress) {
             : `<a class="btn btn-primary" href="#/certificate">Get your certificate ${icon("arrow", "cta-arrow")}</a>`
         }
       </nav>
+      ${done === total ? `<p class="cross-link module-nav-crosslink">${nextCourseLinkHtml()}</p>` : ""}
     </main>
     ${renderFooter()}
   `;
@@ -312,6 +318,7 @@ function attachQuizHandlers(lvl) {
       }
 
       updateHeaderProgress();
+      showNextCourseLinkIfComplete(progress);
     });
   }
 
@@ -327,6 +334,17 @@ function attachQuizHandlers(lvl) {
       document.getElementById("quiz").scrollIntoView({ behavior: "smooth" });
     });
   }
+}
+
+function showNextCourseLinkIfComplete(progress) {
+  const { done, total } = courseCompletion(progress);
+  if (done !== total) return;
+  const nav = document.querySelector(".level-nav");
+  if (!nav || document.querySelector(".module-nav-crosslink")) return;
+  const p = document.createElement("p");
+  p.className = "cross-link module-nav-crosslink";
+  p.innerHTML = nextCourseLinkHtml();
+  nav.insertAdjacentElement("afterend", p);
 }
 
 function updateHeaderProgress() {
@@ -367,6 +385,7 @@ function renderCertificate(progress) {
             <p class="cert-cta">Want to go further for your job, business, or personal life?<br>Continue learning at <a href="https://icanjapan.ai/" target="_blank" rel="noopener">icanjapan.ai</a></p>
           </div>
         </div>
+        <p class="cross-link no-print">Ready for more? <a href="../builders/">Try AI for Builders</a> next.</p>
       `
           : `
         <div class="cert-locked">
