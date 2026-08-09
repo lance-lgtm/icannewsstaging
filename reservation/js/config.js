@@ -10,7 +10,7 @@ const CONFIG = {
   CLINIC: {
     nameJa: "済生会中央病院　健診センター",
     nameEn: "Saiseikai Chuo Hospital Kenshin Center",
-    doctorJa: "リー　恵子　医師",
+    doctorJa: "リー　啓子　医師",
     doctorEn: "Dr. Keiko Lee",
     // TODO: replace with the real clinic address / phone when provided.
     addressJa: "住所は後日追加されます",

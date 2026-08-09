@@ -1,7 +1,7 @@
 # Dr. Lee Reservation System / リー医師 予約システム
 
 A bilingual (Japanese / English), mobile-first appointment booking page for
-**Dr. Keiko Lee (リー恵子医師)** at the **Saiseikai Chuo Hospital Kenshin
+**Dr. Keiko Lee (リー啓子医師)** at the **Saiseikai Chuo Hospital Kenshin
 Center (済生会中央病院 健診センター)**.
 
 - Clinic days: **Wednesdays & Fridays**
