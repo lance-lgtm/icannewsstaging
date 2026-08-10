@@ -74,6 +74,17 @@ use Deploy → Manage deployments → pencil icon → "New version" so the
 existing `/exec` URL picks up the change without you having to update
 `config.js` again.
 
+### Updating the frontend later
+
+`index.html` and `admin.html` load `css/*.css` and `js/*.js` with a
+`?v=2` query string. Browsers and CDNs cache those files separately
+from the page itself, so a visitor who loaded the site before a
+JS/CSS-only change can end up with fresh HTML but a stale cached
+script underneath it (new markup shows up, but nothing responds to
+it). Bump the number (`?v=3`, `?v=4`, ...) in both HTML files whenever
+you change a `.css` or `.js` file, so returning visitors are forced to
+fetch the new version.
+
 ## Managing holidays / days off
 
 Open the Google Sheet and add rows to the **ClosedDates** tab (Date in
