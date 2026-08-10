@@ -367,8 +367,8 @@
   function setCalendarLinks(dateStr, timeStr) {
     const start = new Date(dateStr + "T" + timeStr + ":00+09:00");
     const end = new Date(start.getTime() + CONFIG.SLOT_MINUTES * 60 * 1000);
-    const title = `${CONFIG.CLINIC.doctorJa} 予約 / Appointment — ${CONFIG.CLINIC.doctorEn}`;
-    const location = CONFIG.CLINIC.addressJa || CONFIG.CLINIC.addressEn || "";
+    const title = "リー先生　予約　済生会中央病院健診センター";
+    const location = "";
     const description =
       `${CONFIG.CLINIC.nameJa} / ${CONFIG.CLINIC.nameEn}\n` +
       "診療開始の10分前までにお越しください。 / Please arrive 10 minutes early.";
@@ -381,8 +381,8 @@
       text: title,
       dates: `${startIcs}/${endIcs}`,
       details: description,
-      location: location,
     });
+    if (location) gcalParams.set("location", location);
     els.calendarGoogleBtn.href = `https://calendar.google.com/calendar/render?${gcalParams.toString()}`;
 
     const ics = [
@@ -396,10 +396,12 @@
       `DTEND:${endIcs}`,
       `SUMMARY:${escapeIcsText(title)}`,
       `DESCRIPTION:${escapeIcsText(description)}`,
-      `LOCATION:${escapeIcsText(location)}`,
+      location ? `LOCATION:${escapeIcsText(location)}` : null,
       "END:VEVENT",
       "END:VCALENDAR",
-    ].join("\r\n");
+    ]
+      .filter(Boolean)
+      .join("\r\n");
 
     if (icsBlobUrl) URL.revokeObjectURL(icsBlobUrl);
     icsBlobUrl = URL.createObjectURL(new Blob([ics], { type: "text/calendar;charset=utf-8" }));
