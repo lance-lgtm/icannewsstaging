@@ -6,7 +6,7 @@
   <title>ご予約 / Book an Appointment — リー啓子医師 Dr. Keiko Lee</title>
   <meta name="description" content="済生会中央病院 健診センター リー啓子医師の予約ページ / Appointment booking for Dr. Keiko Lee at Saiseikai Chuo Hospital Kenshin Center">
   <meta name="theme-color" content="#e8447f">
-  <link rel="stylesheet" href="css/style.css?v=2">
+  <link rel="stylesheet" href="css/style.css?v=3">
 </head>
 <body>
   <div class="page">
@@ -99,6 +99,18 @@
           </div>
 
           <div class="field">
+            <label for="patient-email">
+              <span class="jp">メールアドレス<span class="optional">任意</span></span>
+              <span class="en">Email (optional)</span>
+            </label>
+            <p class="field-hint">
+              <span class="jp">ご入力いただくと、前日にリマインドメールをお送りします。</span>
+              <span class="en">If provided, we'll send a reminder email the day before.</span>
+            </p>
+            <input type="email" id="patient-email" name="email" autocomplete="email" inputmode="email" placeholder="example@email.com">
+          </div>
+
+          <div class="field">
             <label for="patient-note">
               <span class="jp">症状・ご要望<span class="optional">任意</span></span>
               <span class="en">Symptoms / Requests (optional)</span>
@@ -127,6 +139,14 @@
           <span class="jp">診療開始の10分前までにお越しください。</span>
           <span class="en">Please arrive at least 10 minutes before your appointment.</span>
         </p>
+        <div class="calendar-actions">
+          <a id="calendar-google-btn" class="btn-calendar" href="#" target="_blank" rel="noopener">
+            <span class="jp">Googleカレンダーに追加</span><span class="en">Add to Google Calendar</span>
+          </a>
+          <a id="calendar-ics-btn" class="btn-calendar" href="#" download="appointment.ics">
+            <span class="jp">カレンダーに追加（iPhone等）</span><span class="en">Add to Calendar (.ics — iPhone, Outlook)</span>
+          </a>
+        </div>
         <button type="button" id="book-another-btn" class="btn-secondary">
           <span class="jp">別の予約を追加する</span><span class="en">Book Another Appointment</span>
         </button>
@@ -138,10 +158,11 @@
       <p class="en">Saiseikai Chuo Hospital Kenshin Center</p>
       <p id="footer-address"></p>
       <p id="footer-phone"></p>
+      <p><a href="lookup.html" class="footer-link"><span class="jp">予約を確認する</span> / <span class="en">Check My Appointment</span></a></p>
     </footer>
   </div>
 
-  <script src="js/config.js?v=2"></script>
-  <script src="js/booking.js?v=2"></script>
+  <script src="js/config.js?v=3"></script>
+  <script src="js/booking.js?v=3"></script>
 </body>
 </html>

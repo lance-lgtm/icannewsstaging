@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+  <title>予約確認 / Check My Appointment — リー啓子医師 Dr. Keiko Lee</title>
+  <meta name="description" content="お名前と電話番号でご自身の予約を確認できます。 / Look up your upcoming appointment by name and phone number.">
+  <meta name="theme-color" content="#e8447f">
+  <link rel="stylesheet" href="css/style.css?v=3">
+</head>
+<body>
+  <div class="page">
+    <header class="site-header">
+      <div class="logo" aria-hidden="true">
+        <svg viewBox="0 0 48 48" width="40" height="40" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="24" cy="24" r="24" fill="#fff0f6"/>
+          <path d="M24 12v24M12 24h24" stroke="#e8447f" stroke-width="5" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <div class="clinic-name">
+        <p class="jp">済生会中央病院　健診センター</p>
+        <p class="en">Saiseikai Chuo Hospital Kenshin Center</p>
+        <p class="doctor"><span class="jp">予約確認</span><span class="en">Check My Appointment</span></p>
+      </div>
+    </header>
+
+    <main id="main">
+      <div id="offline-banner" class="banner" hidden>
+        <p class="jp">現在、予約システムを準備中です。しばらくしてから再度お試しください。</p>
+        <p class="en">The booking system is being set up right now. Please check back soon.</p>
+      </div>
+
+      <section class="card">
+        <h2><span class="jp">お名前と電話番号を入力してください</span><span class="en">Enter Your Name &amp; Phone Number</span></h2>
+        <p class="note">
+          <span class="jp">ご予約時にご入力いただいた内容と同じものをご入力ください。</span>
+          <span class="en">Enter the same name and phone number you used when booking.</span>
+        </p>
+        <form id="lookup-form" novalidate>
+          <div class="field">
+            <label for="lookup-name">
+              <span class="jp">お名前<span class="required">必須</span></span>
+              <span class="en">Full Name (required)</span>
+            </label>
+            <input type="text" id="lookup-name" autocomplete="name" required>
+          </div>
+          <div class="field">
+            <label for="lookup-phone">
+              <span class="jp">電話番号<span class="required">必須</span></span>
+              <span class="en">Phone Number (required)</span>
+            </label>
+            <input type="tel" id="lookup-phone" autocomplete="tel" inputmode="tel" required placeholder="090-1234-5678">
+          </div>
+          <div id="lookup-error" class="form-error" role="alert" hidden></div>
+          <button type="submit" id="lookup-btn" class="btn-primary">
+            <span class="jp">確認する</span><span class="en">Check</span>
+          </button>
+        </form>
+      </section>
+
+      <section id="results-card" class="card" hidden>
+        <h2><span class="jp">ご予約状況</span><span class="en">Your Appointments</span></h2>
+        <div id="results-status" class="status-msg"></div>
+        <div id="results-list"></div>
+        <a href="index.html" class="link-btn">
+          <span class="jp">← 新しく予約する</span><span class="en">← Book a new appointment</span>
+        </a>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <p class="jp">済生会中央病院　健診センター</p>
+      <p class="en">Saiseikai Chuo Hospital Kenshin Center</p>
+      <p id="footer-address"></p>
+      <p id="footer-phone"></p>
+    </footer>
+  </div>
+
+  <script src="js/config.js?v=3"></script>
+  <script src="js/lookup.js?v=3"></script>
+</body>
+</html>

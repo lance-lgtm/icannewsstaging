@@ -32,6 +32,7 @@
     els.abName = document.getElementById("ab-name");
     els.abKana = document.getElementById("ab-kana");
     els.abPhone = document.getElementById("ab-phone");
+    els.abEmail = document.getElementById("ab-email");
     els.abNote = document.getElementById("ab-note");
     els.addBookingError = document.getElementById("add-booking-error");
     els.addBookingSuccess = document.getElementById("add-booking-success");
@@ -326,6 +327,7 @@
     const name = els.abName.value.trim();
     const kana = els.abKana.value.trim();
     const phone = els.abPhone.value.trim();
+    const email = els.abEmail.value.trim();
     const note = els.abNote.value.trim();
 
     if (!date || !time || !name) {
@@ -344,7 +346,7 @@
     els.addBookingBtn.disabled = true;
     els.addBookingBtn.innerHTML = statusHtml("追加中…", "Adding…");
 
-    apiPost({ action: "adminBook", key: getKey(), date, time, blocks, name, kana, phone, note })
+    apiPost({ action: "adminBook", key: getKey(), date, time, blocks, name, kana, phone, email, note })
       .then((res) => {
         if (res && res.error === "unauthorized") {
           backToLogin(statusHtml("管理者キーが正しくありません。", "Incorrect admin key."));
@@ -352,7 +354,12 @@
         }
         if (!res || !res.ok) {
           const code = (res && res.error) || "unknown";
-          if (code === "taken") {
+          if (code === "invalid_email") {
+            showAddError(
+              "メールアドレスの形式が正しくありません。",
+              "That email address doesn't look valid."
+            );
+          } else if (code === "taken") {
             showAddError(
               "その時間帯はすでに一部または全部が埋まっています。",
               "Some or all of that time range is already booked."

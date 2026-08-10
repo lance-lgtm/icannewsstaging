@@ -36,6 +36,8 @@
     els.bookAnotherBtn = document.getElementById("book-another-btn");
     els.footerAddress = document.getElementById("footer-address");
     els.footerPhone = document.getElementById("footer-phone");
+    els.calendarGoogleBtn = document.getElementById("calendar-google-btn");
+    els.calendarIcsBtn = document.getElementById("calendar-ics-btn");
 
     applyClinicText();
 
@@ -280,6 +282,7 @@
     const name = document.getElementById("patient-name").value.trim();
     const kana = document.getElementById("patient-kana").value.trim();
     const phone = document.getElementById("patient-phone").value.trim();
+    const email = document.getElementById("patient-email").value.trim();
     const note = document.getElementById("patient-note").value.trim();
 
     if (!name || !phone) {
@@ -300,6 +303,7 @@
       name,
       kana,
       phone,
+      email,
       note,
     })
       .then((res) => {
@@ -312,6 +316,11 @@
             );
             loadSlots(state.selectedDate);
             goToStep(2);
+          } else if (code === "invalid_email") {
+            showFormError(
+              "メールアドレスの形式が正しくありません。",
+              "That email address doesn't look valid."
+            );
           } else {
             showFormError(
               "予約の送信に失敗しました。もう一度お試しください。",
@@ -349,7 +358,64 @@
       <dt>${statusHtml("電話番号", "Phone")}</dt>
       <dd>${escapeHtml(details.phone)}</dd>
     `;
+    setCalendarLinks(state.selectedDate, state.selectedTime);
     goToStep(4);
+  }
+
+  let icsBlobUrl = null;
+
+  function setCalendarLinks(dateStr, timeStr) {
+    const start = new Date(dateStr + "T" + timeStr + ":00+09:00");
+    const end = new Date(start.getTime() + CONFIG.SLOT_MINUTES * 60 * 1000);
+    const title = `${CONFIG.CLINIC.doctorJa} 予約 / Appointment — ${CONFIG.CLINIC.doctorEn}`;
+    const location = CONFIG.CLINIC.addressJa || CONFIG.CLINIC.addressEn || "";
+    const description =
+      `${CONFIG.CLINIC.nameJa} / ${CONFIG.CLINIC.nameEn}\n` +
+      "診療開始の10分前までにお越しください。 / Please arrive 10 minutes early.";
+
+    const startIcs = toIcsUtc(start);
+    const endIcs = toIcsUtc(end);
+
+    const gcalParams = new URLSearchParams({
+      action: "TEMPLATE",
+      text: title,
+      dates: `${startIcs}/${endIcs}`,
+      details: description,
+      location: location,
+    });
+    els.calendarGoogleBtn.href = `https://calendar.google.com/calendar/render?${gcalParams.toString()}`;
+
+    const ics = [
+      "BEGIN:VCALENDAR",
+      "VERSION:2.0",
+      "PRODID:-//Dr. Lee Reservation System//JP",
+      "BEGIN:VEVENT",
+      `UID:${Date.now()}@lee-clinic-reservation`,
+      `DTSTAMP:${toIcsUtc(new Date())}`,
+      `DTSTART:${startIcs}`,
+      `DTEND:${endIcs}`,
+      `SUMMARY:${escapeIcsText(title)}`,
+      `DESCRIPTION:${escapeIcsText(description)}`,
+      `LOCATION:${escapeIcsText(location)}`,
+      "END:VEVENT",
+      "END:VCALENDAR",
+    ].join("\r\n");
+
+    if (icsBlobUrl) URL.revokeObjectURL(icsBlobUrl);
+    icsBlobUrl = URL.createObjectURL(new Blob([ics], { type: "text/calendar;charset=utf-8" }));
+    els.calendarIcsBtn.href = icsBlobUrl;
+  }
+
+  function toIcsUtc(d) {
+    return d.toISOString().replace(/[-:]/g, "").replace(/\.\d{3}Z$/, "Z");
+  }
+
+  function escapeIcsText(str) {
+    return String(str || "")
+      .replace(/\\/g, "\\\\")
+      .replace(/;/g, "\\;")
+      .replace(/,/g, "\\,")
+      .replace(/\n/g, "\\n");
   }
 
   function resetToStart() {
