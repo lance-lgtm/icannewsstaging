@@ -106,3 +106,41 @@ select:focus {
   font-size: 0.85rem;
   margin-bottom: 14px;
 }
+
+.filter-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+  flex-wrap: wrap;
+}
+.filter-row input[type="date"] {
+  flex: 1;
+  min-width: 140px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 10px 12px;
+  font-size: 0.9rem;
+  font-family: inherit;
+  background: #fff;
+  color: var(--ink);
+}
+.chip-btn {
+  border: 1px solid var(--pink-300);
+  background: var(--pink-50);
+  color: var(--pink-700);
+  border-radius: 999px;
+  padding: 8px 14px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+  font-family: inherit;
+}
+.chip-btn:hover { background: var(--pink-100); }
+
+.filter-summary {
+  font-size: 0.82rem;
+  color: var(--muted);
+  margin: 0 0 10px;
+}

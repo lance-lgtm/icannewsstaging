@@ -7,6 +7,7 @@
   const WEEKDAY_EN = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
   const els = {};
+  let allBookings = [];
 
   document.addEventListener("DOMContentLoaded", init);
 
@@ -18,6 +19,9 @@
     els.loginBtn = document.getElementById("login-btn");
     els.loginError = document.getElementById("login-error");
     els.refreshBtn = document.getElementById("refresh-btn");
+    els.filterDate = document.getElementById("filter-date");
+    els.filterTodayBtn = document.getElementById("filter-today-btn");
+    els.filterClearBtn = document.getElementById("filter-clear-btn");
     els.listStatus = document.getElementById("list-status");
     els.bookingsList = document.getElementById("bookings-list");
 
@@ -39,6 +43,15 @@
     });
     els.refreshBtn.addEventListener("click", () => loadBookings(getKey()));
     els.addBookingForm.addEventListener("submit", onAddBooking);
+    els.filterDate.addEventListener("change", () => applyFilter());
+    els.filterTodayBtn.addEventListener("click", () => {
+      els.filterDate.value = todayIsoJst();
+      applyFilter();
+    });
+    els.filterClearBtn.addEventListener("click", () => {
+      els.filterDate.value = "";
+      applyFilter();
+    });
 
     populateTimeOptions();
     setDefaultDate();
@@ -128,7 +141,8 @@
         }
         if (!res || res.error) throw new Error((res && res.error) || "unknown");
         els.listStatus.innerHTML = "";
-        renderBookings(res.bookings || []);
+        allBookings = res.bookings || [];
+        applyFilter();
       })
       .catch(() => {
         els.listStatus.innerHTML = statusHtml(
@@ -138,17 +152,45 @@
       });
   }
 
-  function renderBookings(bookings) {
-    els.bookingsList.innerHTML = "";
-    if (bookings.length === 0) {
-      els.listStatus.innerHTML = statusHtml("予約はありません。", "No bookings yet.");
+  function todayIsoJst() {
+    const jstStr = new Date().toLocaleString("en-US", { timeZone: CONFIG.TIMEZONE });
+    return toISODate(new Date(jstStr));
+  }
+
+  function applyFilter() {
+    const filterDate = els.filterDate.value;
+    els.filterClearBtn.hidden = !filterDate;
+
+    if (filterDate) {
+      const dayBookings = allBookings
+        .filter((b) => b.date === filterDate)
+        .sort((a, b) => a.time.localeCompare(b.time));
+      renderBookings(dayBookings, { filtered: true, date: filterDate });
       return;
     }
 
-    const todayIso = new Date().toISOString().slice(0, 10);
-    const upcoming = bookings.filter((b) => b.date >= todayIso);
-    const list = upcoming.length > 0 ? upcoming : bookings;
+    const todayIso = todayIsoJst();
+    const upcoming = allBookings.filter((b) => b.date >= todayIso);
+    renderBookings(upcoming.length > 0 ? upcoming : allBookings, { filtered: false });
+  }
 
+  function renderBookings(bookings, opts) {
+    els.bookingsList.innerHTML = "";
+    if (bookings.length === 0) {
+      if (opts && opts.filtered) {
+        const d = new Date(opts.date + "T00:00:00");
+        els.listStatus.innerHTML = statusHtml(
+          `${opts.date}（${WEEKDAY_JA[d.getDay()]}）の予約はありません。`,
+          `No bookings on ${opts.date} (${WEEKDAY_EN[d.getDay()]}).`
+        );
+      } else {
+        els.listStatus.innerHTML = statusHtml("予約はありません。", "No bookings yet.");
+      }
+      return;
+    }
+    els.listStatus.innerHTML = "";
+
+    const list = bookings;
     let lastDate = null;
     list.forEach((b) => {
       if (b.date !== lastDate) {
