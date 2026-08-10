@@ -35,6 +35,7 @@
     els.confirmDetails = document.getElementById("confirm-details");
     els.bookAnotherBtn = document.getElementById("book-another-btn");
     els.footerAddress = document.getElementById("footer-address");
+    els.footerPhone = document.getElementById("footer-phone");
 
     applyClinicText();
 
@@ -70,9 +71,10 @@
   function applyClinicText() {
     document.title = `ご予約 / Book an Appointment — ${CONFIG.CLINIC.doctorEn}`;
     if (CONFIG.CLINIC.addressJa || CONFIG.CLINIC.addressEn) {
-      els.footerAddress.textContent = `${CONFIG.CLINIC.addressJa}${
-        CONFIG.CLINIC.phone ? " / " + CONFIG.CLINIC.phone : ""
-      }`;
+      els.footerAddress.textContent = CONFIG.CLINIC.addressJa;
+    }
+    if (CONFIG.CLINIC.phone) {
+      els.footerPhone.textContent = CONFIG.CLINIC.phone;
     }
   }
 
