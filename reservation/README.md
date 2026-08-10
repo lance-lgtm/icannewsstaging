@@ -8,6 +8,10 @@ Center (済生会中央病院 健診センター)**.
 - Hours: **10:00–13:00** and **14:00–17:00**, in **10-minute** slots
 - Pink color theme, designed for phones first
 - No login for patients — pick a date, pick a time, fill in a short form
+- One-tap **Add to Calendar** (Google Calendar or .ics) right after booking
+- Optional **24-hour email reminder** before the appointment
+- Patients can **check their own upcoming appointment** by name + phone,
+  with no login (`lookup.html`)
 - A lightweight, key-protected staff page (`admin.html`) to view and cancel bookings
 
 It's plain HTML/CSS/JS (same style as the rest of this repo, no build
@@ -21,7 +25,8 @@ run and easy for clinic staff to inspect (it's just a spreadsheet).
 
 ```
 reservation/index.html   → patient booking page
-reservation/admin.html   → staff view (list + cancel bookings)
+reservation/lookup.html  → patient self-service "check my appointment" page
+reservation/admin.html   → staff view (list + add + cancel bookings)
 reservation/js/config.js → clinic name, hours, and the Apps Script URL
 reservation/apps-script/Code.gs → paste into Google Apps Script (the backend)
 ```
@@ -85,6 +90,41 @@ it). Bump the number (`?v=3`, `?v=4`, ...) in both HTML files whenever
 you change a `.css` or `.js` file, so returning visitors are forced to
 fetch the new version.
 
+## 24-hour email reminders (optional)
+
+If a patient gives an email address at booking, the site can send them
+an automatic reminder about 24 hours before their appointment. This
+needs one more piece of setup, because Apps Script doesn't run
+anything on its own — a **trigger** has to tell it to check periodically:
+
+1. In the Apps Script editor, click the **alarm-clock icon** in the
+   left sidebar ("Triggers").
+2. Click **+ Add Trigger** (bottom right).
+3. Set:
+   - Function to run: **sendReminders**
+   - Event source: **Time-driven**
+   - Type of time-based trigger: **Hour timer**
+   - Hour interval: **Every hour**
+4. Click **Save** (you may be asked to authorize again — same as
+   before).
+
+That's it — every hour, `sendReminders` checks for bookings starting in
+roughly 23–25 hours with an email on file and no reminder sent yet, and
+emails them once via the Google account's own Gmail (no extra service
+or cost). Skip this section entirely if you don't want reminder emails;
+everything else works fine without it, patients just won't get one.
+
+## Patient self-service
+
+- **Add to Calendar**: the confirmation screen after booking offers a
+  "Add to Google Calendar" link and an `.ics` download (for Apple
+  Calendar, Outlook, etc.) pre-filled with the date, time, and clinic
+  address — no setup needed, this is pure front-end.
+- **Check My Appointment** (`lookup.html`): patients enter the same
+  name and phone number they booked with to see their upcoming
+  appointment(s), without needing an account or the admin key. Linked
+  from the footer of the main booking page.
+
 ## Managing holidays / days off
 
 Open the Google Sheet and add rows to the **ClosedDates** tab (Date in
@@ -117,7 +157,9 @@ Pick the date, start time, and duration (1–3 blocks), fill in a name,
 and submit. All of the covered 10-minute slots are reserved together as
 one entry — patients booking online will see every one of them as
 unavailable, and cancelling it from the list below frees all of them at
-once.
+once. Add an email here too if you want this booking to get the 24-hour
+reminder (see below) — it's optional, same as when a patient books
+online.
 
 ## Design notes
 
@@ -138,9 +180,10 @@ once.
 - **Logo placeholder**: `index.html` has a simple pink SVG placeholder
   in the header, marked with a `LOGO PLACEHOLDER` comment — swap it for
   an `<img>` tag once the Lee Medical Clinic logo is ready.
-- **Clinic address/phone**: currently placeholders in
-  `reservation/js/config.js` (`CLINIC.addressJa` / `addressEn` /
-  `phone`) — fill in when available.
+- **Appointment lookup privacy**: `lookup.html` requires an exact match
+  on *both* name and phone number (not name alone), so it can't be used
+  to browse other patients' appointments — the same information a
+  patient would already know from having booked.
 
 ## Local preview
 

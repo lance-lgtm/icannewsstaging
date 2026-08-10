@@ -206,8 +206,11 @@ main { padding: 16px; flex: 1; }
 .field label .en { display: block; font-size: 0.72rem; margin-top: 1px; }
 .required { color: var(--danger); font-size: 0.72rem; margin-left: 6px; font-weight: 700; }
 .optional { color: var(--muted); font-size: 0.72rem; margin-left: 6px; font-weight: 400; }
+.field-hint { margin: -2px 0 6px; font-size: 0.75rem; color: var(--muted); }
+.field-hint .jp { display: inline; }
+.field-hint .en { display: block; }
 
-input[type="text"], input[type="tel"], textarea {
+input[type="text"], input[type="tel"], input[type="email"], textarea {
   width: 100%;
   border: 1px solid var(--border);
   border-radius: 10px;
@@ -257,6 +260,30 @@ input:focus, textarea:focus {
 .btn-secondary .jp { display: inline; }
 .btn-secondary .en { display: inline; font-size: 0.8em; margin-left: 6px; }
 
+.calendar-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 4px 0 8px;
+}
+.btn-calendar {
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
+  padding: 12px;
+  border-radius: 12px;
+  border: 1px solid var(--pink-300);
+  background: #fff;
+  color: var(--pink-700);
+  font-size: 0.88rem;
+  font-weight: 700;
+  text-decoration: none;
+  text-align: center;
+  cursor: pointer;
+}
+.btn-calendar .jp { display: inline; }
+.btn-calendar .en { display: block; font-size: 0.72rem; font-weight: 400; color: var(--muted); margin-top: 1px; }
+
 /* Confirmation */
 #step-confirm { text-align: center; }
 .confirm-icon { margin-bottom: 8px; }
@@ -273,6 +300,31 @@ input:focus, textarea:focus {
 .confirm-details dt:first-child { margin-top: 0; }
 .confirm-details dd { margin: 2px 0 0; font-weight: 600; }
 
+/* Appointment lookup results */
+.appointment-row {
+  background: var(--pink-50);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 14px 16px;
+  margin-bottom: 10px;
+}
+.appointment-date {
+  font-size: 0.78rem;
+  color: var(--muted);
+  font-weight: 600;
+}
+.appointment-time {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--pink-700);
+  margin-top: 2px;
+}
+.appointment-note {
+  font-size: 0.85rem;
+  color: var(--ink);
+  margin-top: 6px;
+}
+
 /* Footer */
 .site-footer {
   text-align: center;
@@ -282,6 +334,14 @@ input:focus, textarea:focus {
 }
 .site-footer .jp { font-weight: 600; color: var(--ink); }
 .site-footer p { margin: 2px 0; }
+.footer-link {
+  display: inline-block;
+  margin-top: 8px;
+  color: var(--pink-600);
+  font-weight: 600;
+  text-decoration: none;
+}
+.footer-link .jp, .footer-link .en { display: inline; }
 
 [hidden] { display: none !important; }
 

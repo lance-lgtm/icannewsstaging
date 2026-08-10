@@ -8,14 +8,21 @@
  *      generate an admin key. Approve the permission prompts.
  *   3. Deploy > New deployment > Web app. Execute as "Me", access
  *      "Anyone". Copy the resulting /exec URL into
- *      reservation/js/config.js (APPS_SCRIPT_URL) and
- *      reservation/js/admin.js is fine as-is (it asks for the key at
- *      runtime, nothing to paste there).
+ *      reservation/js/config.js (APPS_SCRIPT_URL).
+ *   4. (Optional, for 24h email reminders) Add a time-driven trigger
+ *      that runs `sendReminders` roughly once an hour — see
+ *      reservation/README.md for exact steps.
  *
- * Sheet layout (created automatically by setup()):
+ * Sheet layout (created/migrated automatically by setup()):
  *   Bookings:    BookingID | CreatedAt | Date | Time | Blocks | Name |
- *                Furigana | Phone | Note | Status | CancelledAt
+ *                Furigana | Phone | Email | Note | Status |
+ *                CancelledAt | ReminderSent
  *   ClosedDates: Date | Reason
+ *
+ * Rows are read by HEADER NAME, not column position — so setup() can
+ * safely add a missing column to an older sheet (it just appends it),
+ * and nothing downstream breaks even if column order ever differs from
+ * BOOKINGS_HEADERS below.
  *
  * "Blocks" is how many consecutive 10-minute slots a booking occupies
  * (1 = 10 min, 2 = 20 min, 3 = 30 min). Patients booking online always
@@ -47,13 +54,22 @@ const BOOKINGS_HEADERS = [
   "Name",
   "Furigana",
   "Phone",
+  "Email",
   "Note",
   "Status",
   "CancelledAt",
+  "ReminderSent",
 ];
+// Columns that must never be auto-converted to real Date values by Sheets.
+const TEXT_HEADERS = ["CreatedAt", "Date", "Time", "CancelledAt"];
 const CLOSED_HEADERS = ["Date", "Reason"];
 
-/** Run this once from the Apps Script editor to initialize the sheet. */
+const CLINIC = {
+  nameJa: "済生会中央病院　健診センター",
+  doctorJa: "リー　啓子　医師",
+};
+
+/** Run this once from the Apps Script editor to initialize/migrate the sheet. */
 function setup() {
   const ss = SpreadsheetApp.getActiveSpreadsheet();
 
@@ -63,39 +79,43 @@ function setup() {
     bookings.appendRow(BOOKINGS_HEADERS);
     bookings.setFrozenRows(1);
   } else {
-    const headerRow = bookings.getRange(1, 1, 1, bookings.getLastColumn()).getValues()[0];
-    if (headerRow.indexOf("Blocks") === -1) {
-      Logger.log(
-        "This sheet predates the 'Blocks' column (multi-slot bookings). " +
-        "Insert a new column called 'Blocks' between 'Time' and 'Name', " +
-        "then fill existing rows with 1. See reservation/README.md."
-      );
+    const before = getHeaderMap(bookings);
+    const added = BOOKINGS_HEADERS.filter((h) => !(h in before));
+    if (added.length > 0) {
+      ensureHeaders(bookings, BOOKINGS_HEADERS);
+      Logger.log("Added missing column(s) to Bookings: " + added.join(", "));
     }
   }
 
   // Force these columns to plain text so Sheets never auto-converts a
   // date/time-looking string ("2026-08-13", "15:00") into a real Date
   // value on write — which reads back as garbled ISO timestamps.
-  const textColumns = [2, 3, 4, 11]; // CreatedAt, Date, Time, CancelledAt
+  const map = getHeaderMap(bookings);
   const formatRows = Math.max(bookings.getMaxRows() - 1, 1);
-  textColumns.forEach((col) => {
-    bookings.getRange(2, col, formatRows, 1).setNumberFormat("@");
+  TEXT_HEADERS.forEach((h) => {
+    if (map[h]) bookings.getRange(2, map[h], formatRows, 1).setNumberFormat("@");
   });
 
   // Repair any rows already corrupted by that auto-conversion (e.g. from
   // before this fix, or a manual edit in the Sheet UI).
   const lastRow = bookings.getLastRow();
-  if (lastRow >= 2) {
-    const range = bookings.getRange(2, 1, lastRow - 1, BOOKINGS_HEADERS.length);
+  if (lastRow >= 2 && map["CreatedAt"] && map["Date"] && map["Time"]) {
+    const numCols = bookings.getLastColumn();
+    const range = bookings.getRange(2, 1, lastRow - 1, numCols);
     const values = range.getValues();
+    const iCreated = map["CreatedAt"] - 1;
+    const iDate = map["Date"] - 1;
+    const iTime = map["Time"] - 1;
+    const iCancelled = map["CancelledAt"] ? map["CancelledAt"] - 1 : -1;
     let repaired = 0;
     values.forEach((row) => {
-      const before = JSON.stringify([row[1], row[2], row[3], row[10]]);
-      row[1] = normalizeTimestampCell(row[1]);
-      row[2] = formatDateCell(row[2]);
-      row[3] = normalizeTimeCell(row[3]);
-      row[10] = row[10] ? normalizeTimestampCell(row[10]) : row[10];
-      if (JSON.stringify([row[1], row[2], row[3], row[10]]) !== before) repaired++;
+      const before = JSON.stringify([row[iCreated], row[iDate], row[iTime], iCancelled >= 0 ? row[iCancelled] : null]);
+      row[iCreated] = normalizeTimestampCell(row[iCreated]);
+      row[iDate] = formatDateCell(row[iDate]);
+      row[iTime] = normalizeTimeCell(row[iTime]);
+      if (iCancelled >= 0 && row[iCancelled]) row[iCancelled] = normalizeTimestampCell(row[iCancelled]);
+      const after = JSON.stringify([row[iCreated], row[iDate], row[iTime], iCancelled >= 0 ? row[iCancelled] : null]);
+      if (after !== before) repaired++;
     });
     range.setValues(values);
     if (repaired > 0) {
@@ -128,6 +148,7 @@ function doGet(e) {
     if (action === "slots") return jsonOut(handleSlots(e.parameter.date));
     if (action === "closedDates") return jsonOut(handleClosedDates());
     if (action === "list") return jsonOut(handleList(e.parameter.key));
+    if (action === "myBookings") return jsonOut(handleMyBookings(e.parameter.name, e.parameter.phone));
     return jsonOut({ error: "unknown_action" });
   } catch (err) {
     return jsonOut({ error: "server_error", message: String(err) });
@@ -172,27 +193,41 @@ function handleClosedDates() {
 
 function handleList(key) {
   if (!isAdmin(key)) return { error: "unauthorized" };
-  const sheet = getSheet(BOOKINGS_SHEET);
-  const rows = sheet.getDataRange().getValues();
-  const bookings = [];
-  for (let i = 1; i < rows.length; i++) {
-    const row = rows[i];
-    if (!row[0]) continue;
-    bookings.push({
-      id: row[0],
-      createdAt: normalizeTimestampCell(row[1]),
-      date: formatDateCell(row[2]),
-      time: normalizeTimeCell(row[3]),
-      blocks: Number(row[4]) || 1,
-      name: row[5],
-      kana: row[6],
-      phone: row[7],
-      note: row[8],
-      status: row[9],
-    });
-  }
-  bookings.sort((a, b) => (a.date + a.time).localeCompare(b.date + b.time));
-  return { bookings: bookings };
+  const bookings = readBookings().sort((a, b) => (a.date + a.time).localeCompare(b.date + b.time));
+  return {
+    bookings: bookings.map((b) => ({
+      id: b.id,
+      createdAt: b.createdAt,
+      date: b.date,
+      time: b.time,
+      blocks: b.blocks,
+      name: b.name,
+      kana: b.kana,
+      phone: b.phone,
+      email: b.email,
+      note: b.note,
+      status: b.status,
+    })),
+  };
+}
+
+/** Public lookup: patient enters name + phone to see their own upcoming bookings. */
+function handleMyBookings(name, phone) {
+  const n = normalizeNameForCompare(name);
+  const p = normalizePhoneForCompare(phone);
+  if (!n || !p) return { error: "missing_fields" };
+
+  const matches = readBookings()
+    .filter(
+      (b) =>
+        b.status === "booked" &&
+        normalizeNameForCompare(b.name) === n &&
+        normalizePhoneForCompare(b.phone) === p
+    )
+    .sort((a, b) => (a.date + a.time).localeCompare(b.date + b.time))
+    .map((b) => ({ date: b.date, time: b.time, blocks: b.blocks, note: b.note }));
+
+  return { bookings: matches };
 }
 
 // ---------- Write endpoints ----------
@@ -203,9 +238,11 @@ function handleBook(body) {
   const name = String(body.name || "").trim().slice(0, 100);
   const kana = String(body.kana || "").trim().slice(0, 100);
   const phone = String(body.phone || "").trim().slice(0, 30);
+  const email = String(body.email || "").trim().slice(0, 200);
   const note = String(body.note || "").trim().slice(0, 500);
 
   if (!name || !phone) return { ok: false, error: "missing_fields" };
+  if (email && !isValidEmail(email)) return { ok: false, error: "invalid_email" };
   if (!isValidDateFormat(date)) return { ok: false, error: "invalid_date" };
   if (!isClinicOpenDate(date)) return { ok: false, error: "closed_date" };
   if (!isValidSlotTime(time)) return { ok: false, error: "invalid_time" };
@@ -218,9 +255,22 @@ function handleBook(body) {
     if (taken.has(time)) return { ok: false, error: "taken" };
 
     const sheet = getSheet(BOOKINGS_SHEET);
+    const map = getHeaderMap(sheet);
     const id = Utilities.getUuid();
     const createdAt = Utilities.formatDate(new Date(), TIMEZONE, "yyyy-MM-dd HH:mm:ss");
-    sheet.appendRow([id, createdAt, date, time, 1, name, kana, phone, note, "booked", ""]);
+    appendBookingRow(sheet, map, {
+      BookingID: id,
+      CreatedAt: createdAt,
+      Date: date,
+      Time: time,
+      Blocks: 1,
+      Name: name,
+      Furigana: kana,
+      Phone: phone,
+      Email: email,
+      Note: note,
+      Status: "booked",
+    });
     return { ok: true, bookingId: id };
   } finally {
     lock.releaseLock();
@@ -242,9 +292,11 @@ function handleAdminBook(body) {
   const name = String(body.name || "").trim().slice(0, 100);
   const kana = String(body.kana || "").trim().slice(0, 100);
   const phone = String(body.phone || "").trim().slice(0, 30);
+  const email = String(body.email || "").trim().slice(0, 200);
   const note = String(body.note || "").trim().slice(0, 500);
 
   if (!name) return { ok: false, error: "missing_fields" };
+  if (email && !isValidEmail(email)) return { ok: false, error: "invalid_email" };
   if (!isValidDateFormat(date)) return { ok: false, error: "invalid_date" };
   if (!isClinicOpenDate(date)) return { ok: false, error: "closed_date" };
 
@@ -262,9 +314,22 @@ function handleAdminBook(body) {
     }
 
     const sheet = getSheet(BOOKINGS_SHEET);
+    const map = getHeaderMap(sheet);
     const id = Utilities.getUuid();
     const createdAt = Utilities.formatDate(new Date(), TIMEZONE, "yyyy-MM-dd HH:mm:ss");
-    sheet.appendRow([id, createdAt, date, time, blocks, name, kana, phone, note, "booked", ""]);
+    appendBookingRow(sheet, map, {
+      BookingID: id,
+      CreatedAt: createdAt,
+      Date: date,
+      Time: time,
+      Blocks: blocks,
+      Name: name,
+      Furigana: kana,
+      Phone: phone,
+      Email: email,
+      Note: note,
+      Status: "booked",
+    });
     return { ok: true, bookingId: id };
   } finally {
     lock.releaseLock();
@@ -280,35 +345,152 @@ function handleCancel(body) {
   lock.waitLock(15000);
   try {
     const sheet = getSheet(BOOKINGS_SHEET);
-    const rows = sheet.getDataRange().getValues();
-    for (let i = 1; i < rows.length; i++) {
-      if (rows[i][0] === id) {
-        const cancelledAt = Utilities.formatDate(new Date(), TIMEZONE, "yyyy-MM-dd HH:mm:ss");
-        sheet.getRange(i + 1, 10).setValue("cancelled"); // Status column
-        sheet.getRange(i + 1, 11).setValue(cancelledAt); // CancelledAt column
-        return { ok: true };
-      }
-    }
-    return { ok: false, error: "not_found" };
+    const map = getHeaderMap(sheet);
+    const booking = readBookings().find((b) => b.id === id);
+    if (!booking) return { ok: false, error: "not_found" };
+
+    const cancelledAt = Utilities.formatDate(new Date(), TIMEZONE, "yyyy-MM-dd HH:mm:ss");
+    sheet.getRange(booking._row, map["Status"]).setValue("cancelled");
+    if (map["CancelledAt"]) sheet.getRange(booking._row, map["CancelledAt"]).setValue(cancelledAt);
+    return { ok: true };
   } finally {
     lock.releaseLock();
   }
 }
 
+/**
+ * Time-driven entry point (add a trigger for this — see README). Emails
+ * anyone with a booking ~24 hours out who has an email on file and
+ * hasn't been reminded yet.
+ */
+function sendReminders() {
+  const sheet = getSheet(BOOKINGS_SHEET);
+  const map = getHeaderMap(sheet);
+  if (!map["Email"] || !map["ReminderSent"]) {
+    Logger.log("Email/ReminderSent columns missing — run setup() first.");
+    return;
+  }
+
+  const now = new Date();
+  const windowStart = new Date(now.getTime() + 23 * 60 * 60 * 1000);
+  const windowEnd = new Date(now.getTime() + 25 * 60 * 60 * 1000);
+
+  let sent = 0;
+  readBookings().forEach((b) => {
+    if (b.status !== "booked" || !b.email || b.reminderSent === "yes") return;
+    const apptAt = new Date(b.date + "T" + b.time + ":00+09:00");
+    if (apptAt < windowStart || apptAt > windowEnd) return;
+    try {
+      sendReminderEmail(b);
+      sheet.getRange(b._row, map["ReminderSent"]).setValue("yes");
+      sent++;
+    } catch (err) {
+      Logger.log("Failed to send reminder for booking " + b.id + ": " + err);
+    }
+  });
+  Logger.log("Reminder check complete. Sent " + sent + " email(s).");
+}
+
+function sendReminderEmail(b) {
+  const d = new Date(b.date + "T00:00:00+09:00");
+  const weekdayJa = ["日", "月", "火", "水", "木", "金", "土"][d.getDay()];
+  const weekdayEn = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"][d.getDay()];
+  const subject = "【明日のご予約】" + CLINIC.nameJa + " / Appointment Reminder Tomorrow";
+  const body = [
+    b.name + " 様",
+    "",
+    "明日、下記のご予約がございます。",
+    "日時：" + b.date + "（" + weekdayJa + "）" + b.time + "〜",
+    CLINIC.nameJa + "　" + CLINIC.doctorJa,
+    "診療開始の10分前までにお越しください。",
+    "",
+    "---",
+    "",
+    "Dear " + b.name + ",",
+    "",
+    "This is a reminder of your appointment tomorrow.",
+    "Date & Time: " + b.date + " (" + weekdayEn + ") " + b.time,
+    "Saiseikai Chuo Hospital Kenshin Center — Dr. Keiko Lee",
+    "Please arrive at least 10 minutes before your appointment.",
+  ].join("\n");
+  MailApp.sendEmail(b.email, subject, body);
+}
+
 // ---------- Shared helpers ----------
+
+/** Maps header name -> 1-indexed column number for the sheet's current header row. */
+function getHeaderMap(sheet) {
+  const lastCol = sheet.getLastColumn();
+  if (lastCol === 0) return {};
+  const headerRow = sheet.getRange(1, 1, 1, lastCol).getValues()[0];
+  const map = {};
+  headerRow.forEach((h, i) => {
+    if (h) map[String(h)] = i + 1;
+  });
+  return map;
+}
+
+/** Appends any headers missing from the sheet's header row (at the end). */
+function ensureHeaders(sheet, headers) {
+  const map = getHeaderMap(sheet);
+  const missing = headers.filter((h) => !(h in map));
+  if (missing.length > 0) {
+    const startCol = sheet.getLastColumn() + 1;
+    sheet.getRange(1, startCol, 1, missing.length).setValues([missing]);
+  }
+  return getHeaderMap(sheet);
+}
+
+/** Writes a new row using a {HeaderName: value} object, regardless of column order. */
+function appendBookingRow(sheet, map, valuesByHeader) {
+  const numCols = sheet.getLastColumn();
+  const rowArr = new Array(numCols).fill("");
+  Object.keys(valuesByHeader).forEach((h) => {
+    if (map[h]) rowArr[map[h] - 1] = valuesByHeader[h];
+  });
+  sheet.appendRow(rowArr);
+}
+
+/** All bookings as objects, read by header name. Includes _row (1-indexed sheet row). */
+function readBookings() {
+  const sheet = getSheet(BOOKINGS_SHEET);
+  const map = getHeaderMap(sheet);
+  const lastRow = sheet.getLastRow();
+  if (lastRow < 2 || !map["BookingID"]) return [];
+
+  const values = sheet.getRange(2, 1, lastRow - 1, sheet.getLastColumn()).getValues();
+  const out = [];
+  values.forEach((row, i) => {
+    const id = row[map["BookingID"] - 1];
+    if (!id) return;
+    out.push({
+      _row: i + 2,
+      id: id,
+      createdAt: map["CreatedAt"] ? normalizeTimestampCell(row[map["CreatedAt"] - 1]) : "",
+      date: map["Date"] ? formatDateCell(row[map["Date"] - 1]) : "",
+      time: map["Time"] ? normalizeTimeCell(row[map["Time"] - 1]) : "",
+      blocks: map["Blocks"] ? Math.max(1, Number(row[map["Blocks"] - 1]) || 1) : 1,
+      name: map["Name"] ? row[map["Name"] - 1] : "",
+      kana: map["Furigana"] ? row[map["Furigana"] - 1] : "",
+      phone: map["Phone"] ? row[map["Phone"] - 1] : "",
+      email: map["Email"] ? row[map["Email"] - 1] : "",
+      note: map["Note"] ? row[map["Note"] - 1] : "",
+      status: map["Status"] ? row[map["Status"] - 1] : "",
+      cancelledAt: map["CancelledAt"] ? normalizeTimestampCell(row[map["CancelledAt"] - 1]) : "",
+      reminderSent: map["ReminderSent"] ? row[map["ReminderSent"] - 1] : "",
+    });
+  });
+  return out;
+}
 
 /** Every 10-minute slot time currently occupied by an active booking on a date. */
 function getTakenTimesForDate(dateStr) {
-  const sheet = getSheet(BOOKINGS_SHEET);
-  const rows = sheet.getDataRange().getValues();
   const taken = new Set();
-  for (let i = 1; i < rows.length; i++) {
-    const row = rows[i];
-    if (formatDateCell(row[2]) === dateStr && row[9] === "booked") {
-      const blocks = Math.max(1, Number(row[4]) || 1);
-      expandSlotTimes(normalizeTimeCell(row[3]), blocks).forEach((t) => taken.add(t));
+  readBookings().forEach((b) => {
+    if (b.date === dateStr && b.status === "booked") {
+      expandSlotTimes(b.time, b.blocks).forEach((t) => taken.add(t));
     }
-  }
+  });
   return taken;
 }
 
@@ -327,6 +509,10 @@ function expandSlotTimes(startTime, blocks) {
 
 function isValidDateFormat(dateStr) {
   return typeof dateStr === "string" && /^\d{4}-\d{2}-\d{2}$/.test(dateStr);
+}
+
+function isValidEmail(email) {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 }
 
 function isClinicOpenDate(dateStr) {
@@ -392,6 +578,18 @@ function normalizeTimestampCell(value) {
     return Utilities.formatDate(value, TIMEZONE, "yyyy-MM-dd HH:mm:ss");
   }
   return String(value);
+}
+
+function normalizeNameForCompare(s) {
+  return String(s || "")
+    .replace(/　/g, " ")
+    .trim()
+    .replace(/\s+/g, " ")
+    .toLowerCase();
+}
+
+function normalizePhoneForCompare(s) {
+  return String(s || "").replace(/\D/g, "");
 }
 
 function isAdmin(key) {
