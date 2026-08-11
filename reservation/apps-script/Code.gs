@@ -156,6 +156,7 @@ function doGet(e) {
     if (action === "myBookings") return jsonOut(handleMyBookings(e.parameter.name, e.parameter.phone));
     return jsonOut({ error: "unknown_action" });
   } catch (err) {
+    Logger.log("doGet error (action=" + action + "): " + err + (err && err.stack ? "\n" + err.stack : ""));
     return jsonOut({ error: "server_error", message: String(err) });
   }
 }
@@ -174,6 +175,7 @@ function doPost(e) {
     if (body.action === "cancel") return jsonOut(handleCancel(body));
     return jsonOut({ ok: false, error: "unknown_action" });
   } catch (err) {
+    Logger.log("doPost error (action=" + body.action + "): " + err + (err && err.stack ? "\n" + err.stack : ""));
     return jsonOut({ ok: false, error: "server_error", message: String(err) });
   }
 }
