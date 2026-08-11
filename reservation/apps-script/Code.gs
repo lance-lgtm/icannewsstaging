@@ -34,6 +34,13 @@
  * reservation/js/config.js if the clinic's hours ever change.
  */
 
+// Bump this string any time you paste in updated code. Visit
+// <APPS_SCRIPT_URL>?action=version in a browser to check which version a
+// live deployment is actually running — the editor and "Run" button only
+// affect the script project itself, never a deployed /exec URL, so this is
+// the only reliable way to confirm a redeploy actually took effect.
+const CODE_VERSION = "2026-08-11-phone-fix-4-apostrophe";
+
 const SESSIONS = [
   { id: "am", start: "10:00", end: "13:00" },
   { id: "pm", start: "14:00", end: "17:00" },
@@ -121,6 +128,13 @@ function setup() {
       if (iPhone >= 0) row[iPhone] = repairPhoneCell(row[iPhone]);
       const after = JSON.stringify(fields.map((i) => (i >= 0 ? row[i] : null)));
       if (after !== before) repaired++;
+      // Force these back to literal text (apostrophe marker) so writing
+      // them back doesn't immediately re-trigger the same auto-conversion.
+      row[iCreated] = forceTextIfNeeded("CreatedAt", row[iCreated]);
+      row[iDate] = forceTextIfNeeded("Date", row[iDate]);
+      row[iTime] = forceTextIfNeeded("Time", row[iTime]);
+      if (iCancelled >= 0 && row[iCancelled]) row[iCancelled] = forceTextIfNeeded("CancelledAt", row[iCancelled]);
+      if (iPhone >= 0) row[iPhone] = forceTextIfNeeded("Phone", row[iPhone]);
     });
     range.setValues(values);
     if (repaired > 0) {
@@ -150,12 +164,14 @@ function setup() {
 function doGet(e) {
   const action = e.parameter.action;
   try {
+    if (action === "version") return jsonOut({ version: CODE_VERSION });
     if (action === "slots") return jsonOut(handleSlots(e.parameter.date));
     if (action === "closedDates") return jsonOut(handleClosedDates());
     if (action === "list") return jsonOut(handleList(e.parameter.key));
     if (action === "myBookings") return jsonOut(handleMyBookings(e.parameter.name, e.parameter.phone));
     return jsonOut({ error: "unknown_action" });
   } catch (err) {
+    Logger.log("doGet error (action=" + action + "): " + err + (err && err.stack ? "\n" + err.stack : ""));
     return jsonOut({ error: "server_error", message: String(err) });
   }
 }
@@ -174,6 +190,7 @@ function doPost(e) {
     if (body.action === "cancel") return jsonOut(handleCancel(body));
     return jsonOut({ ok: false, error: "unknown_action" });
   } catch (err) {
+    Logger.log("doPost error (action=" + body.action + "): " + err + (err && err.stack ? "\n" + err.stack : ""));
     return jsonOut({ ok: false, error: "server_error", message: String(err) });
   }
 }
@@ -356,7 +373,9 @@ function handleCancel(body) {
 
     const cancelledAt = Utilities.formatDate(new Date(), TIMEZONE, "yyyy-MM-dd HH:mm:ss");
     sheet.getRange(booking._row, map["Status"]).setValue("cancelled");
-    if (map["CancelledAt"]) sheet.getRange(booking._row, map["CancelledAt"]).setValue(cancelledAt);
+    if (map["CancelledAt"]) {
+      sheet.getRange(booking._row, map["CancelledAt"]).setValue(forceTextIfNeeded("CancelledAt", cancelledAt));
+    }
     return { ok: true };
   } finally {
     lock.releaseLock();
@@ -446,14 +465,31 @@ function ensureHeaders(sheet, headers) {
   return getHeaderMap(sheet);
 }
 
-/** Writes a new row using a {HeaderName: value} object, regardless of column order. */
+/**
+ * Writes a new row using a {HeaderName: value} object, regardless of column
+ * order. TEXT_HEADERS values get a leading apostrophe, which is the marker
+ * Sheets' own input parser uses to force literal-text storage (the same
+ * thing typing '0912345678 into a cell does) — Sheets strips the
+ * apostrophe itself and stores/reads back the plain string. Pre-setting
+ * the cell's number format to "@" (tried previously) does NOT reliably
+ * stop Range.setValues() from auto-converting a numeric-looking string;
+ * only the apostrophe marker does.
+ */
 function appendBookingRow(sheet, map, valuesByHeader) {
   const numCols = sheet.getLastColumn();
   const rowArr = new Array(numCols).fill("");
   Object.keys(valuesByHeader).forEach((h) => {
-    if (map[h]) rowArr[map[h] - 1] = valuesByHeader[h];
+    if (map[h]) rowArr[map[h] - 1] = forceTextIfNeeded(h, valuesByHeader[h]);
   });
-  sheet.appendRow(rowArr);
+  const targetRow = sheet.getLastRow() + 1;
+  sheet.getRange(targetRow, 1, 1, numCols).setValues([rowArr]);
+}
+
+/** Prefixes a value with a forced-text apostrophe if its header must never be auto-converted. */
+function forceTextIfNeeded(header, value) {
+  if (TEXT_HEADERS.indexOf(header) === -1) return value;
+  if (value === "" || value == null) return value;
+  return "'" + value;
 }
 
 /** All bookings as objects, read by header name. Includes _row (1-indexed sheet row). */
