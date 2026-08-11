@@ -34,6 +34,13 @@
  * reservation/js/config.js if the clinic's hours ever change.
  */
 
+// Bump this string any time you paste in updated code. Visit
+// <APPS_SCRIPT_URL>?action=version in a browser to check which version a
+// live deployment is actually running — the editor and "Run" button only
+// affect the script project itself, never a deployed /exec URL, so this is
+// the only reliable way to confirm a redeploy actually took effect.
+const CODE_VERSION = "2026-08-11-phone-fix-3";
+
 const SESSIONS = [
   { id: "am", start: "10:00", end: "13:00" },
   { id: "pm", start: "14:00", end: "17:00" },
@@ -150,6 +157,7 @@ function setup() {
 function doGet(e) {
   const action = e.parameter.action;
   try {
+    if (action === "version") return jsonOut({ version: CODE_VERSION });
     if (action === "slots") return jsonOut(handleSlots(e.parameter.date));
     if (action === "closedDates") return jsonOut(handleClosedDates());
     if (action === "list") return jsonOut(handleList(e.parameter.key));
