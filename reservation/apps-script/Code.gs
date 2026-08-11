@@ -39,7 +39,7 @@
 // live deployment is actually running — the editor and "Run" button only
 // affect the script project itself, never a deployed /exec URL, so this is
 // the only reliable way to confirm a redeploy actually took effect.
-const CODE_VERSION = "2026-08-11-phone-fix-3";
+const CODE_VERSION = "2026-08-11-phone-fix-4-apostrophe";
 
 const SESSIONS = [
   { id: "am", start: "10:00", end: "13:00" },
@@ -128,6 +128,13 @@ function setup() {
       if (iPhone >= 0) row[iPhone] = repairPhoneCell(row[iPhone]);
       const after = JSON.stringify(fields.map((i) => (i >= 0 ? row[i] : null)));
       if (after !== before) repaired++;
+      // Force these back to literal text (apostrophe marker) so writing
+      // them back doesn't immediately re-trigger the same auto-conversion.
+      row[iCreated] = forceTextIfNeeded("CreatedAt", row[iCreated]);
+      row[iDate] = forceTextIfNeeded("Date", row[iDate]);
+      row[iTime] = forceTextIfNeeded("Time", row[iTime]);
+      if (iCancelled >= 0 && row[iCancelled]) row[iCancelled] = forceTextIfNeeded("CancelledAt", row[iCancelled]);
+      if (iPhone >= 0) row[iPhone] = forceTextIfNeeded("Phone", row[iPhone]);
     });
     range.setValues(values);
     if (repaired > 0) {
@@ -367,9 +374,7 @@ function handleCancel(body) {
     const cancelledAt = Utilities.formatDate(new Date(), TIMEZONE, "yyyy-MM-dd HH:mm:ss");
     sheet.getRange(booking._row, map["Status"]).setValue("cancelled");
     if (map["CancelledAt"]) {
-      const cell = sheet.getRange(booking._row, map["CancelledAt"]);
-      cell.setNumberFormat("@");
-      cell.setValue(cancelledAt);
+      sheet.getRange(booking._row, map["CancelledAt"]).setValue(forceTextIfNeeded("CancelledAt", cancelledAt));
     }
     return { ok: true };
   } finally {
@@ -462,25 +467,29 @@ function ensureHeaders(sheet, headers) {
 
 /**
  * Writes a new row using a {HeaderName: value} object, regardless of column
- * order. Uses an explicit Range.setValues() write rather than
- * Sheet.appendRow() — appendRow() re-runs Sheets' automatic type detection
- * on the new cells even when the column was pre-formatted as plain text
- * (setup()'s bulk formatting is silently ignored for appended rows), which
- * is what kept dropping the leading "0" from Phone. Explicitly re-applying
- * "@" format to the new row's text cells immediately before writing them
- * with setValues() is honored reliably.
+ * order. TEXT_HEADERS values get a leading apostrophe, which is the marker
+ * Sheets' own input parser uses to force literal-text storage (the same
+ * thing typing '0912345678 into a cell does) — Sheets strips the
+ * apostrophe itself and stores/reads back the plain string. Pre-setting
+ * the cell's number format to "@" (tried previously) does NOT reliably
+ * stop Range.setValues() from auto-converting a numeric-looking string;
+ * only the apostrophe marker does.
  */
 function appendBookingRow(sheet, map, valuesByHeader) {
   const numCols = sheet.getLastColumn();
   const rowArr = new Array(numCols).fill("");
   Object.keys(valuesByHeader).forEach((h) => {
-    if (map[h]) rowArr[map[h] - 1] = valuesByHeader[h];
+    if (map[h]) rowArr[map[h] - 1] = forceTextIfNeeded(h, valuesByHeader[h]);
   });
   const targetRow = sheet.getLastRow() + 1;
-  TEXT_HEADERS.forEach((h) => {
-    if (map[h]) sheet.getRange(targetRow, map[h]).setNumberFormat("@");
-  });
   sheet.getRange(targetRow, 1, 1, numCols).setValues([rowArr]);
+}
+
+/** Prefixes a value with a forced-text apostrophe if its header must never be auto-converted. */
+function forceTextIfNeeded(header, value) {
+  if (TEXT_HEADERS.indexOf(header) === -1) return value;
+  if (value === "" || value == null) return value;
+  return "'" + value;
 }
 
 /** All bookings as objects, read by header name. Includes _row (1-indexed sheet row). */
