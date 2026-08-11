@@ -356,7 +356,11 @@ function handleCancel(body) {
 
     const cancelledAt = Utilities.formatDate(new Date(), TIMEZONE, "yyyy-MM-dd HH:mm:ss");
     sheet.getRange(booking._row, map["Status"]).setValue("cancelled");
-    if (map["CancelledAt"]) sheet.getRange(booking._row, map["CancelledAt"]).setValue(cancelledAt);
+    if (map["CancelledAt"]) {
+      const cell = sheet.getRange(booking._row, map["CancelledAt"]);
+      cell.setNumberFormat("@");
+      cell.setValue(cancelledAt);
+    }
     return { ok: true };
   } finally {
     lock.releaseLock();
@@ -446,14 +450,27 @@ function ensureHeaders(sheet, headers) {
   return getHeaderMap(sheet);
 }
 
-/** Writes a new row using a {HeaderName: value} object, regardless of column order. */
+/**
+ * Writes a new row using a {HeaderName: value} object, regardless of column
+ * order. Uses an explicit Range.setValues() write rather than
+ * Sheet.appendRow() — appendRow() re-runs Sheets' automatic type detection
+ * on the new cells even when the column was pre-formatted as plain text
+ * (setup()'s bulk formatting is silently ignored for appended rows), which
+ * is what kept dropping the leading "0" from Phone. Explicitly re-applying
+ * "@" format to the new row's text cells immediately before writing them
+ * with setValues() is honored reliably.
+ */
 function appendBookingRow(sheet, map, valuesByHeader) {
   const numCols = sheet.getLastColumn();
   const rowArr = new Array(numCols).fill("");
   Object.keys(valuesByHeader).forEach((h) => {
     if (map[h]) rowArr[map[h] - 1] = valuesByHeader[h];
   });
-  sheet.appendRow(rowArr);
+  const targetRow = sheet.getLastRow() + 1;
+  TEXT_HEADERS.forEach((h) => {
+    if (map[h]) sheet.getRange(targetRow, map[h]).setNumberFormat("@");
+  });
+  sheet.getRange(targetRow, 1, 1, numCols).setValues([rowArr]);
 }
 
 /** All bookings as objects, read by header name. Includes _row (1-indexed sheet row). */
