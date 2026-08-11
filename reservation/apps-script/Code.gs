@@ -600,16 +600,18 @@ function normalizePhoneForCompare(s) {
 }
 
 /**
- * Best-effort repair for a Phone cell that Sheets silently converted to a
- * Number (which drops any leading "0"). Only re-adds the "0" when the
- * digit count matches a Japanese mobile number missing it (10 digits);
- * otherwise leaves the value alone rather than guessing.
+ * Best-effort repair for a Phone value that lost its leading "0" — either
+ * because Sheets auto-converted it to a Number, or because a plain-text
+ * reformat already locked that corrupted value in as a string. Matches on
+ * shape (exactly 10 digits, nothing else) rather than the cell's current
+ * type, since by repair time it may already have been stringified;
+ * anything that doesn't look exactly like a zero-less mobile number
+ * (already has the 0, has hyphens, wrong length) is left alone rather
+ * than guessed at.
  */
 function repairPhoneCell(value) {
-  if (typeof value !== "number") return value;
-  const digits = String(value);
-  if (digits.length === 10) return "0" + digits;
-  return digits;
+  const s = String(value == null ? "" : value).trim();
+  return /^\d{10}$/.test(s) ? "0" + s : value;
 }
 
 function isAdmin(key) {
