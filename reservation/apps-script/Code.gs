@@ -60,8 +60,10 @@ const BOOKINGS_HEADERS = [
   "CancelledAt",
   "ReminderSent",
 ];
-// Columns that must never be auto-converted to real Date values by Sheets.
-const TEXT_HEADERS = ["CreatedAt", "Date", "Time", "CancelledAt"];
+// Columns that must never be auto-converted to real Date/Number values by
+// Sheets (Phone is here because Sheets treats an all-digit phone number as
+// a number and silently drops its leading "0").
+const TEXT_HEADERS = ["CreatedAt", "Date", "Time", "CancelledAt", "Phone"];
 const CLOSED_HEADERS = ["Date", "Reason"];
 
 const CLINIC = {
@@ -107,19 +109,22 @@ function setup() {
     const iDate = map["Date"] - 1;
     const iTime = map["Time"] - 1;
     const iCancelled = map["CancelledAt"] ? map["CancelledAt"] - 1 : -1;
+    const iPhone = map["Phone"] ? map["Phone"] - 1 : -1;
     let repaired = 0;
     values.forEach((row) => {
-      const before = JSON.stringify([row[iCreated], row[iDate], row[iTime], iCancelled >= 0 ? row[iCancelled] : null]);
+      const fields = [iCreated, iDate, iTime, iCancelled, iPhone];
+      const before = JSON.stringify(fields.map((i) => (i >= 0 ? row[i] : null)));
       row[iCreated] = normalizeTimestampCell(row[iCreated]);
       row[iDate] = formatDateCell(row[iDate]);
       row[iTime] = normalizeTimeCell(row[iTime]);
       if (iCancelled >= 0 && row[iCancelled]) row[iCancelled] = normalizeTimestampCell(row[iCancelled]);
-      const after = JSON.stringify([row[iCreated], row[iDate], row[iTime], iCancelled >= 0 ? row[iCancelled] : null]);
+      if (iPhone >= 0) row[iPhone] = repairPhoneCell(row[iPhone]);
+      const after = JSON.stringify(fields.map((i) => (i >= 0 ? row[i] : null)));
       if (after !== before) repaired++;
     });
     range.setValues(values);
     if (repaired > 0) {
-      Logger.log("Repaired " + repaired + " row(s) with auto-converted dates/times.");
+      Logger.log("Repaired " + repaired + " row(s) with auto-converted dates/times/phone numbers.");
     }
   }
 
@@ -589,7 +594,22 @@ function normalizeNameForCompare(s) {
 }
 
 function normalizePhoneForCompare(s) {
-  return String(s || "").replace(/\D/g, "");
+  // Strip a single leading 0 so a number that lost it to Sheets'
+  // auto-numeric-conversion still matches ("9012345678" == "09012345678").
+  return String(s || "").replace(/\D/g, "").replace(/^0/, "");
+}
+
+/**
+ * Best-effort repair for a Phone cell that Sheets silently converted to a
+ * Number (which drops any leading "0"). Only re-adds the "0" when the
+ * digit count matches a Japanese mobile number missing it (10 digits);
+ * otherwise leaves the value alone rather than guessing.
+ */
+function repairPhoneCell(value) {
+  if (typeof value !== "number") return value;
+  const digits = String(value);
+  if (digits.length === 10) return "0" + digits;
+  return digits;
 }
 
 function isAdmin(key) {
