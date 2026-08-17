@@ -13,6 +13,10 @@ const GUIDANCE_STEPS = [
   { ja: "側面も撮影していただくと、奥行きを推定できます。", en: "Please photograph the side so I can estimate the depth." },
 ];
 
+// Illustrated stand-in used by "サンプル写真で試す", for previews/browsers
+// where the OS camera picker isn't reachable (e.g. a sandboxed iframe).
+const SAMPLE_PHOTO = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 500'%3E%3Cdefs%3E%3ClinearGradient id='bg' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%233a332a'/%3E%3Cstop offset='1' stop-color='%23a9803b'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='400' height='500' fill='url(%23bg)'/%3E%3Cpath d='M200 55 L200 78' stroke='%23e9dcc0' stroke-width='4' stroke-linecap='round'/%3E%3Cpath d='M150 100 L200 62 L250 100' stroke='%23e9dcc0' stroke-width='5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3Cpath d='M118 112 L162 94 L200 122 L238 94 L282 112 L292 262 Q292 322 260 342 L260 424 Q200 445 140 424 L140 342 Q108 322 108 262 Z' fill='%231f3350'/%3E%3Cpath d='M162 94 L200 195 L200 122 Z' fill='%2316283f'/%3E%3Cpath d='M238 94 L200 195 L200 122 Z' fill='%2316283f'/%3E%3Ccircle cx='200' cy='232' r='6' fill='%23c9a15a'/%3E%3Ccircle cx='200' cy='262' r='6' fill='%23c9a15a'/%3E%3Ccircle cx='200' cy='292' r='6' fill='%23c9a15a'/%3E%3C/svg%3E";
+
 const ANALYZING_MESSAGES = [
   "アイテムの種類を判定中",
   "ブランド・メーカーを照合中",

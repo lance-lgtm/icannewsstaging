@@ -105,6 +105,7 @@
   const cameraInput = $("#cameraInput");
   const btnShoot = $("#btnShoot");
   const btnSkipMore = $("#btnSkipMore");
+  const btnSamplePhoto = $("#btnSamplePhoto");
 
   function resetCamera() {
     state.photos = [];
@@ -122,12 +123,7 @@
     $("#guidanceText").innerHTML = step.ja + '<span class="en">' + step.en + "</span>";
   }
 
-  btnShoot.addEventListener("click", () => cameraInput.click());
-
-  cameraInput.addEventListener("change", (e) => {
-    const file = e.target.files && e.target.files[0];
-    if (!file) return;
-    const url = URL.createObjectURL(file);
+  function addCapturedPhoto(url) {
     state.photos.push(url);
 
     $("#framePreview").src = url;
@@ -137,6 +133,29 @@
     const thumb = document.createElement("img");
     thumb.src = url;
     $("#thumbStrip").appendChild(thumb);
+  }
+
+  btnShoot.addEventListener("click", () => {
+    // On platforms where the OS camera/file picker can't be reached (e.g. a
+    // sandboxed preview with no camera permission), .click() is a silent
+    // no-op — the sample-photo button below is the guaranteed fallback.
+    try {
+      cameraInput.click();
+    } catch (e) {
+      toast("カメラを開けませんでした。「サンプル写真で試す」をお使いください。");
+    }
+  });
+
+  btnSamplePhoto.addEventListener("click", () => {
+    addCapturedPhoto(SAMPLE_PHOTO);
+    startAnalysis();
+  });
+
+  cameraInput.addEventListener("change", (e) => {
+    const file = e.target.files && e.target.files[0];
+    if (!file) return;
+    const url = URL.createObjectURL(file);
+    addCapturedPhoto(url);
 
     state.guidanceIndex = Math.min(state.guidanceIndex + 1, GUIDANCE_STEPS.length - 1);
     setGuidance(state.guidanceIndex);

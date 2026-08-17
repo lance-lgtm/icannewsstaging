@@ -84,7 +84,7 @@ button, input, select, textarea {
   color: inherit;
 }
 
-button { cursor: pointer; }
+button { cursor: pointer; touch-action: manipulation; }
 
 img, svg { display: block; }
 [hidden] { display: none !important; }
@@ -199,6 +199,10 @@ main#views {
 .view { display: none; padding: 18px 16px 24px; animation: fadeUp 0.32s var(--ease); }
 .view.active { display: block; }
 
+@media (prefers-reduced-motion: reduce) {
+  .view { animation: none; }
+}
+
 @keyframes fadeUp {
   from { opacity: 0; transform: translateY(10px); }
   to { opacity: 1; transform: translateY(0); }
@@ -240,6 +244,12 @@ main#views {
 .tab-btn span { font-size: calc(0.66rem * var(--scale)); font-weight: 600; }
 .tab-btn.active { color: var(--gold-deep); }
 .tab-btn.active .icon { stroke: var(--gold-deep); }
+.tab-btn:focus-visible, .feature-card:focus-visible, .btn:focus-visible,
+.action-btn:focus-visible, .category-tile:focus-visible, .ask-chip:focus-visible,
+.camera-cta:focus-visible, .tab-fab:focus-visible, input:focus-visible, textarea:focus-visible {
+  outline: 2.5px solid var(--gold-deep);
+  outline-offset: 2px;
+}
 
 .tab-fab {
   width: 58px;
@@ -366,7 +376,7 @@ main#views {
   min-width: 108px;
   box-shadow: var(--shadow-sm);
 }
-.impact-chip .num { font-weight: 700; font-size: calc(1.05rem * var(--scale)); color: var(--gold-deep); }
+.impact-chip .num { font-weight: 700; font-size: calc(1.05rem * var(--scale)); color: var(--gold-deep); font-variant-numeric: tabular-nums; }
 .impact-chip .lbl { font-size: calc(0.68rem * var(--scale)); color: var(--ink-faint); margin-top: 2px; }
 
 .section-label {
@@ -539,6 +549,9 @@ main#views {
   0% { transform: scale(0.55); opacity: 0.9; }
   100% { transform: scale(1); opacity: 0; }
 }
+@media (prefers-reduced-motion: reduce) {
+  .pulse-ring .ring { animation: none; opacity: 0.6; }
+}
 .analyzing-steps { margin-top: 22px; display: flex; flex-direction: column; gap: 10px; text-align: left; }
 .analyzing-step {
   display: flex; align-items: center; gap: 10px;
@@ -708,6 +721,7 @@ main#views {
   animation: popIn 0.4s var(--ease);
 }
 @keyframes popIn { from { transform: scale(0.5); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { .success-badge { animation: none; } }
 .success-badge .icon { width: 36px; height: 36px; stroke: #fff; stroke-width: 2.2; }
 .success-points {
   display: inline-flex; align-items: center; gap: 6px; margin-top: 14px;
@@ -840,7 +854,7 @@ main#views {
   content: ""; position: absolute; left: -26px; top: 3px; width: 16px; height: 16px; border-radius: var(--r-pill);
   background: var(--gold); border: 3px solid var(--paper);
 }
-.tl-item .tl-year { font-weight: 800; color: var(--gold-deep); font-size: calc(0.82rem * var(--scale)); }
+.tl-item .tl-year { font-weight: 800; color: var(--gold-deep); font-size: calc(0.82rem * var(--scale)); font-variant-numeric: tabular-nums; }
 .tl-item .tl-text { font-size: calc(0.84rem * var(--scale)); margin-top: 3px; line-height: 1.6; }
 
 .record-panel {
@@ -854,6 +868,7 @@ main#views {
 }
 .mic-btn.recording { animation: micPulse 1.2s ease-in-out infinite; }
 @keyframes micPulse { 0%,100% { box-shadow: 0 0 0 0 rgba(224,138,168,0.5);} 50% { box-shadow: 0 0 0 14px rgba(224,138,168,0);} }
+@media (prefers-reduced-motion: reduce) { .mic-btn.recording { animation: none; } }
 .mic-btn .icon { width: 26px; height: 26px; stroke: #fff; }
 .record-panel textarea {
   width: 100%; border: 1.5px solid var(--line); border-radius: var(--r-sm); padding: 10px 12px;
@@ -877,7 +892,7 @@ main#views {
 .impact-card {
   background: var(--card); border-radius: var(--r-md); padding: 14px; box-shadow: var(--shadow-sm); text-align: center;
 }
-.impact-card .ic-num { font-size: calc(1.3rem * var(--scale)); font-weight: 800; color: var(--gold-deep); }
+.impact-card .ic-num { font-size: calc(1.3rem * var(--scale)); font-weight: 800; color: var(--gold-deep); font-variant-numeric: tabular-nums; }
 .impact-card .ic-lbl { font-size: calc(0.68rem * var(--scale)); color: var(--ink-faint); margin-top: 3px; }
 
 .badge-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-top: 12px; }
@@ -910,6 +925,7 @@ main#views {
 }
 .switch input:checked + .track { background: var(--gold-deep); }
 .switch input:checked + .track::before { transform: translateX(18px); }
+.switch input:focus-visible + .track { outline: 2.5px solid var(--gold-deep); outline-offset: 2px; }
 
 .helper-card {
   margin-top: 16px; background: var(--card); border-radius: var(--r-md); padding: 16px; box-shadow: var(--shadow-sm);

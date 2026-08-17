@@ -147,6 +147,7 @@
         <button class="btn btn-outline block" id="btnSkipMore" hidden>スキップして解析</button>
         <button class="btn btn-gold block" id="btnShoot"><svg class="icon" style="width:18px;height:18px"><use href="#i-camera"/></svg>撮影する</button>
       </div>
+      <button class="btn btn-ghost block" id="btnSamplePhoto" style="margin-top:6px">サンプル写真で試す（カメラが使えない場合）</button>
     </section>
 
     <!-- ============================= ANALYZING ============================= -->
@@ -432,7 +433,7 @@
         <div class="settings-row">
           <svg class="icon"><use href="#i-users"/></svg>
           <div class="sr-text"><div class="sr-title">ファミリー・ヘルパーモード</div><div class="sr-sub">Let a trusted helper manage on your behalf</div></div>
-          <label class="switch"><input type="checkbox" id="toggleHelperMode"></label>
+          <label class="switch"><input type="checkbox" id="toggleHelperMode"><span class="track"></span></label>
         </div>
         <div class="settings-row">
           <svg class="icon"><use href="#i-phone"/></svg>
@@ -447,7 +448,7 @@
   <nav class="tabbar">
     <button class="tab-btn active" data-nav="home"><svg class="icon"><use href="#i-home"/></svg><span>ホーム</span></button>
     <button class="tab-btn" data-nav="inventory"><svg class="icon"><use href="#i-box"/></svg><span>持ち物</span></button>
-    <button class="tab-fab" id="fabCamera"><svg class="icon"><use href="#i-camera"/></svg></button>
+    <button class="tab-fab" id="fabCamera" aria-label="写真を撮る"><svg class="icon"><use href="#i-camera"/></svg></button>
     <button class="tab-btn" data-nav="marketplace"><svg class="icon"><use href="#i-store"/></svg><span>マーケット</span></button>
     <button class="tab-btn" data-nav="profile"><svg class="icon"><use href="#i-user"/></svg><span>マイページ</span></button>
   </nav>
