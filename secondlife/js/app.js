@@ -323,7 +323,7 @@
         <div class="it-icon"><svg class="icon" style="width:16px;height:16px;stroke:#fff"><use href="#${ACTION_ICON[it.action]}"/></svg></div>
         <div class="it-dot" style="background:var(--${it.action})"></div>
         <div class="it-name">${it.name}</div>
-      </div>`).join("") || '<div class="empty-state" style="grid-column:1/-1"><svg class="icon"><use href="#i-box"/></svg>まだアイテムがありません</div>';
+      </div>`).join("") || '<div class="empty-state" style="grid-column:1/-1"><svg class="mascot mascot-md" style="margin:0 auto 10px"><use href="#i-mascot"/></svg>まだアイテムがありません</div>';
     navigate("inventory-category");
   });
 

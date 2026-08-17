@@ -342,6 +342,35 @@ main#views {
 }
 .camera-cta:active { transform: scale(0.98); }
 
+/* =========================================================================
+   Tsugumi — the app's mascot
+   ========================================================================= */
+
+.mascot {
+  flex-shrink: 0;
+  animation: mascotBob 3.2s ease-in-out infinite;
+}
+.mascot-xs { width: 40px; height: 40px; }
+.mascot-sm { width: 56px; height: 56px; }
+.mascot-md { width: 84px; height: 84px; }
+.mascot-lg { width: 120px; height: 120px; }
+
+@keyframes mascotBob {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-4px); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .mascot { animation: none; }
+}
+
+.mascot-greeting {
+  margin-top: 18px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.mascot-greeting .tagline { margin-top: 0; }
+
 .tagline {
   margin-top: 18px;
   font-family: var(--font-serif);
@@ -936,7 +965,6 @@ main#views {
    ========================================================================= */
 
 .empty-state { text-align: center; padding: 40px 20px; color: var(--ink-faint); }
-.empty-state .icon { width: 40px; height: 40px; margin: 0 auto 10px; opacity: 0.5; }
 
 #toast {
   position: fixed; left: 50%; bottom: 104px; transform: translateX(-50%) translateY(20px);
