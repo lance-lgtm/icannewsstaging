@@ -1,0 +1,461 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>つぐ TSUGU — あなたの持ち物に、次の人生を。</title>
+<meta name="description" content="写真を撮るだけでAIが持ち物を見極め、残す・売る・譲る・贈る・寄付する・リサイクルするを提案する、日本のためのセカンドライフ・アプリ。">
+<meta name="theme-color" content="#fbf6ee">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%232b2620'/%3E%3Ctext x='32' y='44' font-size='32' text-anchor='middle' fill='%23c9a15a' font-family='sans-serif'%3E%E3%81%A4%3C/text%3E%3C/svg%3E">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<!-- ============================= ICON SPRITE ============================= -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+<defs>
+  <symbol id="i-camera" viewBox="0 0 24 24"><path d="M4 8h3l1.5-2.2A2 2 0 0 1 10.15 5h3.7a2 2 0 0 1 1.65.8L17 8h3a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2Z"/><circle cx="12" cy="14" r="3.6"/></symbol>
+  <symbol id="i-home" viewBox="0 0 24 24"><path d="M3.5 11 12 4l8.5 7"/><path d="M5.5 9.5V19a1 1 0 0 0 1 1H9v-5.5a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1V20h2.5a1 1 0 0 0 1-1V9.5"/></symbol>
+  <symbol id="i-box" viewBox="0 0 24 24"><path d="M3 8.5 12 4l9 4.5-9 4.5-9-4.5Z"/><path d="M3 8.5V17l9 4.5 9-4.5V8.5"/><path d="M12 13v8.5"/></symbol>
+  <symbol id="i-store" viewBox="0 0 24 24"><path d="M4 10 5 4h14l1 6"/><path d="M4 10a2.5 2.5 0 0 0 5 0 2.5 2.5 0 0 0 5 0 2.5 2.5 0 0 0 5 0"/><path d="M5 10v9h14v-9"/><path d="M10 19v-5h4v5"/></symbol>
+  <symbol id="i-scroll" viewBox="0 0 24 24"><path d="M6 4h11a2 2 0 0 1 2 2v13a1.5 1.5 0 0 1-3 0V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v1.5a2 2 0 0 0 2 2"/><path d="M6 9.5h9"/><path d="M6 13h9"/><path d="M4 7.5a2 2 0 0 0 2 2"/></symbol>
+  <symbol id="i-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.6"/><path d="M4.5 20a7.5 7.5 0 0 1 15 0"/></symbol>
+  <symbol id="i-heart" viewBox="0 0 24 24"><path d="M12 20.2s-7.4-4.4-9.7-9A5.4 5.4 0 0 1 12 6a5.4 5.4 0 0 1 9.7 5.2c-2.3 4.6-9.7 9-9.7 9Z"/></symbol>
+  <symbol id="i-tag" viewBox="0 0 24 24"><path d="M12.6 3.4 20 10.8a2 2 0 0 1 0 2.8l-6.4 6.4a2 2 0 0 1-2.8 0L4 13.2V4h9.2Z"/><circle cx="8.2" cy="8.2" r="1.4"/></symbol>
+  <symbol id="i-give" viewBox="0 0 24 24"><path d="M4 11h9M13 11l-3.3-3.3M13 11l-3.3 3.3"/><path d="M15 5h5v14h-5"/></symbol>
+  <symbol id="i-gift" viewBox="0 0 24 24"><rect x="4" y="10" width="16" height="10" rx="1.5"/><path d="M4 10h16v3H4z"/><path d="M12 10v10"/><path d="M12 10C9.5 10 8 8.8 8 7.2 8 5.9 9 5 10.1 5c1.3 0 1.9 1.5 1.9 2.6"/><path d="M12 10c2.5 0 4-1.2 4-2.8C16 5.9 15 5 13.9 5 12.6 5 12 6.5 12 7.6"/></symbol>
+  <symbol id="i-donate" viewBox="0 0 24 24"><path d="M12 13.8s-4.3-2.6-5.7-5.2A3.1 3.1 0 0 1 12 5a3.1 3.1 0 0 1 5.7 3.6c-1.4 2.6-5.7 5.2-5.7 5.2Z"/><path d="M5 15c-1 .6-1.6 1.4-1.6 2.3 0 2 3.9 3.7 8.6 3.7s8.6-1.7 8.6-3.7c0-.9-.6-1.7-1.6-2.3"/></symbol>
+  <symbol id="i-recycle" viewBox="0 0 24 24"><path d="M4.5 12a7.5 7.5 0 0 1 12.2-5.9"/><path d="M14.5 3.6 17 6.4l-3.2 1.4"/><path d="M19.5 12a7.5 7.5 0 0 1-12.2 5.9"/><path d="M9.5 20.4 7 17.6l3.2-1.4"/></symbol>
+  <symbol id="i-trash" viewBox="0 0 24 24"><path d="M5 7h14"/><path d="M9 7V5a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/><path d="M6.5 7 7.3 19a1.5 1.5 0 0 0 1.5 1.4h6.4a1.5 1.5 0 0 0 1.5-1.4L17.5 7"/><path d="M10 11v6M14 11v6"/></symbol>
+  <symbol id="i-sparkle" viewBox="0 0 24 24"><path d="M12 3l1.7 5.3L19 10l-5.3 1.7L12 17l-1.7-5.3L5 10l5.3-1.7Z"/><path d="M19 15l.7 2.1L22 18l-2.3.9L19 21l-.7-2.1L16 18l2.3-.9Z"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="M5 12.5 9.5 17 19 7"/></symbol>
+  <symbol id="i-check-circle" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M8 12.3 10.8 15 16 9"/></symbol>
+  <symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 3.5 19 6v6c0 5-3 8-7 9-4-1-7-4-7-9V6l7-2.5Z"/><path d="M8.7 12.2l2.4 2.4 4.4-4.6"/></symbol>
+  <symbol id="i-alert" viewBox="0 0 24 24"><path d="M12 4 3 20h18Z"/><path d="M12 10v4.2"/><circle cx="12" cy="17.2" r="0.9" fill="currentColor" stroke="none"/></symbol>
+  <symbol id="i-mic" viewBox="0 0 24 24"><rect x="9.5" y="3.5" width="5" height="10" rx="2.5"/><path d="M6 11a6 6 0 0 0 12 0"/><path d="M12 17v3.5M9 20.5h6"/></symbol>
+  <symbol id="i-chev-left" viewBox="0 0 24 24"><path d="M15 5 8 12l7 7"/></symbol>
+  <symbol id="i-chev-down" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></symbol>
+  <symbol id="i-map-pin" viewBox="0 0 24 24"><path d="M12 21.5S5.5 15.4 5.5 10a6.5 6.5 0 0 1 13 0c0 5.4-6.5 11.5-6.5 11.5Z"/><circle cx="12" cy="10" r="2.3"/></symbol>
+  <symbol id="i-truck" viewBox="0 0 24 24"><path d="M3 7h10v9H3z"/><path d="M13 11h4l3 3v2h-7z"/><circle cx="7" cy="18.5" r="1.6"/><circle cx="17" cy="18.5" r="1.6"/></symbol>
+  <symbol id="i-store-pin" viewBox="0 0 24 24"><path d="M4 10 5 5h14l1 5"/><path d="M4 10v9h16v-9"/><path d="M9 19v-5h6v5"/></symbol>
+  <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/></symbol>
+  <symbol id="i-phone" viewBox="0 0 24 24"><path d="M6 3.5h3l1.4 4-2 1.6a12 12 0 0 0 5.5 5.5l1.6-2 4 1.4v3a1.5 1.5 0 0 1-1.6 1.5A16 16 0 0 1 4.5 5.1 1.5 1.5 0 0 1 6 3.5Z"/></symbol>
+  <symbol id="i-star" viewBox="0 0 24 24"><path d="M12 3.5 14.7 9l6 .9-4.4 4.2 1 6-5.3-2.8-5.3 2.8 1-6L3.3 9.9l6-.9Z"/></symbol>
+  <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+  <symbol id="i-closet" viewBox="0 0 24 24"><rect x="4" y="3" width="16" height="18" rx="1.2"/><path d="M12 3v18"/><circle cx="8.5" cy="12" r="0.8" fill="currentColor" stroke="none"/><circle cx="15.5" cy="12" r="0.8" fill="currentColor" stroke="none"/></symbol>
+  <symbol id="i-kitchen" viewBox="0 0 24 24"><path d="M6 3v8a3 3 0 0 0 6 0V3"/><path d="M9 11v10"/><path d="M17 3v6a2 2 0 1 1-4 0"/><path d="M17 3v18"/></symbol>
+  <symbol id="i-bed" viewBox="0 0 24 24"><path d="M3 18v-6a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v6"/><path d="M3 18v2M21 18v2"/><path d="M5 12V8a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></symbol>
+  <symbol id="i-sofa" viewBox="0 0 24 24"><path d="M5 12V8a2 2 0 0 1 4 0v4"/><path d="M15 12V8a2 2 0 0 1 4 0v4"/><path d="M4 12h16v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1z"/><path d="M4 17v3M20 17v3"/></symbol>
+  <symbol id="i-book" viewBox="0 0 24 24"><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H19a1 1 0 0 1 1 1v15a1 1 0 0 1-1 1H6.5A2.5 2.5 0 0 1 4 17.5Z"/><path d="M4 17.5A2.5 2.5 0 0 1 6.5 15H20"/></symbol>
+  <symbol id="i-archive" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="5" rx="1"/><path d="M5 9v9a1.5 1.5 0 0 0 1.5 1.5h11A1.5 1.5 0 0 0 19 18V9"/><path d="M10 13h4"/></symbol>
+  <symbol id="i-garage" viewBox="0 0 24 24"><path d="M3 20V9l9-5 9 5v11"/><path d="M3 12h18M3 16h18"/></symbol>
+  <symbol id="i-dots" viewBox="0 0 24 24"><circle cx="6" cy="12" r="1.4" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="1.4" fill="currentColor" stroke="none"/><circle cx="18" cy="12" r="1.4" fill="currentColor" stroke="none"/></symbol>
+  <symbol id="i-sax" viewBox="0 0 24 24"><path d="M9 4h6v4H9z"/><path d="M11 8v6a4 4 0 0 0 4 4 2.5 2.5 0 1 0-2.2-3.7"/><circle cx="15.5" cy="18.5" r="2.3"/></symbol>
+  <symbol id="i-cog" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 3.5v2M12 18.5v2M20.5 12h-2M5.5 12h-2M17.9 6.1l-1.4 1.4M7.5 16.5l-1.4 1.4M17.9 17.9l-1.4-1.4M7.5 7.5 6.1 6.1"/></symbol>
+  <symbol id="i-type" viewBox="0 0 24 24"><path d="M5 5h14M12 5v14"/><path d="M9 19h6"/></symbol>
+  <symbol id="i-users" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0"/><circle cx="17.5" cy="9.5" r="2.3"/><path d="M15 13.2A5 5 0 0 1 21.5 18"/></symbol>
+</defs>
+</svg>
+
+<div id="app">
+
+  <!-- ============================= TOP BAR ============================= -->
+  <header class="topbar" id="topbar">
+    <button class="back-btn" id="backBtn" aria-label="戻る"><svg class="icon"><use href="#i-chev-left"/></svg></button>
+    <div class="title-wrap">
+      <h1 id="topbarTitle">つぐ</h1>
+      <div class="subtitle" id="topbarSub"></div>
+    </div>
+    <div class="points-pill"><svg class="icon"><use href="#i-sparkle"/></svg><span id="pointsCount">1,240</span>pt</div>
+  </header>
+
+  <main id="views">
+
+    <!-- ============================= HOME ============================= -->
+    <section class="view active" id="view-home" data-title="つぐ" data-sub="Second Life for Your Belongings">
+      <div class="hero">
+        <div class="brand">つ<span class="gold">ぐ</span></div>
+        <div class="brand-en">T S U G U</div>
+        <div class="gold-rule"></div>
+      </div>
+
+      <button class="camera-cta" id="btnTakePhoto">
+        <div class="cta-icon-wrap"><svg class="icon"><use href="#i-camera"/></svg></div>
+        <div class="cta-label">写真を撮る</div>
+        <div class="cta-sub">TAKE A PHOTO</div>
+      </button>
+
+      <p class="tagline">あなたの持ち物に、次の人生を。<span class="en">Give your belongings a second life.</span></p>
+
+      <div class="impact-strip">
+        <div class="impact-chip"><div class="num">1,240pt</div><div class="lbl">セカンドライフポイント</div></div>
+        <div class="impact-chip"><div class="num">18点</div><div class="lbl">次の人へ渡した物</div></div>
+        <div class="impact-chip"><div class="num">¥32,400</div><div class="lbl">これまでの収益</div></div>
+        <div class="impact-chip"><div class="num">47.2kg</div><div class="lbl">廃棄削減の推定量</div></div>
+      </div>
+
+      <div class="section-label">できること</div>
+      <div class="card-grid">
+        <button class="feature-card" data-nav="marketplace" data-filter="sell">
+          <div class="fc-icon fc-tone-sell"><svg class="icon"><use href="#i-tag"/></svg></div>
+          <div><div class="fc-title">売れるものは?</div><div class="fc-sub">What can I sell?</div></div>
+        </button>
+        <button class="feature-card" data-nav="inventory">
+          <div class="fc-icon fc-tone-keep"><svg class="icon"><use href="#i-heart"/></svg></div>
+          <div><div class="fc-title">残すべきものは?</div><div class="fc-sub">What should I keep?</div></div>
+        </button>
+        <button class="feature-card" data-nav="camera" data-preset="give">
+          <div class="fc-icon fc-tone-give"><svg class="icon"><use href="#i-give"/></svg></div>
+          <div><div class="fc-title">譲る・贈る</div><div class="fc-sub">Give something away</div></div>
+        </button>
+        <button class="feature-card" data-nav="camera" data-preset="value">
+          <div class="fc-icon fc-tone-gold"><svg class="icon"><use href="#i-sparkle"/></svg></div>
+          <div><div class="fc-title">隠れた価値を発見</div><div class="fc-sub">Find hidden value</div></div>
+        </button>
+        <button class="feature-card wide" data-nav="inventory">
+          <div class="fc-icon fc-tone-gold"><svg class="icon"><use href="#i-box"/></svg></div>
+          <div><div class="fc-title">マイ・ホームインベントリ</div><div class="fc-sub">My Home Inventory — 持ち物を写真で整理</div></div>
+        </button>
+        <button class="feature-card wide" data-nav="legacy">
+          <div class="fc-icon fc-tone-donate"><svg class="icon"><use href="#i-scroll"/></svg></div>
+          <div><div class="fc-title">ファミリー・レガシー</div><div class="fc-sub">Family Legacy — 想い出を次の世代へ</div></div>
+        </button>
+        <button class="feature-card wide" data-nav="marketplace">
+          <div class="fc-icon fc-tone-recycle"><svg class="icon"><use href="#i-store"/></svg></div>
+          <div><div class="fc-title">コミュニティ・マーケットプレイス</div><div class="fc-sub">信頼できる人たちとつながる</div></div>
+        </button>
+      </div>
+    </section>
+
+    <!-- ============================= CAMERA ============================= -->
+    <section class="view" id="view-camera" data-title="写真を撮る" data-sub="Take a photo" data-back="home">
+      <div class="frame-wrap" id="frameWrap">
+        <div class="placeholder" id="framePlaceholder"><svg class="icon"><use href="#i-camera"/></svg></div>
+        <img id="framePreview" hidden alt="撮影した写真">
+        <div class="corner tl"></div><div class="corner tr"></div><div class="corner bl"></div><div class="corner br"></div>
+      </div>
+      <input type="file" accept="image/*" capture="environment" id="cameraInput" hidden>
+
+      <div class="ai-bubble" id="guidanceBubble">
+        <div class="ai-avatar"><svg class="icon"><use href="#i-sparkle"/></svg></div>
+        <div class="ai-text" id="guidanceText">対象物を枠の中に収めて撮影してください。<span class="en">Fit the item inside the frame and take a photo.</span></div>
+      </div>
+
+      <div class="thumb-strip" id="thumbStrip"></div>
+
+      <div class="capture-actions">
+        <button class="btn btn-outline block" id="btnSkipMore" hidden>スキップして解析</button>
+        <button class="btn btn-gold block" id="btnShoot"><svg class="icon" style="width:18px;height:18px"><use href="#i-camera"/></svg>撮影する</button>
+      </div>
+    </section>
+
+    <!-- ============================= ANALYZING ============================= -->
+    <section class="view" id="view-analyzing" data-title="AI解析中" data-sub="Analyzing" data-back="camera">
+      <div class="analyzing-wrap">
+        <div class="pulse-ring">
+          <div class="ring"></div><div class="ring r2"></div>
+          <div class="core"><svg class="icon"><use href="#i-sparkle"/></svg></div>
+        </div>
+        <p style="font-weight:700">AIが写真を確認しています…</p>
+        <div class="analyzing-steps" id="analyzingSteps">
+          <div class="analyzing-step" data-step="0"><div class="dot"><svg class="icon"><use href="#i-check"/></svg></div>アイテムの種類を判定中</div>
+          <div class="analyzing-step" data-step="1"><div class="dot"><svg class="icon"><use href="#i-check"/></svg></div>ブランド・メーカーを照合中</div>
+          <div class="analyzing-step" data-step="2"><div class="dot"><svg class="icon"><use href="#i-check"/></svg></div>状態とサイズを推定中</div>
+          <div class="analyzing-step" data-step="3"><div class="dot"><svg class="icon"><use href="#i-check"/></svg></div>市場価値を算出中</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================= ITEM CARD ============================= -->
+    <section class="view" id="view-itemcard" data-title="AIアイテムカード" data-sub="AI Item Card" data-back="home">
+      <div class="item-hero">
+        <img id="itemHeroImg" hidden alt="撮影したアイテム">
+        <div class="hero-gradient"></div>
+        <div class="hero-text">
+          <div class="est-badge"><svg class="icon" style="width:11px;height:11px"><use href="#i-sparkle"/></svg>AI推定・AI Estimate</div>
+          <h2 id="itemName">Ralph Lauren ウィメンズ ブレザー</h2>
+          <div class="brand-line" id="itemBrandLine">Ralph Lauren / Women's Blazer</div>
+        </div>
+      </div>
+
+      <div class="detail-grid" id="itemDetailGrid"></div>
+
+      <button class="expand-toggle" id="detailExpandBtn">
+        AI分析の詳細をすべて見る <svg class="icon" style="width:16px;height:16px"><use href="#i-chev-down"/></svg>
+      </button>
+      <div class="detail-full" id="detailFull"><dl id="detailFullList"></dl></div>
+
+      <div class="reco-banner" id="recoBanner">
+        <div class="reco-icon" id="recoIcon"><svg class="icon"><use href="#i-tag"/></svg></div>
+        <div>
+          <div class="reco-tag" id="recoTag">おすすめ · SELL</div>
+          <div class="reco-title" id="recoTitle">売ってみましょう</div>
+          <p id="recoText">このジャケットは状態が良く、日本国内でもリセール需要のあるブランドです。同様のアイテムはおよそ¥8,000〜¥12,000で取引されています。</p>
+        </div>
+      </div>
+
+      <div class="section-label" style="margin-top:20px">次の人生をえらぶ</div>
+      <div class="action-grid" id="actionGrid">
+        <button class="action-btn ab-keep" data-action="keep"><div class="icon-wrap"><svg class="icon"><use href="#i-heart"/></svg></div>KEEP<br>残す</button>
+        <button class="action-btn ab-sell" data-action="sell"><div class="icon-wrap"><svg class="icon"><use href="#i-tag"/></svg></div>SELL<br>売る</button>
+        <button class="action-btn ab-give" data-action="give"><div class="icon-wrap"><svg class="icon"><use href="#i-give"/></svg></div>GIVE<br>譲る</button>
+        <button class="action-btn ab-gift" data-action="gift"><div class="icon-wrap"><svg class="icon"><use href="#i-gift"/></svg></div>GIFT<br>贈る</button>
+        <button class="action-btn ab-donate" data-action="donate"><div class="icon-wrap"><svg class="icon"><use href="#i-donate"/></svg></div>DONATE<br>寄付</button>
+        <button class="action-btn ab-recycle" data-action="recycle"><div class="icon-wrap"><svg class="icon"><use href="#i-recycle"/></svg></div>RECYCLE<br>リサイクル</button>
+        <button class="action-btn ab-dispose wide-row" data-action="dispose"><div class="icon-wrap" style="width:26px;height:26px;margin-right:6px"><svg class="icon" style="width:14px;height:14px"><use href="#i-trash"/></svg></div>DISPOSE — 処分する（最終手段）</button>
+      </div>
+    </section>
+
+    <!-- ============================= LISTING ASSISTANT ============================= -->
+    <section class="view" id="view-listing" data-title="出品アシスタント" data-sub="AI Listing Assistant" data-back="itemcard">
+      <div class="lang-toggle">
+        <button class="active" data-lang="ja">日本語</button>
+        <button data-lang="en">English</button>
+      </div>
+
+      <div class="listing-card">
+        <div class="field-row">
+          <label>商品名 / Title</label>
+          <input type="text" id="lsTitle" value="ラルフローレン ウィメンズ ブレザー ネイビー">
+        </div>
+        <div class="field-two">
+          <div class="field-row"><label>ブランド</label><input type="text" id="lsBrand" value="Ralph Lauren"></div>
+          <div class="field-row"><label>サイズ</label><input type="text" id="lsSize" value="Japan 11 / US 8–10"></div>
+        </div>
+        <div class="field-two">
+          <div class="field-row"><label>状態</label><input type="text" id="lsCondition" value="非常に良い（Very Good）"></div>
+          <div class="field-row"><label>寸法（目安）</label><input type="text" id="lsDim" value="約 64 × 46 cm"></div>
+        </div>
+        <div class="field-row">
+          <label>説明文 / Description</label>
+          <textarea id="lsDesc">ラルフローレンのウィメンズ ブレザーです。深みのあるネイビーカラーで、上品なオフィスシーンにもお使いいただけます。目立った傷や汚れはなく、状態は非常に良好です。クローゼットの整理のため出品します。</textarea>
+        </div>
+        <div class="field-row">
+          <label>キーワード</label>
+          <div class="keyword-chips" id="lsKeywords">
+            <span class="chip">ラルフローレン</span><span class="chip">ブレザー</span><span class="chip">ネイビー</span><span class="chip">レディース</span><span class="chip">Mサイズ</span>
+          </div>
+        </div>
+        <div class="field-two">
+          <div class="field-row"><label>AI推定価格</label><input type="text" value="¥8,000 〜 ¥12,000" disabled></div>
+          <div class="field-row"><label>出品価格</label><input type="text" id="lsAsk" value="¥9,800"></div>
+        </div>
+
+        <div class="field-row">
+          <label>受け渡し方法</label>
+          <div class="option-list">
+            <label class="option-row"><input type="checkbox" checked><svg class="icon"><use href="#i-map-pin"/></svg><span class="opt-label">セーフ・ピックアップ地点</span></label>
+            <label class="option-row"><input type="checkbox"><svg class="icon"><use href="#i-store-pin"/></svg><span class="opt-label">コンビニ受け渡し</span></label>
+            <label class="option-row"><input type="checkbox" checked><svg class="icon"><use href="#i-truck"/></svg><span class="opt-label">宅配便で発送</span></label>
+            <label class="option-row"><input type="checkbox"><svg class="icon"><use href="#i-users"/></svg><span class="opt-label">管理人による受け渡し（コンシェルジュ）</span></label>
+          </div>
+        </div>
+      </div>
+
+      <button class="btn btn-gold block" id="btnPublishListing" style="margin-top:18px">この内容で出品する</button>
+    </section>
+
+    <!-- ============================= LISTING SUCCESS ============================= -->
+    <section class="view" id="view-listing-success" data-title="出品完了" data-sub="" data-back="home">
+      <div class="success-wrap">
+        <div class="success-badge"><svg class="icon"><use href="#i-check"/></svg></div>
+        <h2 style="font-size:1.2rem;font-weight:800">出品が完了しました！</h2>
+        <p style="color:var(--ink-faint);margin-top:8px">コミュニティのメンバーに公開されました。<br>連絡があり次第お知らせします。</p>
+        <div class="success-points"><svg class="icon" style="width:16px;height:16px"><use href="#i-sparkle"/></svg>+50 pt 獲得しました</div>
+        <div style="margin-top:28px;display:flex;flex-direction:column;gap:10px">
+          <button class="btn btn-primary block" data-nav="marketplace">出品を見る</button>
+          <button class="btn btn-ghost block" data-nav="home">ホームに戻る</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================= INVENTORY ============================= -->
+    <section class="view" id="view-inventory" data-title="ホームインベントリ" data-sub="Home Inventory">
+      <div class="ask-chips">
+        <button class="ask-chip" data-ask="sell">売れるものは?</button>
+        <button class="ask-chip" data-ask="give">譲れるものは?</button>
+        <button class="ask-chip" data-ask="value">価値があるものは?</button>
+        <button class="ask-chip" data-ask="unused">使っていないものは?</button>
+        <button class="ask-chip" data-ask="keep">保管すべきものは?</button>
+        <button class="ask-chip" data-ask="earn">いくら稼げる?</button>
+      </div>
+      <div class="ai-bubble ask-answer" id="askAnswer">
+        <div class="ai-avatar"><svg class="icon"><use href="#i-sparkle"/></svg></div>
+        <div class="ai-text" id="askAnswerText"></div>
+      </div>
+
+      <div class="section-label" style="margin-top:18px">カテゴリー別</div>
+      <div class="category-grid" id="categoryGrid"></div>
+    </section>
+
+    <section class="view" id="view-inventory-category" data-title="クローゼット" data-sub="" data-back="inventory">
+      <div class="item-tile-grid" id="categoryItemGrid"></div>
+    </section>
+
+    <!-- ============================= MARKETPLACE ============================= -->
+    <section class="view" id="view-marketplace" data-title="コミュニティ・マーケットプレイス" data-sub="Trusted, not anonymous">
+      <div class="section-label" style="margin-top:0">近くの出品</div>
+      <div id="marketList"></div>
+
+      <div class="section-label">安全のためのしくみ</div>
+      <div class="warn-card">
+        <div class="warn-head"><svg class="icon" style="width:17px;height:17px"><use href="#i-alert"/></svg>このメッセージには注意が必要です。</div>
+        <div class="warn-en">This message may be suspicious.</div>
+        <ul>
+          <li>プラットフォーム外での送金を求めています</li>
+          <li>「今すぐ決めてください」と急かしています</li>
+          <li>銀行口座情報を尋ねています</li>
+        </ul>
+        <div class="warn-actions">
+          <button class="btn btn-outline" style="padding:9px 16px;font-size:0.78rem">報告する</button>
+          <button class="btn btn-ghost" style="padding:9px 16px;font-size:0.78rem">ブロック</button>
+        </div>
+      </div>
+
+      <div class="section-label">セーフ・ピックアップ</div>
+      <div class="pickup-map">
+        <div class="pin p1"><svg class="icon"><use href="#i-store-pin"/></svg></div>
+        <div class="pin p2"><svg class="icon"><use href="#i-recycle"/></svg></div>
+        <div class="pin p3"><svg class="icon"><use href="#i-donate"/></svg></div>
+      </div>
+      <div class="option-list" style="margin-top:12px">
+        <label class="option-row"><svg class="icon"><use href="#i-store-pin"/></svg><span class="opt-label">コンビニ前・待ち合わせ場所</span></label>
+        <label class="option-row"><svg class="icon"><use href="#i-users"/></svg><span class="opt-label">マンション管理人による受け渡し</span></label>
+        <label class="option-row"><svg class="icon"><use href="#i-truck"/></svg><span class="opt-label">配送・宅配便</span></label>
+      </div>
+
+      <button class="btn btn-outline block" id="btnTrustSettings" style="margin-top:18px">
+        <svg class="icon" style="width:17px;height:17px"><use href="#i-shield"/></svg>連絡できる相手を設定する
+      </button>
+    </section>
+
+    <!-- ============================= TRUST SETTINGS ============================= -->
+    <section class="view" id="view-trust-settings" data-title="連絡できる相手" data-sub="Who can contact me?" data-back="marketplace">
+      <p style="color:var(--ink-soft);font-size:0.86rem;line-height:1.7">とくにご高齢の方は、知らない人と直接やり取りしなくて済むよう、連絡できる相手をあらかじめ絞り込むことができます。</p>
+      <div class="option-list" style="margin-top:16px" id="trustOptions">
+        <label class="option-row"><input type="radio" name="trust" checked><svg class="icon"><use href="#i-shield"/></svg><span class="opt-label">本人確認済みのユーザーのみ</span></label>
+        <label class="option-row"><input type="radio" name="trust"><svg class="icon"><use href="#i-users"/></svg><span class="opt-label">自分のコミュニティのメンバー</span></label>
+        <label class="option-row"><input type="radio" name="trust"><svg class="icon"><use href="#i-user"/></svg><span class="opt-label">知人からの紹介がある人</span></label>
+        <label class="option-row"><input type="radio" name="trust"><svg class="icon"><use href="#i-star"/></svg><span class="opt-label">評価の高いユーザーのみ</span></label>
+        <label class="option-row"><input type="radio" name="trust"><svg class="icon"><use href="#i-donate"/></svg><span class="opt-label">慈善団体のみ</span></label>
+        <label class="option-row"><input type="radio" name="trust"><svg class="icon"><use href="#i-heart"/></svg><span class="opt-label">家族・友人のみ</span></label>
+      </div>
+      <button class="btn btn-gold block" style="margin-top:20px" id="btnSaveTrust">保存する</button>
+    </section>
+
+    <!-- ============================= LEGACY ============================= -->
+    <section class="view" id="view-legacy" data-title="ファミリー・レガシー" data-sub="Family Legacy" data-back="home">
+      <div class="legacy-view">
+        <div class="legacy-hero">
+          <div class="lh-icon"><svg class="icon"><use href="#i-sax"/></svg></div>
+        </div>
+        <div class="legacy-quote">
+          「このサクソフォンは1978年に東京で買いました。40年近く吹き続けました。これからも音楽を続けてくれる若い人に渡したいです。」
+          <div class="lq-en">"I bought this saxophone in Tokyo in 1978. I played it for almost 40 years. I would like it to go to a young person who will continue playing music."</div>
+          <div class="lq-meta">— 田中 昭一さん（元の持ち主）</div>
+        </div>
+
+        <div class="section-label">このアイテムの旅</div>
+        <div class="timeline">
+          <div class="tl-item"><div class="tl-year">1978年</div><div class="tl-text">東京の楽器店で購入。以来ほぼ40年間、吹奏楽団で演奏。</div></div>
+          <div class="tl-item"><div class="tl-year">2026年</div><div class="tl-text">つぐを通じて大学のジャズバンドに所属する学生へ。「2026年に受け取り、今は大学のジャズバンドで演奏しています。」</div></div>
+        </div>
+
+        <div class="record-panel">
+          <button class="mic-btn" id="btnMic"><svg class="icon"><use href="#i-mic"/></svg></button>
+          <div style="font-weight:700;font-size:0.86rem">物語を話してください</div>
+          <div style="font-size:0.72rem;color:var(--ink-faint);margin-top:2px">AIがあなたの言葉を短い物語にまとめます</div>
+          <textarea id="legacyStoryText" placeholder="ここに物語が表示されます…"></textarea>
+        </div>
+
+        <div class="section-label">次の人へ贈る相手をえらぶ</div>
+        <div class="option-list">
+          <label class="option-row"><svg class="icon"><use href="#i-book"/></svg><span class="opt-label">学生・新しく趣味を始める人</span></label>
+          <label class="option-row"><svg class="icon"><use href="#i-users"/></svg><span class="opt-label">若い家族</span></label>
+          <label class="option-row"><svg class="icon"><use href="#i-star"/></svg><span class="opt-label">コレクター</span></label>
+          <label class="option-row"><svg class="icon"><use href="#i-heart"/></svg><span class="opt-label">本当に必要としている人</span></label>
+        </div>
+        <button class="btn btn-gold block" style="margin-top:16px">次の人生へ贈る</button>
+      </div>
+    </section>
+
+    <!-- ============================= PROFILE / SETTINGS ============================= -->
+    <section class="view" id="view-profile" data-title="マイページ" data-sub="Profile & Settings">
+      <div class="profile-header">
+        <div class="avatar-ring"><svg class="icon" style="width:28px;height:28px"><use href="#i-user"/></svg></div>
+        <div>
+          <div class="p-name">田中 美咲さん</div>
+          <div class="p-badges">
+            <span class="verify-badge"><svg class="icon"><use href="#i-check-circle"/></svg>本人確認済み</span>
+            <span class="verify-badge blue"><svg class="icon"><use href="#i-phone"/></svg>電話確認済み</span>
+            <span class="verify-badge gold"><svg class="icon"><use href="#i-star"/></svg>評価 4.9</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="impact-grid">
+        <div class="impact-card"><div class="ic-num">1,240pt</div><div class="ic-lbl">セカンドライフポイント</div></div>
+        <div class="impact-card"><div class="ic-num">18点</div><div class="ic-lbl">次の人へ渡した物</div></div>
+        <div class="impact-card"><div class="ic-num">¥32,400</div><div class="ic-lbl">これまでの収益</div></div>
+        <div class="impact-card"><div class="ic-num">47.2kg</div><div class="ic-lbl">廃棄削減の推定量</div></div>
+      </div>
+
+      <div class="section-label">achievement バッジ</div>
+      <div class="badge-grid">
+        <div class="ach-badge earned"><div class="ab-circle"><svg class="icon" style="width:22px;height:22px"><use href="#i-sparkle"/></svg></div><div class="ab-name">はじめての一歩</div></div>
+        <div class="ach-badge earned"><div class="ab-circle"><svg class="icon" style="width:22px;height:22px"><use href="#i-recycle"/></svg></div><div class="ab-name">もったいない博士</div></div>
+        <div class="ach-badge earned"><div class="ab-circle"><svg class="icon" style="width:22px;height:22px"><use href="#i-users"/></svg></div><div class="ab-name">コミュニティの星</div></div>
+        <div class="ach-badge"><div class="ab-circle"><svg class="icon" style="width:22px;height:22px"><use href="#i-scroll"/></svg></div><div class="ab-name">レガシーの語り部</div></div>
+      </div>
+
+      <div class="section-label">信頼できる代理人（Trusted Helper）</div>
+      <div class="helper-card">
+        <div class="settings-row" style="border:none;padding:0">
+          <svg class="icon"><use href="#i-users"/></svg>
+          <div class="sr-text"><div class="sr-title">田中 健太さん（息子）</div><div class="sr-sub">出品の確認・連絡対応・受け渡し手配を代行できます</div></div>
+        </div>
+        <button class="btn btn-outline block" style="margin-top:12px">代理人を追加・編集する</button>
+      </div>
+
+      <div class="section-label">アクセシビリティ</div>
+      <div class="settings-list">
+        <div class="settings-row">
+          <svg class="icon"><use href="#i-type"/></svg>
+          <div class="sr-text"><div class="sr-title">文字を大きくする</div><div class="sr-sub">Large text mode</div></div>
+          <label class="switch"><input type="checkbox" id="toggleLargeText"><span class="track"></span></label>
+        </div>
+        <div class="settings-row">
+          <svg class="icon"><use href="#i-mic"/></svg>
+          <div class="sr-text"><div class="sr-title">音声ガイド</div><div class="sr-sub">Voice guidance reads the screen aloud</div></div>
+          <label class="switch"><input type="checkbox" id="toggleVoiceGuide"><span class="track"></span></label>
+        </div>
+        <div class="settings-row">
+          <svg class="icon"><use href="#i-users"/></svg>
+          <div class="sr-text"><div class="sr-title">ファミリー・ヘルパーモード</div><div class="sr-sub">Let a trusted helper manage on your behalf</div></div>
+          <label class="switch"><input type="checkbox" id="toggleHelperMode"></label>
+        </div>
+        <div class="settings-row">
+          <svg class="icon"><use href="#i-phone"/></svg>
+          <div class="sr-text"><div class="sr-title">日本語サポートに電話する</div><div class="sr-sub">平日 9:00〜18:00 / 0120-XXX-XXX</div></div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ============================= TAB BAR ============================= -->
+  <nav class="tabbar">
+    <button class="tab-btn active" data-nav="home"><svg class="icon"><use href="#i-home"/></svg><span>ホーム</span></button>
+    <button class="tab-btn" data-nav="inventory"><svg class="icon"><use href="#i-box"/></svg><span>持ち物</span></button>
+    <button class="tab-fab" id="fabCamera"><svg class="icon"><use href="#i-camera"/></svg></button>
+    <button class="tab-btn" data-nav="marketplace"><svg class="icon"><use href="#i-store"/></svg><span>マーケット</span></button>
+    <button class="tab-btn" data-nav="profile"><svg class="icon"><use href="#i-user"/></svg><span>マイページ</span></button>
+  </nav>
+
+  <div id="toast"></div>
+</div>
+
+<script src="js/content.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>

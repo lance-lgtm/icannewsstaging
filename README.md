@@ -47,3 +47,8 @@ them at the repository root — no build command needed.
 - **[`reservation/`](reservation/)** — a bilingual (JA/EN) appointment
   booking system for Dr. Keiko Lee at the Saiseikai Chuo Hospital Kenshin
   Center. See `reservation/README.md` for setup.
+- **[`secondlife/`](secondlife/)** — つぐ TSUGU, a premium AI-powered
+  mobile-web prototype for the Japanese market that helps people decide
+  what to do with items they already own (keep, sell, give, gift,
+  donate, recycle, or dispose) instead of simply throwing them away. See
+  `secondlife/README.md` for details.
