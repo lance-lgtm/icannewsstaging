@@ -1,12 +1,13 @@
 /* =========================================================================
-   TSUGU — mock content
-   Stands in for a real computer-vision / valuation backend. Real signal
-   extracted client-side from the user's own photo (dominant color, aspect
-   ratio) selects and colors one of the ITEM_PROFILES below via
-   buildAnalysis() — see detectPhoto() in app.js. Swap buildAnalysis() for a
-   real vision/valuation API call (see README) to go from prototype to
-   production; a client-side API key is never safe to ship in a static site,
-   so that call belongs behind a small backend, not in this file.
+   TSUGU — mock content & local recognition fallback
+
+   Real recognition lives in functions/api/analyze.js (a Cloudflare Pages
+   Function that calls Claude's vision API server-side). buildAnalysis()
+   below is the *fallback* used when that backend isn't deployed, is
+   unreachable, or times out — it picks and colors one of the ITEM_PROFILES
+   using only client-side signal (dominant color, aspect ratio), so the app
+   never breaks even without the backend configured. See
+   secondlife/README.md for deploying the real thing.
    ========================================================================= */
 
 const GUIDANCE_STEPS = [

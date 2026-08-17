@@ -25,12 +25,54 @@ python3 -m http.server 8000
 Then visit `http://localhost:8000`. On a real phone, "撮影する" (Take a
 Photo) opens the device camera via `<input type="file" capture>`.
 
+## Real AI recognition (optional, one-time setup)
+
+Photo recognition can call a real vision model — Claude — instead of
+guessing from color and aspect ratio. This is **optional**: without it,
+the app still works end-to-end using a local heuristic fallback
+(`js/content.js`'s `buildAnalysis`), which is what you get out of the
+box and what the demo Artifact preview always uses (its sandbox can't
+reach any external network).
+
+**Why this needs a backend at all:** an Anthropic API key must never be
+shipped in client-side JavaScript on a static site — anyone can read it
+from view-source and run up your bill. So recognition happens in
+[`functions/api/analyze.js`](functions/api/analyze.js), a small
+serverless function that holds the key server-side.
+
+**To turn it on, deploy via [Cloudflare Pages](https://pages.cloudflare.com)**
+(free tier is enough), which serves the static site *and* runs the
+function from the same repo — no separate hosting, no CORS setup:
+
+1. Push this repo to GitHub (already done if you're reading this here).
+2. In the Cloudflare dashboard: **Workers & Pages → Create → Pages →
+   Connect to Git**, pick this repo.
+3. Set **Root directory** to `secondlife` (leave the build command
+   empty — there's no build step). This is what makes Cloudflare pick
+   up both the static site and `functions/api/analyze.js`.
+4. In the project's **Settings → Environment variables**, add a
+   **secret**: `ANTHROPIC_API_KEY` = your Anthropic API key
+   ([console.anthropic.com](https://console.anthropic.com)). Never
+   commit this key to the repo.
+5. Optional: add `ANALYZE_MODEL` to pick a different model (defaults to
+   `claude-sonnet-5`).
+6. Deploy. Every push to this branch redeploys both the site and the
+   function automatically.
+
+Each photo recognized is one Claude API call with an image — set a
+spending limit on your Anthropic account if this will see public
+traffic. If the function isn't deployed, times out, or errors, the app
+silently falls back to the local heuristic rather than breaking — check
+your browser console for `[TSUGU] real recognition unavailable, using
+local heuristic:` if recognition doesn't seem to be using the real
+model.
+
 ## What's implemented
 
-This is a front-end prototype: every "AI" result is realistic mock data
-(`js/content.js`) wired into working interactions (`js/app.js`), not a
-live vision/valuation backend. It demonstrates the full experience end
-to end:
+Every "AI" result is either the real recognition above, or — when
+that's not configured — realistic mock data (`js/content.js`) wired
+into working interactions (`js/app.js`). It demonstrates the full
+experience end to end:
 
 - **Home** — camera-first hero CTA, mottainai tagline, impact stats, and
   feature cards for every entry point in the spec (sell, keep, give,
@@ -81,11 +123,9 @@ to end:
 
 ## From prototype to production
 
-To turn this into a real product, the integration points are isolated:
+Real photo recognition is wired up (see above) — the remaining
+integration points are isolated too:
 
-- `ANALYSIS_RESULT` in `js/content.js` → replace with a real photo →
-  vision-model call (item identification, brand/logo/serial detection,
-  condition grading, size/measurement estimation, valuation).
 - `ASK_ANSWERS` / inventory data → replace with a persisted, per-user
   home inventory store.
 - Marketplace listings, verification badges, and messaging → a real

@@ -1,12 +1,13 @@
 /* =========================================================================
    TSUGU — app logic (view router + interactions)
-   No build step, no framework, no backend — matches this repo's philosophy.
-   Recognition (detectPhoto below) reads real pixels from the captured
-   photo — dominant color, aspect ratio — and content.js's buildAnalysis()
-   turns that into a full mock profile. Swap detectPhoto()/buildAnalysis()
-   for a real vision/valuation API call (behind a backend — never ship an
-   API key in this client-side file) to move from prototype to production
-   without touching the view layer.
+   No build step, no framework — a static frontend, optionally backed by
+   one serverless function (functions/api/analyze.js) for real recognition.
+
+   analyzePhoto() sends the captured photo to that backend, which calls
+   Claude's vision API server-side and returns structured JSON. If no
+   backend is deployed, the request fails, or times out, it degrades to
+   content.js's local color/aspect-ratio heuristic (buildAnalysis) instead
+   of breaking — see secondlife/README.md for how to deploy the real thing.
    ========================================================================= */
 
 (function () {
@@ -126,13 +127,15 @@
     $("#guidanceText").innerHTML = step.ja + '<span class="en">' + step.en + "</span>";
   }
 
-  function addCapturedPhoto(url) {
+  function addCapturedPhoto(url, opts) {
     state.photos.push(url);
     // Kick off recognition on the photo itself now, so it's ready by the
     // time the analyzing animation finishes. Overwriting on every capture
     // means the most recent photo (the one shown on the item card) is what
     // gets recognized.
-    state.pendingAnalysis = detectPhoto(url);
+    state.pendingAnalysis = (opts && opts.skipBackend)
+      ? prepareImage(url).then(localFallbackAnalysis)
+      : analyzePhoto(url);
 
     $("#framePreview").src = url;
     $("#framePreview").hidden = false;
@@ -144,15 +147,19 @@
   }
 
   const FALLBACK_DETECTION = { colorName: "ナチュラルカラー", bucket: "square" };
+  const ANALYZE_ENDPOINT = "/api/analyze"; // Cloudflare Pages Function — see functions/api/analyze.js
+  const ANALYZE_TIMEOUT_MS = 15000;
+  const MAX_IMAGE_DIM = 1024;
 
-  // Real recognition signal from the actual photo: dominant color via canvas
-  // pixel sampling, plus a category guess from the image's aspect ratio.
-  // Never rejects — any failure (unsupported canvas, decode error, a sandbox
-  // with no canvas access) resolves to a neutral fallback instead.
-  function detectPhoto(url) {
+  // Loads the photo once and produces everything downstream needs from it:
+  // a resized/compressed JPEG (for sending to the recognition backend) plus
+  // the local color/aspect-ratio heuristic (used as a fallback, and for the
+  // sample-photo path which is an SVG illustration, not a real photo).
+  // Never rejects — any failure resolves to null and callers fall back.
+  function prepareImage(url) {
     return new Promise((resolve) => {
       const img = new Image();
-      img.onerror = () => resolve(FALLBACK_DETECTION);
+      img.onerror = () => resolve(null);
       img.onload = () => {
         try {
           const w = img.naturalWidth || img.width;
@@ -160,27 +167,121 @@
           const ratio = w ? h / w : 1;
           const bucket = ratio >= 1.15 ? "tall" : ratio <= 0.85 ? "wide" : "square";
 
-          const size = 24;
+          const scale = Math.min(1, MAX_IMAGE_DIM / Math.max(w, h));
+          const cw = Math.max(1, Math.round(w * scale));
+          const ch = Math.max(1, Math.round(h * scale));
           const canvas = document.createElement("canvas");
-          canvas.width = size;
-          canvas.height = size;
-          const ctx = canvas.getContext("2d");
-          ctx.drawImage(img, 0, 0, size, size);
-          const data = ctx.getImageData(0, 0, size, size).data;
+          canvas.width = cw;
+          canvas.height = ch;
+          canvas.getContext("2d").drawImage(img, 0, 0, cw, ch);
+
+          const sampleSize = 24;
+          const sample = document.createElement("canvas");
+          sample.width = sampleSize;
+          sample.height = sampleSize;
+          const sctx = sample.getContext("2d");
+          sctx.drawImage(img, 0, 0, sampleSize, sampleSize);
+          const data = sctx.getImageData(0, 0, sampleSize, sampleSize).data;
           let r = 0, g = 0, b = 0, n = 0;
           for (let i = 0; i < data.length; i += 4) {
             r += data[i]; g += data[i + 1]; b += data[i + 2]; n++;
           }
           const color = nearestColor([r / n, g / n, b / n]);
-          resolve({ colorName: color.name, bucket });
+
+          resolve({ dataUrl: canvas.toDataURL("image/jpeg", 0.85), colorName: color.name, bucket });
         } catch (e) {
           // Canvas pixel access can be blocked in some sandboxed contexts —
-          // fall back to a neutral, still-useful result rather than hanging.
-          resolve(FALLBACK_DETECTION);
+          // resolve null rather than hanging; callers fall back gracefully.
+          resolve(null);
         }
       };
       img.src = url;
     });
+  }
+
+  function localFallbackAnalysis(prepared) {
+    const d = prepared || FALLBACK_DETECTION;
+    return buildAnalysis(d.bucket, d.colorName);
+  }
+
+  // Sends the photo to the real vision-recognition backend (see
+  // functions/api/analyze.js). If no backend is deployed yet, the network
+  // fails, the request times out, or the model's response doesn't parse,
+  // this degrades to the local color/aspect-ratio heuristic instead of
+  // breaking the flow — the app always produces *a* result.
+  async function analyzePhoto(url) {
+    const prepared = await prepareImage(url);
+    if (!prepared) return buildAnalysis(FALLBACK_DETECTION.bucket, FALLBACK_DETECTION.colorName);
+
+    try {
+      const controller = new AbortController();
+      const timer = setTimeout(() => controller.abort(), ANALYZE_TIMEOUT_MS);
+      let res;
+      try {
+        res = await fetch(ANALYZE_ENDPOINT, {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({ image: prepared.dataUrl }),
+          signal: controller.signal,
+        });
+      } finally {
+        clearTimeout(timer);
+      }
+      if (!res.ok) throw new Error("analyze endpoint returned " + res.status);
+      const analysis = analysisFromBackendJson(await res.json());
+      if (!analysis) throw new Error("malformed analyze response");
+      return analysis;
+    } catch (e) {
+      console.warn("[TSUGU] real recognition unavailable, using local heuristic:", e && e.message);
+      return localFallbackAnalysis(prepared);
+    }
+  }
+
+  const RECOMMENDATION_ACTIONS = ["keep", "sell", "give", "gift", "donate", "recycle", "dispose"];
+
+  // Normalizes the backend's JSON into exactly the shape buildAnalysis()
+  // produces, so renderItemCard()/prefillListing() don't need to know or
+  // care which source the analysis came from. Defends against a malformed
+  // or partial model response with sane fallbacks per field.
+  function analysisFromBackendJson(json) {
+    if (!json || typeof json !== "object" || !json.recommendation) return null;
+    const action = RECOMMENDATION_ACTIONS.includes(json.recommendation.action)
+      ? json.recommendation.action : "sell";
+    try {
+      return {
+        name: String(json.titleJa || "認識されたアイテム"),
+        brandLine: String(json.brandLine || ""),
+        quick: [
+          { label: "ブランド", value: String(json.brand || "不明"), icon: "i-tag" },
+          { label: "カラー", value: String(json.colorJa || "—"), icon: "i-sparkle", estimate: !!json.colorEstimate },
+          { label: "サイズ", value: String(json.sizeLabel || "—"), icon: "i-type", estimate: json.sizeEstimate !== false },
+          { label: "状態", value: String(json.condition || "—"), icon: "i-check-circle" },
+          { label: "推定価値", value: String(json.estValueText || "不明"), icon: "i-sparkle", estimate: true, span2: true },
+          { label: "寸法", value: String(json.dimensions || "—"), icon: "i-box", estimate: json.dimensionsEstimate !== false, span2: true },
+        ],
+        full: Array.isArray(json.full) ? json.full.filter((row) => Array.isArray(row) && row.length === 2) : [],
+        recommendation: {
+          action,
+          tagJa: json.recommendation.tagJa || ("おすすめ · " + action.toUpperCase()),
+          title: json.recommendation.title || "",
+          text: json.recommendation.text || "",
+        },
+        brand: String(json.brand || "不明"),
+        sizeLabel: String(json.sizeLabel || "—"),
+        dimensions: String(json.dimensions || "—"),
+        condition: String(json.condition || "—"),
+        conditionEn: String(json.conditionEn || json.condition || ""),
+        titleJa: String(json.titleJa || "認識されたアイテム"),
+        titleEn: String(json.titleEn || json.titleJa || "Recognized Item"),
+        descriptionJa: String(json.descriptionJa || ""),
+        descriptionEn: String(json.descriptionEn || ""),
+        estValueText: String(json.estValueText || "不明"),
+        askPriceText: String(json.askPriceText || "—"),
+        keywords: Array.isArray(json.keywords) ? json.keywords.slice(0, 8).map(String) : [],
+      };
+    } catch (e) {
+      return null;
+    }
   }
 
   btnShoot.addEventListener("click", () => {
@@ -195,7 +296,10 @@
   });
 
   btnSamplePhoto.addEventListener("click", () => {
-    addCapturedPhoto(SAMPLE_PHOTO);
+    // The sample photo is an illustration (SVG), not a real photograph, so
+    // it's never sent to the vision backend — go straight to the local
+    // heuristic, which is all an illustration can meaningfully drive anyway.
+    addCapturedPhoto(SAMPLE_PHOTO, { skipBackend: true });
     startAnalysis();
   });
 
@@ -234,20 +338,30 @@
       setTimeout(() => s.classList.add("done"), 420 * (i + 1));
     });
 
+    // A real vision-API round trip can run longer than the fixed step
+    // animation — once the steps finish, let the user know we're still
+    // waiting rather than leaving the screen looking stalled.
+    const statusEl = $("#analyzingStatus");
+    const waitMsgTimer = setTimeout(() => {
+      if (statusEl) statusEl.textContent = "もう少しお待ちください…";
+    }, 420 * steps.length + 1800);
+
     const minDelay = new Promise((resolve) => setTimeout(resolve, 420 * steps.length + 500));
-    const detection = (state.pendingAnalysis || Promise.resolve(FALLBACK_DETECTION))
-      .catch(() => FALLBACK_DETECTION);
-    Promise.all([detection, minDelay]).then(([detected]) => {
-      renderItemCard(detected);
+    const fallback = () => buildAnalysis(FALLBACK_DETECTION.bucket, FALLBACK_DETECTION.colorName);
+    const analysis = (state.pendingAnalysis || Promise.resolve(fallback())).catch(fallback);
+
+    Promise.all([analysis, minDelay]).then(([result]) => {
+      clearTimeout(waitMsgTimer);
+      if (statusEl) statusEl.textContent = "AIが写真を確認しています…";
+      renderItemCard(result);
       navigate("itemcard");
     });
   }
 
   /* ----------------------------- Item card ----------------------------- */
 
-  function renderItemCard(detected) {
-    const d = detected || FALLBACK_DETECTION;
-    const r = buildAnalysis(d.bucket, d.colorName);
+  function renderItemCard(analysis) {
+    const r = analysis || buildAnalysis(FALLBACK_DETECTION.bucket, FALLBACK_DETECTION.colorName);
     state.currentAnalysis = r;
     const heroImg = $("#itemHeroImg");
     const lastPhoto = state.photos[state.photos.length - 1];
