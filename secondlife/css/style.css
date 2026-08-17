@@ -621,6 +621,9 @@ main#views {
   border-radius: var(--r-pill); padding: 3px 10px; font-size: calc(0.66rem * var(--scale));
   margin-bottom: 6px; backdrop-filter: blur(4px);
 }
+.item-hero .hero-text .est-badge.local-guess {
+  background: rgba(224, 138, 63, 0.35); border-color: rgba(224, 138, 63, 0.6);
+}
 .item-hero .hero-text h2 { font-size: calc(1.2rem * var(--scale)); font-weight: 700; }
 .item-hero .hero-text .brand-line { font-size: calc(0.78rem * var(--scale)); opacity: 0.85; margin-top: 2px; }
 

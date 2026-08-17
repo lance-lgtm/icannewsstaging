@@ -202,7 +202,7 @@
 
   function localFallbackAnalysis(prepared) {
     const d = prepared || FALLBACK_DETECTION;
-    return buildAnalysis(d.bucket, d.colorName);
+    return { ...buildAnalysis(d.bucket, d.colorName), source: "local" };
   }
 
   // Sends the photo to the real vision-recognition backend (see
@@ -212,7 +212,7 @@
   // breaking the flow — the app always produces *a* result.
   async function analyzePhoto(url) {
     const prepared = await prepareImage(url);
-    if (!prepared) return buildAnalysis(FALLBACK_DETECTION.bucket, FALLBACK_DETECTION.colorName);
+    if (!prepared) return localFallbackAnalysis(null);
 
     try {
       const controller = new AbortController();
@@ -250,6 +250,7 @@
       ? json.recommendation.action : "sell";
     try {
       return {
+        source: "backend",
         name: String(json.titleJa || "認識されたアイテム"),
         brandLine: String(json.brandLine || ""),
         quick: [
@@ -348,7 +349,7 @@
     }, 420 * steps.length + 1800);
 
     const minDelay = new Promise((resolve) => setTimeout(resolve, 420 * steps.length + 500));
-    const fallback = () => buildAnalysis(FALLBACK_DETECTION.bucket, FALLBACK_DETECTION.colorName);
+    const fallback = () => localFallbackAnalysis(null);
     const analysis = (state.pendingAnalysis || Promise.resolve(fallback())).catch(fallback);
 
     Promise.all([analysis, minDelay]).then(([result]) => {
@@ -362,7 +363,7 @@
   /* ----------------------------- Item card ----------------------------- */
 
   function renderItemCard(analysis) {
-    const r = analysis || buildAnalysis(FALLBACK_DETECTION.bucket, FALLBACK_DETECTION.colorName);
+    const r = analysis || localFallbackAnalysis(null);
     state.currentAnalysis = r;
     const heroImg = $("#itemHeroImg");
     const lastPhoto = state.photos[state.photos.length - 1];
@@ -374,6 +375,18 @@
     }
     $("#itemName").textContent = r.name;
     $("#itemBrandLine").textContent = r.brandLine;
+
+    // Make it visually unmistakable when this result is the local
+    // color/shape guess (no backend reachable) vs. real AI recognition —
+    // the two must never look identical, or a demo guess reads as a broken
+    // real answer.
+    const isLocal = r.source === "local";
+    $("#sourceBadge").classList.toggle("local-guess", isLocal);
+    $("#sourceBadgeText").textContent = isLocal ? "簡易判定（デモ）・Local Guess (Demo)" : "AI推定・AI Estimate";
+    if (isLocal && !state.localGuessNoticeShown) {
+      state.localGuessNoticeShown = true;
+      toast("実際のAI認識ではなく簡易判定です（バックエンド未設定）");
+    }
 
     const grid = $("#itemDetailGrid");
     grid.innerHTML = r.quick.map((q) => `
