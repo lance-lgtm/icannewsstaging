@@ -1,9 +1,12 @@
 /* =========================================================================
    TSUGU — app logic (view router + interactions)
    No build step, no framework, no backend — matches this repo's philosophy.
-   All "AI" output here is mocked from content.js; wire ANALYSIS_RESULT and
-   ASK_ANSWERS to a real vision/valuation API to move from prototype to
-   production without touching the view layer.
+   Recognition (detectPhoto below) reads real pixels from the captured
+   photo — dominant color, aspect ratio — and content.js's buildAnalysis()
+   turns that into a full mock profile. Swap detectPhoto()/buildAnalysis()
+   for a real vision/valuation API call (behind a backend — never ship an
+   API key in this client-side file) to move from prototype to production
+   without touching the view layer.
    ========================================================================= */
 
 (function () {
@@ -125,6 +128,11 @@
 
   function addCapturedPhoto(url) {
     state.photos.push(url);
+    // Kick off recognition on the photo itself now, so it's ready by the
+    // time the analyzing animation finishes. Overwriting on every capture
+    // means the most recent photo (the one shown on the item card) is what
+    // gets recognized.
+    state.pendingAnalysis = detectPhoto(url);
 
     $("#framePreview").src = url;
     $("#framePreview").hidden = false;
@@ -133,6 +141,46 @@
     const thumb = document.createElement("img");
     thumb.src = url;
     $("#thumbStrip").appendChild(thumb);
+  }
+
+  const FALLBACK_DETECTION = { colorName: "ナチュラルカラー", bucket: "square" };
+
+  // Real recognition signal from the actual photo: dominant color via canvas
+  // pixel sampling, plus a category guess from the image's aspect ratio.
+  // Never rejects — any failure (unsupported canvas, decode error, a sandbox
+  // with no canvas access) resolves to a neutral fallback instead.
+  function detectPhoto(url) {
+    return new Promise((resolve) => {
+      const img = new Image();
+      img.onerror = () => resolve(FALLBACK_DETECTION);
+      img.onload = () => {
+        try {
+          const w = img.naturalWidth || img.width;
+          const h = img.naturalHeight || img.height;
+          const ratio = w ? h / w : 1;
+          const bucket = ratio >= 1.15 ? "tall" : ratio <= 0.85 ? "wide" : "square";
+
+          const size = 24;
+          const canvas = document.createElement("canvas");
+          canvas.width = size;
+          canvas.height = size;
+          const ctx = canvas.getContext("2d");
+          ctx.drawImage(img, 0, 0, size, size);
+          const data = ctx.getImageData(0, 0, size, size).data;
+          let r = 0, g = 0, b = 0, n = 0;
+          for (let i = 0; i < data.length; i += 4) {
+            r += data[i]; g += data[i + 1]; b += data[i + 2]; n++;
+          }
+          const color = nearestColor([r / n, g / n, b / n]);
+          resolve({ colorName: color.name, bucket });
+        } catch (e) {
+          // Canvas pixel access can be blocked in some sandboxed contexts —
+          // fall back to a neutral, still-useful result rather than hanging.
+          resolve(FALLBACK_DETECTION);
+        }
+      };
+      img.src = url;
+    });
   }
 
   btnShoot.addEventListener("click", () => {
@@ -185,16 +233,22 @@
     steps.forEach((s, i) => {
       setTimeout(() => s.classList.add("done"), 420 * (i + 1));
     });
-    setTimeout(() => {
-      renderItemCard();
+
+    const minDelay = new Promise((resolve) => setTimeout(resolve, 420 * steps.length + 500));
+    const detection = (state.pendingAnalysis || Promise.resolve(FALLBACK_DETECTION))
+      .catch(() => FALLBACK_DETECTION);
+    Promise.all([detection, minDelay]).then(([detected]) => {
+      renderItemCard(detected);
       navigate("itemcard");
-    }, 420 * steps.length + 500);
+    });
   }
 
   /* ----------------------------- Item card ----------------------------- */
 
-  function renderItemCard() {
-    const r = ANALYSIS_RESULT;
+  function renderItemCard(detected) {
+    const d = detected || FALLBACK_DETECTION;
+    const r = buildAnalysis(d.bucket, d.colorName);
+    state.currentAnalysis = r;
     const heroImg = $("#itemHeroImg");
     const lastPhoto = state.photos[state.photos.length - 1];
     if (lastPhoto) {
@@ -266,22 +320,22 @@
 
   /* ----------------------------- Listing assistant ----------------------------- */
 
-  const LISTING_LANG = {
-    ja: {
-      title: "ラルフローレン ウィメンズ ブレザー ネイビー",
-      condition: "非常に良い（Very Good）",
-      desc: "ラルフローレンのウィメンズ ブレザーです。深みのあるネイビーカラーで、上品なオフィスシーンにもお使いいただけます。目立った傷や汚れはなく、状態は非常に良好です。クローゼットの整理のため出品します。",
-    },
-    en: {
-      title: "Ralph Lauren Women's Blazer — Navy",
-      condition: "Very Good",
-      desc: "A Ralph Lauren women's blazer in deep navy, suitable for polished office wear. No notable damage or stains — very good condition overall. Listed while tidying up my closet.",
-    },
-  };
-
   function prefillListing(action) {
     const actionLabels = { sell: "出品", give: "お譲り", gift: "プレゼント", donate: "寄付" };
     $("#topbarSub").textContent = "AI Listing Assistant · " + (actionLabels[action] || "");
+
+    const a = state.currentAnalysis;
+    if (!a) return;
+    $("#lsTitle").value = a.titleJa;
+    $("#lsBrand").value = a.brand;
+    $("#lsSize").value = a.sizeLabel;
+    $("#lsCondition").value = a.condition;
+    $("#lsDim").value = a.dimensions;
+    $("#lsDesc").value = a.descriptionJa;
+    $("#lsEstValue").value = a.estValueText;
+    $("#lsAsk").value = a.askPriceText;
+    $("#lsKeywords").innerHTML = a.keywords.map((k) => `<span class="chip">${k}</span>`).join("");
+    $all(".lang-toggle button").forEach((b) => b.classList.toggle("active", b.dataset.lang === "ja"));
   }
 
   $(".lang-toggle").addEventListener("click", (e) => {
@@ -289,10 +343,12 @@
     if (!btn) return;
     $all(".lang-toggle button").forEach((b) => b.classList.remove("active"));
     btn.classList.add("active");
-    const pack = LISTING_LANG[btn.dataset.lang];
-    $("#lsTitle").value = pack.title;
-    $("#lsCondition").value = pack.condition;
-    $("#lsDesc").value = pack.desc;
+    const a = state.currentAnalysis;
+    if (!a) return;
+    const isEn = btn.dataset.lang === "en";
+    $("#lsTitle").value = isEn ? a.titleEn : a.titleJa;
+    $("#lsCondition").value = isEn ? a.conditionEn : a.condition;
+    $("#lsDesc").value = isEn ? a.descriptionEn : a.descriptionJa;
   });
 
   $("#btnPublishListing").addEventListener("click", () => {
