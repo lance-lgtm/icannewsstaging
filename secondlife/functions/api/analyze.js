@@ -14,6 +14,9 @@
    the app still works, just without real recognition.
    ========================================================================= */
 
+import { json } from "../_lib/json.js";
+import { checkRateLimit } from "../_lib/ratelimit.js";
+
 const RECOMMENDATION_ACTIONS = ["keep", "sell", "give", "gift", "donate", "recycle", "dispose"];
 
 const PROMPT = `You are the recognition engine for "TSUGU" (つぐ), a Japanese app that helps people decide whether to keep, sell, give away, gift, donate, recycle, or dispose of an item, based on a photo.
@@ -60,11 +63,29 @@ Guidance for the recommendation:
 
 Be honest about uncertainty — set colorEstimate/sizeEstimate/dimensionsEstimate to true whenever you are inferring rather than reading a label directly, and use "不明"/"—" rather than inventing precise-sounding numbers you can't support. If you cannot identify the item's brand, say so ("メーカー不明") rather than guessing a brand name.`;
 
+const MAX_BODY_BYTES = 7 * 1024 * 1024; // ~7MB base64 comfortably covers a 1024px JPEG at 0.85 quality
+const RATE_LIMIT = { limit: 15, windowMs: 10 * 60 * 1000 }; // 15 requests / 10 min / IP — each call costs real API usage
+
 export async function onRequestPost(context) {
   const { request, env } = context;
 
   if (!env.ANTHROPIC_API_KEY) {
     return json({ error: "ANTHROPIC_API_KEY is not configured on this deployment." }, 503);
+  }
+
+  const contentLength = Number(request.headers.get("content-length") || 0);
+  if (contentLength > MAX_BODY_BYTES) {
+    return json({ error: "Image is too large." }, 413);
+  }
+
+  // Rate limiting needs D1; if it's not bound yet (e.g. mid-setup), fail
+  // open rather than breaking recognition entirely over a missing binding.
+  if (env.DB) {
+    const ip = request.headers.get("cf-connecting-ip") || "unknown";
+    const { allowed } = await checkRateLimit(env, "analyze:" + ip, RATE_LIMIT);
+    if (!allowed) {
+      return json({ error: "リクエストが多すぎます。しばらくしてからもう一度お試しください。" }, 429);
+    }
   }
 
   let body;
@@ -77,6 +98,9 @@ export async function onRequestPost(context) {
   const dataUrl = body && body.image;
   if (typeof dataUrl !== "string" || !dataUrl.startsWith("data:image/")) {
     return json({ error: "Expected { image: 'data:image/...;base64,...' }." }, 400);
+  }
+  if (dataUrl.length > MAX_BODY_BYTES) {
+    return json({ error: "Image is too large." }, 413);
   }
 
   const match = dataUrl.match(/^data:(image\/[a-zA-Z0-9.+-]+);base64,(.+)$/);
@@ -143,11 +167,4 @@ export async function onRequestPost(context) {
   }
 
   return json(parsed, 200);
-}
-
-function json(obj, status) {
-  return new Response(JSON.stringify(obj), {
-    status,
-    headers: { "content-type": "application/json; charset=utf-8" },
-  });
 }

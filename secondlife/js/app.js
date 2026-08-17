@@ -20,6 +20,7 @@
     points: 1240,
     itemsPassed: 18,
     earned: 32400,
+    session: null, // { token, user: { id, email, displayName } } once logged in
   };
 
   const $ = (sel, root) => (root || document).querySelector(sel);
@@ -606,9 +607,405 @@
     toast(e.target.checked ? "ファミリー・ヘルパーモードをオンにしました" : "ファミリー・ヘルパーモードをオフにしました");
   });
 
+  /* ----------------------------- Community: session + API ----------------------------- */
+
+  function escapeHtml(str) {
+    return String(str).replace(/[&<>"']/g, (c) => ({
+      "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;",
+    }[c]));
+  }
+
+  function loadSession() {
+    try {
+      const raw = localStorage.getItem("tsugu_session");
+      if (raw) state.session = JSON.parse(raw);
+    } catch (e) { /* localStorage unavailable — stay logged out */ }
+  }
+
+  function saveSession(session) {
+    state.session = session;
+    try {
+      if (session) localStorage.setItem("tsugu_session", JSON.stringify(session));
+      else localStorage.removeItem("tsugu_session");
+    } catch (e) {}
+  }
+
+  // Thin fetch wrapper: attaches the session token, normalizes errors to a
+  // Japanese message (from the API's { error } body, or a network-failure
+  // message — most likely because this is running somewhere, like the
+  // Artifact preview sandbox, that can't reach a deployed backend at all),
+  // and signs the user out on an expired/invalid session.
+  async function apiFetch(path, options) {
+    const opts = Object.assign({}, options);
+    opts.headers = Object.assign({ "content-type": "application/json" }, options && options.headers);
+    if (state.session && state.session.token) {
+      opts.headers.authorization = "Bearer " + state.session.token;
+    }
+
+    let res;
+    try {
+      res = await fetch(path, opts);
+    } catch (e) {
+      throw new Error("コミュニティ機能を利用するには、実際にデプロイされたサイトが必要です。");
+    }
+
+    let data = null;
+    try { data = await res.json(); } catch (e) {}
+
+    if (res.status === 401 && state.session) {
+      saveSession(null);
+      stopPolling();
+      updateCommunityUI();
+      toast("セッションが切れました。再度ログインしてください。");
+      navigate("auth");
+    }
+
+    if (!res.ok) throw new Error((data && data.error) || ("エラーが発生しました（" + res.status + "）"));
+    return data;
+  }
+
+  function formatRelativeTime(ms) {
+    const min = Math.floor((Date.now() - ms) / 60000);
+    if (min < 1) return "たった今";
+    if (min < 60) return min + "分前";
+    const hr = Math.floor(min / 60);
+    if (hr < 24) return hr + "時間前";
+    const day = Math.floor(hr / 24);
+    if (day < 7) return day + "日前";
+    return new Date(ms).toLocaleDateString("ja-JP");
+  }
+
+  function formatTime(ms) {
+    return new Date(ms).toLocaleTimeString("ja-JP", { hour: "2-digit", minute: "2-digit" });
+  }
+
+  /* ----------------------------- Community: auth ----------------------------- */
+
+  function updateCommunityUI() {
+    const loggedIn = !!(state.session && state.session.user);
+    $("#communityLoggedOut").hidden = loggedIn;
+    $("#communityLoggedIn").hidden = !loggedIn;
+    if (loggedIn) {
+      $("#communityUserName").textContent = state.session.user.displayName;
+      refreshCommunityStats();
+    }
+  }
+
+  async function refreshCommunityStats() {
+    try {
+      const [following, followers, pending] = await Promise.all([
+        apiFetch("/api/follows?type=following"),
+        apiFetch("/api/follows?type=followers"),
+        apiFetch("/api/follows?type=pending"),
+      ]);
+      $("#statFollowing").textContent = following.items.length;
+      $("#statFollowers").textContent = followers.items.length;
+      $("#statPending").textContent = pending.items.length;
+    } catch (e) { /* the marketplace still works even if this quietly fails */ }
+  }
+
+  $all("[data-auth-tab]").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      $all("[data-auth-tab]").forEach((b) => b.classList.remove("active"));
+      btn.classList.add("active");
+      const mode = btn.dataset.authTab;
+      $("#loginForm").hidden = mode !== "login";
+      $("#signupForm").hidden = mode !== "signup";
+    });
+  });
+
+  $("#loginForm").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    $("#loginError").hidden = true;
+    try {
+      const data = await apiFetch("/api/auth/login", {
+        method: "POST",
+        body: JSON.stringify({ email: $("#loginEmail").value, password: $("#loginPassword").value }),
+      });
+      saveSession(data);
+      updateCommunityUI();
+      startPolling();
+      toast("ログインしました");
+      navigate("marketplace");
+    } catch (err) {
+      $("#loginError").textContent = err.message;
+      $("#loginError").hidden = false;
+    }
+  });
+
+  $("#signupForm").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    $("#signupError").hidden = true;
+    try {
+      const data = await apiFetch("/api/auth/signup", {
+        method: "POST",
+        body: JSON.stringify({
+          displayName: $("#signupName").value,
+          email: $("#signupEmail").value,
+          password: $("#signupPassword").value,
+        }),
+      });
+      saveSession(data);
+      updateCommunityUI();
+      startPolling();
+      toast("アカウントを作成しました");
+      navigate("marketplace");
+    } catch (err) {
+      $("#signupError").textContent = err.message;
+      $("#signupError").hidden = false;
+    }
+  });
+
+  $("#btnLogout").addEventListener("click", async () => {
+    try { await apiFetch("/api/auth/logout", { method: "POST" }); } catch (e) {}
+    saveSession(null);
+    stopPolling();
+    updateCommunityUI();
+    toast("ログアウトしました");
+  });
+
+  /* ----------------------------- Community: find people ----------------------------- */
+
+  function relationshipButton(u) {
+    if (u.relationship === "accepted") return '<button class="btn btn-outline" disabled>フォロー中</button>';
+    if (u.relationship === "pending_outgoing") return '<button class="btn btn-outline" disabled>リクエスト済み</button>';
+    if (u.relationship === "pending_incoming") return '<button class="btn btn-outline" data-goto-pending="1">リクエストを確認</button>';
+    return `<button class="btn btn-gold" data-follow-user="${u.id}">フォロー</button>`;
+  }
+
+  function renderFindPeopleResults(users) {
+    $("#findPeopleResults").innerHTML = users.map((u) => `
+      <div class="person-row">
+        <div class="person-avatar">${escapeHtml(u.displayName.slice(0, 1))}</div>
+        <div class="person-body person-name">${escapeHtml(u.displayName)}</div>
+        <div class="person-actions">${relationshipButton(u)}</div>
+      </div>`).join("") || '<div class="empty-state">見つかりませんでした</div>';
+  }
+
+  let findPeopleTimer = null;
+  $("#findPeopleQuery").addEventListener("input", () => {
+    clearTimeout(findPeopleTimer);
+    findPeopleTimer = setTimeout(runFindPeopleSearch, 350);
+  });
+
+  async function runFindPeopleSearch() {
+    const q = $("#findPeopleQuery").value.trim();
+    if (!q) { $("#findPeopleResults").innerHTML = ""; return; }
+    try {
+      const data = await apiFetch("/api/users?query=" + encodeURIComponent(q));
+      renderFindPeopleResults(data.users);
+    } catch (e) { toast(e.message); }
+  }
+
+  $("#findPeopleResults").addEventListener("click", async (e) => {
+    const followBtn = e.target.closest("[data-follow-user]");
+    const gotoPending = e.target.closest("[data-goto-pending]");
+    if (followBtn) {
+      try {
+        await apiFetch("/api/follows", { method: "POST", body: JSON.stringify({ followeeId: followBtn.dataset.followUser }) });
+        toast("フォローリクエストを送信しました");
+        runFindPeopleSearch();
+      } catch (err) { toast(err.message); }
+    } else if (gotoPending) {
+      openFollowersTab("pending");
+    }
+  });
+
+  /* ----------------------------- Community: followers / following / requests ----------------------------- */
+
+  let followersTab = "followers";
+
+  function openFollowersTab(tab) {
+    followersTab = tab;
+    $all("#followersTabs [data-follow-tab]").forEach((b) => b.classList.toggle("active", b.dataset.followTab === tab));
+    navigate("followers");
+    loadFollowersTab();
+  }
+
+  $all(".community-stat").forEach((btn) => {
+    btn.addEventListener("click", () => openFollowersTab(btn.dataset.tab));
+  });
+
+  $all("#followersTabs [data-follow-tab]").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      $all("#followersTabs [data-follow-tab]").forEach((b) => b.classList.remove("active"));
+      btn.classList.add("active");
+      followersTab = btn.dataset.followTab;
+      loadFollowersTab();
+    });
+  });
+
+  async function loadFollowersTab() {
+    try {
+      const data = await apiFetch("/api/follows?type=" + followersTab);
+      renderFollowersList(data.items);
+    } catch (e) { toast(e.message); }
+  }
+
+  function renderFollowersList(items) {
+    if (!items.length) {
+      $("#followersList").innerHTML = '<div class="empty-state">まだありません</div>';
+      return;
+    }
+    $("#followersList").innerHTML = items.map((it) => {
+      let actions;
+      if (followersTab === "pending") {
+        actions = `<button class="btn btn-gold" data-accept="${it.id}">承認</button><button class="btn btn-outline" data-reject="${it.id}">拒否</button>`;
+      } else if (followersTab === "followers") {
+        actions = `<button class="btn btn-outline" data-message-user="${it.userId}">メッセージ</button><button class="btn btn-ghost" data-remove="${it.id}">削除</button>`;
+      } else {
+        actions = `<button class="btn btn-outline" data-message-user="${it.userId}">メッセージ</button><button class="btn btn-ghost" data-unfollow="${it.id}">解除</button>`;
+      }
+      return `<div class="person-row">
+        <div class="person-avatar">${escapeHtml(it.displayName.slice(0, 1))}</div>
+        <div class="person-body person-name">${escapeHtml(it.displayName)}</div>
+        <div class="person-actions">${actions}</div>
+      </div>`;
+    }).join("");
+  }
+
+  $("#followersList").addEventListener("click", async (e) => {
+    const accept = e.target.closest("[data-accept]");
+    const reject = e.target.closest("[data-reject]");
+    const remove = e.target.closest("[data-remove]");
+    const unfollow = e.target.closest("[data-unfollow]");
+    const messageBtn = e.target.closest("[data-message-user]");
+    try {
+      if (accept) {
+        await apiFetch("/api/follows/" + accept.dataset.accept, { method: "PATCH", body: JSON.stringify({ action: "accept" }) });
+        toast("承認しました");
+        loadFollowersTab();
+        refreshCommunityStats();
+      } else if (reject) {
+        await apiFetch("/api/follows/" + reject.dataset.reject, { method: "DELETE" });
+        toast("拒否しました");
+        loadFollowersTab();
+        refreshCommunityStats();
+      } else if (remove) {
+        await apiFetch("/api/follows/" + remove.dataset.remove, { method: "DELETE" });
+        toast("フォロワーを削除しました");
+        loadFollowersTab();
+        refreshCommunityStats();
+      } else if (unfollow) {
+        await apiFetch("/api/follows/" + unfollow.dataset.unfollow, { method: "DELETE" });
+        toast("フォローを解除しました");
+        loadFollowersTab();
+        refreshCommunityStats();
+      } else if (messageBtn) {
+        openThread(messageBtn.dataset.messageUser);
+      }
+    } catch (err) { toast(err.message); }
+  });
+
+  /* ----------------------------- Community: messages ----------------------------- */
+
+  async function loadInbox() {
+    try {
+      const data = await apiFetch("/api/messages/threads");
+      renderInbox(data.threads);
+    } catch (e) { toast(e.message); }
+  }
+
+  function renderInbox(threads) {
+    if (!threads.length) {
+      $("#inboxList").innerHTML = '<div class="empty-state">まだメッセージがありません</div>';
+      return;
+    }
+    $("#inboxList").innerHTML = threads.map((t) => `
+      <div class="person-row inbox-row${t.unreadCount > 0 ? " unread" : ""}" data-thread-user="${t.userId}">
+        <div class="person-avatar">${escapeHtml(t.displayName.slice(0, 1))}</div>
+        <div class="person-body">
+          <div class="person-name">${escapeHtml(t.displayName)}</div>
+          <div class="inbox-preview">${escapeHtml(t.lastMessage)}</div>
+        </div>
+        <div class="inbox-meta">
+          <div class="inbox-time">${formatRelativeTime(t.lastAt)}</div>
+          ${t.unreadCount > 0 ? `<div class="inbox-unread-badge">${t.unreadCount}</div>` : ""}
+        </div>
+      </div>`).join("");
+  }
+
+  $("#inboxList").addEventListener("click", (e) => {
+    const row = e.target.closest("[data-thread-user]");
+    if (row) openThread(row.dataset.threadUser);
+  });
+
+  let currentThreadUserId = null;
+
+  async function openThread(userId) {
+    currentThreadUserId = userId;
+    navigate("message-thread");
+    await loadThread();
+  }
+
+  async function loadThread() {
+    try {
+      const data = await apiFetch("/api/messages?with=" + encodeURIComponent(currentThreadUserId));
+      $("#topbarTitle").textContent = data.other.displayName;
+      renderThread(data.messages);
+    } catch (e) {
+      toast(e.message);
+      navigate("messages-inbox");
+    }
+  }
+
+  function renderThread(messages) {
+    const myId = state.session && state.session.user && state.session.user.id;
+    $("#threadMessages").innerHTML = messages.map((m) => `
+      <div class="msg-bubble ${m.senderId === myId ? "mine" : "theirs"}">
+        ${escapeHtml(m.body)}<span class="msg-time">${formatTime(m.createdAt)}</span>
+      </div>`).join("") || '<div class="empty-state">まだメッセージがありません。最初のメッセージを送りましょう。</div>';
+    window.scrollTo(0, document.body.scrollHeight);
+  }
+
+  async function sendThreadMessage() {
+    const input = $("#threadInput");
+    const text = input.value.trim();
+    if (!text || !currentThreadUserId) return;
+    input.value = "";
+    try {
+      await apiFetch("/api/messages", { method: "POST", body: JSON.stringify({ recipientId: currentThreadUserId, body: text }) });
+      await loadThread();
+    } catch (e) { toast(e.message); }
+  }
+
+  $("#btnSendMessage").addEventListener("click", sendThreadMessage);
+  $("#threadInput").addEventListener("keydown", (e) => {
+    if (e.key === "Enter") { e.preventDefault(); sendThreadMessage(); }
+  });
+
+  // Poll/refresh-based messaging: check for new messages and unread counts
+  // periodically rather than holding a live connection open.
+  let pollTimer = null;
+  function startPolling() {
+    stopPolling();
+    pollTimer = setInterval(async () => {
+      if (!state.session) return;
+      try {
+        const data = await apiFetch("/api/messages/threads");
+        const totalUnread = data.threads.reduce((sum, t) => sum + t.unreadCount, 0);
+        $("#inboxUnreadDot").hidden = totalUnread === 0;
+        if ($("#view-messages-inbox").classList.contains("active")) renderInbox(data.threads);
+        if ($("#view-message-thread").classList.contains("active") && currentThreadUserId) loadThread();
+      } catch (e) { /* polling failures stay silent — no toast spam */ }
+    }, 25000);
+  }
+  function stopPolling() {
+    if (pollTimer) clearInterval(pollTimer);
+    pollTimer = null;
+  }
+
+  // These two views load their data on navigation, not just on click, so
+  // they're also correct when reached via the back button.
+  $all('[data-nav="find-people"]').forEach((el) => el.addEventListener("click", () => { $("#findPeopleQuery").value = ""; $("#findPeopleResults").innerHTML = ""; }));
+  $all('[data-nav="messages-inbox"]').forEach((el) => el.addEventListener("click", loadInbox));
+
   /* ----------------------------- Init ----------------------------- */
 
   loadPrefs();
+  loadSession();
+  updateCommunityUI();
+  if (state.session) startPolling();
   resetCamera();
   navigate("home");
 })();

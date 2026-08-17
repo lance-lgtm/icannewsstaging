@@ -961,6 +961,93 @@ main#views {
 }
 
 /* =========================================================================
+   Community: auth, follows, messages
+   ========================================================================= */
+
+.community-card {
+  background: var(--card); border-radius: var(--r-lg); padding: 18px; box-shadow: var(--shadow-sm);
+}
+.community-card p { font-size: calc(0.84rem * var(--scale)); color: var(--ink-soft); line-height: 1.6; margin-bottom: 14px; }
+
+.community-stats { display: flex; gap: 8px; margin-bottom: 14px; }
+.community-stat {
+  flex: 1; border: 1.5px solid var(--line); background: var(--paper); border-radius: var(--r-md);
+  padding: 12px 6px; display: flex; flex-direction: column; align-items: center; gap: 2px;
+}
+.community-stat .num { font-weight: 800; font-size: calc(1.15rem * var(--scale)); color: var(--gold-deep); font-variant-numeric: tabular-nums; }
+.community-stat .lbl { font-size: calc(0.66rem * var(--scale)); color: var(--ink-faint); }
+
+.community-actions { display: flex; flex-direction: column; gap: 8px; margin-bottom: 10px; }
+.community-actions .btn { position: relative; }
+.badge-dot {
+  position: absolute; top: 6px; right: 14px; width: 9px; height: 9px; border-radius: var(--r-pill);
+  background: var(--danger); border: 2px solid var(--card);
+}
+
+.auth-tabs {
+  display: inline-flex; border-radius: var(--r-pill); background: var(--paper-2);
+  padding: 3px; margin-bottom: 18px; width: 100%;
+}
+.auth-tabs button {
+  flex: 1; border: none; background: none; padding: 9px 16px; border-radius: var(--r-pill);
+  font-weight: 700; font-size: calc(0.82rem * var(--scale)); color: var(--ink-faint);
+}
+.auth-tabs button.active { background: var(--card); color: var(--ink); box-shadow: var(--shadow-sm); }
+
+.auth-form { background: var(--card); border-radius: var(--r-lg); padding: 18px; box-shadow: var(--shadow-md); }
+.auth-error {
+  background: var(--danger-bg); color: var(--danger); border-radius: var(--r-sm);
+  padding: 10px 12px; font-size: calc(0.8rem * var(--scale)); margin-bottom: 14px;
+}
+
+.person-row {
+  display: flex; align-items: center; gap: 12px; background: var(--card); border-radius: var(--r-md);
+  padding: 12px; box-shadow: var(--shadow-sm); margin-bottom: 10px;
+}
+.person-avatar {
+  width: 42px; height: 42px; border-radius: var(--r-pill); flex-shrink: 0;
+  background: linear-gradient(135deg, var(--gold-soft), #fff); border: 1.5px solid var(--gold-soft);
+  display: flex; align-items: center; justify-content: center; font-weight: 800; color: var(--gold-deep);
+}
+.person-body { flex: 1; min-width: 0; }
+.person-name { font-weight: 700; font-size: calc(0.86rem * var(--scale)); }
+.person-actions { display: flex; gap: 6px; flex-shrink: 0; }
+.person-actions .btn { padding: 8px 12px; font-size: calc(0.74rem * var(--scale)); white-space: nowrap; }
+
+.inbox-row { cursor: pointer; }
+.inbox-preview {
+  font-size: calc(0.78rem * var(--scale)); color: var(--ink-faint); margin-top: 2px;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.inbox-row.unread .inbox-preview { color: var(--ink); font-weight: 600; }
+.inbox-meta { text-align: right; flex-shrink: 0; }
+.inbox-time { font-size: calc(0.64rem * var(--scale)); color: var(--ink-faint); }
+.inbox-unread-badge {
+  display: inline-block; margin-top: 4px; background: var(--sell); color: #fff; border-radius: var(--r-pill);
+  font-size: calc(0.62rem * var(--scale)); font-weight: 800; padding: 2px 7px; font-variant-numeric: tabular-nums;
+}
+
+.thread-messages { display: flex; flex-direction: column; gap: 10px; padding-bottom: 8px; }
+.msg-bubble {
+  max-width: 78%; padding: 10px 14px; border-radius: 16px; font-size: calc(0.86rem * var(--scale));
+  line-height: 1.5; word-break: break-word;
+}
+.msg-bubble .msg-time { display: block; font-size: calc(0.62rem * var(--scale)); margin-top: 4px; opacity: 0.65; }
+.msg-bubble.mine {
+  align-self: flex-end; background: linear-gradient(135deg, var(--gold), var(--gold-deep));
+  color: #fff; border-bottom-right-radius: 4px;
+}
+.msg-bubble.theirs {
+  align-self: flex-start; background: var(--card); box-shadow: var(--shadow-sm); border-bottom-left-radius: 4px;
+}
+.thread-composer { display: flex; gap: 8px; margin-top: 16px; }
+.thread-composer input {
+  flex: 1; border: 1.5px solid var(--line); border-radius: var(--r-pill); padding: 11px 16px;
+  background: var(--paper); font-size: calc(0.86rem * var(--scale));
+}
+.thread-composer .btn { padding: 11px 20px; }
+
+/* =========================================================================
    Misc
    ========================================================================= */
 

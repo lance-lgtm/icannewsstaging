@@ -1,0 +1,20 @@
+# TSUGU — local development config for `wrangler pages dev`.
+#
+# This file is ONLY needed for testing functions/ + D1 on your own machine
+# before deploying (see README "Local development" below). It is NOT used
+# when you deploy via the Cloudflare Pages dashboard's Git integration —
+# that flow binds D1 through the dashboard UI instead (Settings → Functions
+# → D1 database bindings), independent of this file.
+#
+# If you instead deploy with the `wrangler pages deploy` CLI rather than the
+# dashboard, replace database_id below with your real database's ID from
+# `wrangler d1 create tsugu-db`.
+
+name = "tsugu"
+compatibility_date = "2024-09-23"
+pages_build_output_dir = "."
+
+[[d1_databases]]
+binding = "DB"
+database_name = "tsugu-db"
+database_id = "00000000-0000-0000-0000-000000000000"

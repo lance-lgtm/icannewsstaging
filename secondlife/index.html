@@ -333,6 +333,24 @@
       <div class="section-label" style="margin-top:0">近くの出品</div>
       <div id="marketList"></div>
 
+      <div class="section-label">コミュニティ</div>
+      <div class="community-card" id="communityLoggedOut">
+        <p>ログインすると、他のユーザーをフォローしたり、メッセージを送ったりできます。</p>
+        <button class="btn btn-gold block" data-nav="auth">ログイン / 新規登録</button>
+      </div>
+      <div class="community-card" id="communityLoggedIn" hidden>
+        <div class="community-stats">
+          <button class="community-stat" data-tab="following"><span class="num" id="statFollowing">0</span><span class="lbl">フォロー中</span></button>
+          <button class="community-stat" data-tab="followers"><span class="num" id="statFollowers">0</span><span class="lbl">フォロワー</span></button>
+          <button class="community-stat" data-tab="pending"><span class="num" id="statPending">0</span><span class="lbl">リクエスト</span></button>
+        </div>
+        <div class="community-actions">
+          <button class="btn btn-outline block" data-nav="find-people">ユーザーを探す</button>
+          <button class="btn btn-outline block" data-nav="messages-inbox">メッセージ<span class="badge-dot" id="inboxUnreadDot" hidden></span></button>
+        </div>
+        <button class="btn btn-ghost block" id="btnLogout">ログアウト（<span id="communityUserName"></span>）</button>
+      </div>
+
       <div class="section-label">安全のためのしくみ</div>
       <div class="warn-card">
         <div class="warn-head"><svg class="icon" style="width:17px;height:17px"><use href="#i-alert"/></svg>このメッセージには注意が必要です。</div>
@@ -377,6 +395,61 @@
         <label class="option-row"><input type="radio" name="trust"><svg class="icon"><use href="#i-heart"/></svg><span class="opt-label">家族・友人のみ</span></label>
       </div>
       <button class="btn btn-gold block" style="margin-top:20px" id="btnSaveTrust">保存する</button>
+    </section>
+
+    <!-- ============================= AUTH ============================= -->
+    <section class="view" id="view-auth" data-title="ログイン" data-sub="Community" data-back="marketplace">
+      <div class="auth-tabs">
+        <button class="active" data-auth-tab="login">ログイン</button>
+        <button data-auth-tab="signup">新規登録</button>
+      </div>
+
+      <form class="auth-form" id="loginForm">
+        <div class="field-row"><label>メールアドレス</label><input type="email" id="loginEmail" autocomplete="email" required></div>
+        <div class="field-row"><label>パスワード</label><input type="password" id="loginPassword" autocomplete="current-password" required></div>
+        <div class="auth-error" id="loginError" hidden></div>
+        <button type="submit" class="btn btn-gold block">ログイン</button>
+      </form>
+
+      <form class="auth-form" id="signupForm" hidden>
+        <div class="field-row"><label>表示名</label><input type="text" id="signupName" maxlength="60" required></div>
+        <div class="field-row"><label>メールアドレス</label><input type="email" id="signupEmail" autocomplete="email" required></div>
+        <div class="field-row"><label>パスワード（8文字以上）</label><input type="password" id="signupPassword" autocomplete="new-password" minlength="8" required></div>
+        <div class="auth-error" id="signupError" hidden></div>
+        <button type="submit" class="btn btn-gold block">アカウントを作成</button>
+      </form>
+    </section>
+
+    <!-- ============================= FIND PEOPLE ============================= -->
+    <section class="view" id="view-find-people" data-title="ユーザーを探す" data-sub="Find People" data-back="marketplace">
+      <div class="field-row">
+        <input type="text" id="findPeopleQuery" placeholder="表示名で検索">
+      </div>
+      <div id="findPeopleResults"></div>
+    </section>
+
+    <!-- ============================= FOLLOWERS / FOLLOWING / REQUESTS ============================= -->
+    <section class="view" id="view-followers" data-title="フォロワー" data-sub="" data-back="marketplace">
+      <div class="lang-toggle" id="followersTabs">
+        <button class="active" data-follow-tab="followers">フォロワー</button>
+        <button data-follow-tab="following">フォロー中</button>
+        <button data-follow-tab="pending">リクエスト</button>
+      </div>
+      <div id="followersList"></div>
+    </section>
+
+    <!-- ============================= MESSAGES INBOX ============================= -->
+    <section class="view" id="view-messages-inbox" data-title="メッセージ" data-sub="Messages" data-back="marketplace">
+      <div id="inboxList"></div>
+    </section>
+
+    <!-- ============================= MESSAGE THREAD ============================= -->
+    <section class="view" id="view-message-thread" data-title="メッセージ" data-sub="" data-back="messages-inbox">
+      <div class="thread-messages" id="threadMessages"></div>
+      <div class="thread-composer">
+        <input type="text" id="threadInput" placeholder="メッセージを入力" maxlength="2000">
+        <button class="btn btn-gold" id="btnSendMessage">送信</button>
+      </div>
     </section>
 
     <!-- ============================= LEGACY ============================= -->
