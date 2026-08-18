@@ -6,8 +6,8 @@
   <title>予約一覧（スタッフ用） / Bookings (Staff)</title>
   <meta name="robots" content="noindex, nofollow">
   <meta name="theme-color" content="#9c2354">
-  <link rel="stylesheet" href="css/style.css?v=7">
-  <link rel="stylesheet" href="css/admin.css?v=7">
+  <link rel="stylesheet" href="css/style.css?v=8">
+  <link rel="stylesheet" href="css/admin.css?v=8">
 </head>
 <body>
   <div class="page admin-page">
@@ -90,6 +90,17 @@
         </form>
       </section>
 
+      <section id="patients-card" class="card" hidden>
+        <h2><span class="jp">患者検索</span><span class="en">Patient Search</span></h2>
+        <p class="note">
+          <span class="jp">過去の予約から患者様の連絡先を検索できます。「この方の次回予約を追加」で上の予約フォームに自動入力されます。</span>
+          <span class="en">Search past bookings by name or phone. "Book next appointment" fills in the form above automatically.</span>
+        </p>
+        <input type="text" id="patient-search" class="patient-search-input" placeholder="名前または電話番号 / Name or phone number">
+        <div id="patients-status" class="status-msg"></div>
+        <div id="patients-list"></div>
+      </section>
+
       <section id="list-card" class="card" hidden>
         <div class="admin-toolbar">
           <h2><span class="jp">予約一覧</span><span class="en">Upcoming Bookings</span></h2>
@@ -112,7 +123,7 @@
     </main>
   </div>
 
-  <script src="js/config.js?v=7"></script>
-  <script src="js/admin.js?v=7"></script>
+  <script src="js/config.js?v=8"></script>
+  <script src="js/admin.js?v=8"></script>
 </body>
 </html>

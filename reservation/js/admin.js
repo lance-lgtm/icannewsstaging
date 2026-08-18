@@ -38,11 +38,19 @@
     els.addBookingSuccess = document.getElementById("add-booking-success");
     els.addBookingBtn = document.getElementById("add-booking-btn");
 
+    els.patientsCard = document.getElementById("patients-card");
+    els.patientSearch = document.getElementById("patient-search");
+    els.patientsStatus = document.getElementById("patients-status");
+    els.patientsList = document.getElementById("patients-list");
+
     els.loginBtn.addEventListener("click", onLogin);
     els.adminKeyInput.addEventListener("keydown", (e) => {
       if (e.key === "Enter") onLogin();
     });
-    els.refreshBtn.addEventListener("click", () => loadBookings(getKey()));
+    els.refreshBtn.addEventListener("click", () => {
+      loadBookings(getKey());
+      loadPatients(getKey());
+    });
     els.addBookingForm.addEventListener("submit", onAddBooking);
     els.filterDate.addEventListener("change", () => applyFilter());
     els.filterTodayBtn.addEventListener("click", () => {
@@ -53,9 +61,11 @@
       els.filterDate.value = "";
       applyFilter();
     });
+    els.abDate.addEventListener("change", () => populateTimeOptions());
+    els.patientSearch.addEventListener("input", () => renderPatients());
 
-    populateTimeOptions();
     setDefaultDate();
+    populateTimeOptions();
 
     if (!isConfigured()) {
       els.listStatus.innerHTML = statusHtml(
@@ -69,6 +79,7 @@
     if (savedKey) {
       showList();
       loadBookings(savedKey);
+      loadPatients(savedKey);
     }
   }
 
@@ -95,18 +106,21 @@
     sessionStorage.setItem(STORAGE_KEY, key);
     showList();
     loadBookings(key);
+    loadPatients(key);
   }
 
   function showList() {
     els.loginCard.hidden = true;
     els.listCard.hidden = false;
     els.addBookingCard.hidden = false;
+    els.patientsCard.hidden = false;
   }
 
   function backToLogin(message) {
     sessionStorage.removeItem(STORAGE_KEY);
     els.listCard.hidden = true;
     els.addBookingCard.hidden = true;
+    els.patientsCard.hidden = true;
     els.loginCard.hidden = false;
     if (message) {
       els.loginError.hidden = false;
@@ -267,11 +281,117 @@
       });
   }
 
+  // ---------- Patients ----------
+
+  let allPatients = [];
+
+  function loadPatients(key) {
+    apiGet({ action: "patients", key })
+      .then((res) => {
+        if (!res || res.error) throw new Error((res && res.error) || "unknown");
+        allPatients = res.patients || [];
+        renderPatients();
+      })
+      .catch(() => {
+        els.patientsStatus.innerHTML = statusHtml(
+          "患者一覧の読み込みに失敗しました。",
+          "Failed to load patient list."
+        );
+      });
+  }
+
+  function renderPatients() {
+    const termRaw = els.patientSearch.value.trim();
+    const term = termRaw.toLowerCase();
+    const termDigits = termRaw.replace(/\D/g, "");
+
+    const matches = !termRaw
+      ? allPatients
+      : allPatients.filter((p) => {
+          const nameMatch =
+            (p.name || "").toLowerCase().includes(term) || (p.kana || "").toLowerCase().includes(term);
+          const phoneMatch = termDigits && (p.phone || "").replace(/\D/g, "").includes(termDigits);
+          return nameMatch || phoneMatch;
+        });
+
+    els.patientsList.innerHTML = "";
+
+    if (allPatients.length === 0) {
+      els.patientsStatus.innerHTML = statusHtml("患者データはまだありません。", "No patients yet.");
+      return;
+    }
+    if (matches.length === 0) {
+      els.patientsStatus.innerHTML = statusHtml("該当する患者が見つかりません。", "No matching patients.");
+      return;
+    }
+    els.patientsStatus.innerHTML = "";
+
+    matches.slice(0, 50).forEach((p) => {
+      const row = document.createElement("div");
+      row.className = "booking-row";
+
+      const info = document.createElement("div");
+      info.className = "booking-info";
+      const nextTag = p.nextDate
+        ? `<span class="b-next">${statusHtml(`次回: ${p.nextDate} ${p.nextTime}`, `Next: ${p.nextDate} ${p.nextTime}`)}</span>`
+        : p.lastDate
+        ? `<div class="b-last">${statusHtml(`前回: ${p.lastDate}`, `Last visit: ${p.lastDate}`)}</div>`
+        : "";
+      info.innerHTML = `
+        <div class="b-name">${escapeHtml(p.name)}</div>
+        ${p.kana ? `<div class="b-kana">${escapeHtml(p.kana)}</div>` : ""}
+        ${p.phone ? `<div class="b-phone">${escapeHtml(p.phone)}</div>` : ""}
+        ${nextTag}
+      `;
+
+      const useBtn = document.createElement("button");
+      useBtn.type = "button";
+      useBtn.className = "use-btn";
+      useBtn.innerHTML = statusHtml("次回予約を追加", "Book next appointment");
+      useBtn.addEventListener("click", () => fillFromPatient(p));
+
+      row.appendChild(info);
+      row.appendChild(useBtn);
+      els.patientsList.appendChild(row);
+    });
+
+    if (matches.length > 50) {
+      const more = document.createElement("p");
+      more.className = "filter-summary";
+      more.innerHTML = statusHtml(
+        `他 ${matches.length - 50} 件。検索して絞り込んでください。`,
+        `${matches.length - 50} more — narrow your search to see them.`
+      );
+      els.patientsList.appendChild(more);
+    }
+  }
+
+  function fillFromPatient(p) {
+    els.abName.value = p.name || "";
+    els.abKana.value = p.kana || "";
+    els.abPhone.value = p.phone || "";
+    els.abEmail.value = p.email || "";
+    els.addBookingCard.scrollIntoView({ behavior: "smooth", block: "start" });
+    els.abDate.focus();
+  }
+
   // ---------- Add booking / block time ----------
 
   function populateTimeOptions() {
     els.abTime.innerHTML = "";
-    CONFIG.SESSIONS.forEach((session) => {
+    const weekday = els.abDate.value ? new Date(els.abDate.value + "T00:00:00").getDay() : null;
+    const sessions = (weekday !== null && CONFIG.SESSIONS_BY_WEEKDAY[weekday]) || [];
+
+    if (sessions.length === 0) {
+      const opt = document.createElement("option");
+      opt.value = "";
+      opt.textContent = "この日は休診日です / Clinic closed on this date";
+      opt.disabled = true;
+      els.abTime.appendChild(opt);
+      return;
+    }
+
+    sessions.forEach((session) => {
       const group = document.createElement("optgroup");
       group.label = `${session.labelJa} / ${session.labelEn}`;
       generateSessionSlots(session).forEach((time) => {
@@ -383,7 +503,9 @@
         els.addBookingSuccess.innerHTML = statusHtml("追加しました。", "Added.");
         els.addBookingForm.reset();
         setDefaultDate();
+        populateTimeOptions();
         loadBookings(getKey());
+        loadPatients(getKey());
       })
       .catch(() => {
         showAddError("通信エラーが発生しました。もう一度お試しください。", "A network error occurred. Please try again.");
