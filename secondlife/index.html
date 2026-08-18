@@ -92,7 +92,7 @@
 
   <!-- ============================= TOP BAR ============================= -->
   <header class="topbar" id="topbar">
-    <button class="back-btn" id="backBtn" aria-label="戻る"><svg class="icon"><use href="#i-chev-left"/></svg></button>
+    <button class="back-btn" id="backBtn" aria-label="戻る" data-i18n-aria="common.back"><svg class="icon"><use href="#i-chev-left"/></svg></button>
     <div class="title-wrap">
       <h1 id="topbarTitle">つぐ</h1>
       <div class="subtitle" id="topbarSub"></div>
@@ -103,7 +103,7 @@
   <main id="views">
 
     <!-- ============================= HOME ============================= -->
-    <section class="view active" id="view-home" data-title="つぐ" data-sub="Second Life for Your Belongings">
+    <section class="view active" id="view-home" data-title="つぐ" data-title-en="TSUGU" data-sub="Second Life for Your Belongings" data-sub-en="Second Life for Your Belongings">
       <div class="hero">
         <div class="brand">つ<span class="gold">ぐ</span></div>
         <div class="brand-en">T S U G U</div>
@@ -112,7 +112,7 @@
 
       <button class="camera-cta" id="btnTakePhoto">
         <div class="cta-icon-wrap"><svg class="icon"><use href="#i-camera"/></svg></div>
-        <div class="cta-label">写真を撮る</div>
+        <div class="cta-label" data-i18n="home.ctaLabel">写真を撮る</div>
         <div class="cta-sub">TAKE A PHOTO</div>
       </button>
 
@@ -122,47 +122,47 @@
       </div>
 
       <div class="impact-strip">
-        <div class="impact-chip"><div class="num">1,240pt</div><div class="lbl">セカンドライフポイント</div></div>
-        <div class="impact-chip"><div class="num">18点</div><div class="lbl">次の人へ渡した物</div></div>
-        <div class="impact-chip"><div class="num">¥32,400</div><div class="lbl">これまでの収益</div></div>
-        <div class="impact-chip"><div class="num">47.2kg</div><div class="lbl">廃棄削減の推定量</div></div>
+        <div class="impact-chip"><div class="num" id="pointsHomeNum">1,240pt</div><div class="lbl" data-i18n="home.impactPoints">セカンドライフポイント</div></div>
+        <div class="impact-chip"><div class="num">18点</div><div class="lbl" data-i18n="home.impactPassed">次の人へ渡した物</div></div>
+        <div class="impact-chip"><div class="num">¥32,400</div><div class="lbl" data-i18n="home.impactEarned">これまでの収益</div></div>
+        <div class="impact-chip"><div class="num">47.2kg</div><div class="lbl" data-i18n="home.impactWaste">廃棄削減の推定量</div></div>
       </div>
 
-      <div class="section-label">できること</div>
+      <div class="section-label" data-i18n="home.sectionLabel">できること</div>
       <div class="card-grid">
         <button class="feature-card" data-nav="marketplace" data-filter="sell">
           <div class="fc-icon fc-tone-sell"><svg class="icon"><use href="#i-tag"/></svg></div>
-          <div><div class="fc-title">売れるものは?</div><div class="fc-sub">What can I sell?</div></div>
+          <div><div class="fc-title" data-i18n="home.cardSellTitle">売れるものは?</div><div class="fc-sub" data-i18n="home.cardSellSub">What can I sell?</div></div>
         </button>
         <button class="feature-card" data-nav="inventory">
           <div class="fc-icon fc-tone-keep"><svg class="icon"><use href="#i-heart"/></svg></div>
-          <div><div class="fc-title">残すべきものは?</div><div class="fc-sub">What should I keep?</div></div>
+          <div><div class="fc-title" data-i18n="home.cardKeepTitle">残すべきものは?</div><div class="fc-sub" data-i18n="home.cardKeepSub">What should I keep?</div></div>
         </button>
         <button class="feature-card" data-nav="camera" data-preset="give">
           <div class="fc-icon fc-tone-give"><svg class="icon"><use href="#i-give"/></svg></div>
-          <div><div class="fc-title">譲る・贈る</div><div class="fc-sub">Give something away</div></div>
+          <div><div class="fc-title" data-i18n="home.cardGiveTitle">譲る・贈る</div><div class="fc-sub" data-i18n="home.cardGiveSub">Give something away</div></div>
         </button>
         <button class="feature-card" data-nav="camera" data-preset="value">
           <div class="fc-icon fc-tone-gold"><svg class="icon"><use href="#i-sparkle"/></svg></div>
-          <div><div class="fc-title">隠れた価値を発見</div><div class="fc-sub">Find hidden value</div></div>
+          <div><div class="fc-title" data-i18n="home.cardValueTitle">隠れた価値を発見</div><div class="fc-sub" data-i18n="home.cardValueSub">Find hidden value</div></div>
         </button>
         <button class="feature-card wide" data-nav="inventory">
           <div class="fc-icon fc-tone-gold"><svg class="icon"><use href="#i-box"/></svg></div>
-          <div><div class="fc-title">マイ・ホームインベントリ</div><div class="fc-sub">My Home Inventory — 持ち物を写真で整理</div></div>
+          <div><div class="fc-title" data-i18n="home.cardInventoryTitle">マイ・ホームインベントリ</div><div class="fc-sub" data-i18n="home.cardInventorySub">My Home Inventory — 持ち物を写真で整理</div></div>
         </button>
         <button class="feature-card wide" data-nav="legacy">
           <div class="fc-icon fc-tone-donate"><svg class="icon"><use href="#i-scroll"/></svg></div>
-          <div><div class="fc-title">ファミリー・レガシー</div><div class="fc-sub">Family Legacy — 想い出を次の世代へ</div></div>
+          <div><div class="fc-title" data-i18n="home.cardLegacyTitle">ファミリー・レガシー</div><div class="fc-sub" data-i18n="home.cardLegacySub">Family Legacy — 想い出を次の世代へ</div></div>
         </button>
         <button class="feature-card wide" data-nav="marketplace">
           <div class="fc-icon fc-tone-recycle"><svg class="icon"><use href="#i-store"/></svg></div>
-          <div><div class="fc-title">コミュニティ・マーケットプレイス</div><div class="fc-sub">信頼できる人たちとつながる</div></div>
+          <div><div class="fc-title" data-i18n="home.cardMarketTitle">コミュニティ・マーケットプレイス</div><div class="fc-sub" data-i18n="home.cardMarketSub">信頼できる人たちとつながる</div></div>
         </button>
       </div>
     </section>
 
     <!-- ============================= CAMERA ============================= -->
-    <section class="view" id="view-camera" data-title="写真を撮る" data-sub="Take a photo" data-back="home">
+    <section class="view" id="view-camera" data-title="写真を撮る" data-title-en="Take a Photo" data-sub="Take a photo" data-sub-en="Take a photo" data-back="home">
       <div class="frame-wrap" id="frameWrap">
         <div class="placeholder" id="framePlaceholder"><svg class="icon"><use href="#i-camera"/></svg></div>
         <img id="framePreview" hidden alt="撮影した写真">
@@ -178,31 +178,31 @@
       <div class="thumb-strip" id="thumbStrip"></div>
 
       <div class="capture-actions">
-        <button class="btn btn-outline block" id="btnSkipMore" hidden>スキップして解析</button>
+        <button class="btn btn-outline block" id="btnSkipMore" hidden data-i18n="camera.skipMore">スキップして解析</button>
         <button class="btn btn-gold block" id="btnShoot"><svg class="icon" style="width:18px;height:18px"><use href="#i-camera"/></svg>撮影する</button>
       </div>
-      <button class="btn btn-ghost block" id="btnSamplePhoto" style="margin-top:6px">サンプル写真で試す（カメラが使えない場合）</button>
+      <button class="btn btn-ghost block" id="btnSamplePhoto" style="margin-top:6px" data-i18n="camera.samplePhoto">サンプル写真で試す（カメラが使えない場合）</button>
     </section>
 
     <!-- ============================= ANALYZING ============================= -->
-    <section class="view" id="view-analyzing" data-title="AI解析中" data-sub="Analyzing" data-back="camera">
+    <section class="view" id="view-analyzing" data-title="AI解析中" data-title-en="Analyzing" data-sub="Analyzing" data-sub-en="Analyzing" data-back="camera">
       <div class="analyzing-wrap">
         <div class="pulse-ring">
           <div class="ring"></div><div class="ring r2"></div>
           <div class="core"><svg class="icon" style="width:20px;height:20px;stroke:none"><use href="#i-mascot-face"/></svg></div>
         </div>
-        <p id="analyzingStatus" style="font-weight:700">AIが写真を確認しています…</p>
+        <p id="analyzingStatus" style="font-weight:700" data-i18n="analyzing.status">AIが写真を確認しています…</p>
         <div class="analyzing-steps" id="analyzingSteps">
-          <div class="analyzing-step" data-step="0"><div class="dot"><svg class="icon"><use href="#i-check"/></svg></div>アイテムの種類を判定中</div>
-          <div class="analyzing-step" data-step="1"><div class="dot"><svg class="icon"><use href="#i-check"/></svg></div>ブランド・メーカーを照合中</div>
-          <div class="analyzing-step" data-step="2"><div class="dot"><svg class="icon"><use href="#i-check"/></svg></div>状態とサイズを推定中</div>
-          <div class="analyzing-step" data-step="3"><div class="dot"><svg class="icon"><use href="#i-check"/></svg></div>市場価値を算出中</div>
+          <div class="analyzing-step" data-step="0"><div class="dot"><svg class="icon"><use href="#i-check"/></svg></div><span data-i18n="analyzing.step0">アイテムの種類を判定中</span></div>
+          <div class="analyzing-step" data-step="1"><div class="dot"><svg class="icon"><use href="#i-check"/></svg></div><span data-i18n="analyzing.step1">ブランド・メーカーを照合中</span></div>
+          <div class="analyzing-step" data-step="2"><div class="dot"><svg class="icon"><use href="#i-check"/></svg></div><span data-i18n="analyzing.step2">状態とサイズを推定中</span></div>
+          <div class="analyzing-step" data-step="3"><div class="dot"><svg class="icon"><use href="#i-check"/></svg></div><span data-i18n="analyzing.step3">市場価値を算出中</span></div>
         </div>
       </div>
     </section>
 
     <!-- ============================= ITEM CARD ============================= -->
-    <section class="view" id="view-itemcard" data-title="AIアイテムカード" data-sub="AI Item Card" data-back="home">
+    <section class="view" id="view-itemcard" data-title="AIアイテムカード" data-title-en="AI Item Card" data-sub="AI Item Card" data-sub-en="AI Item Card" data-back="home">
       <div class="item-hero">
         <img id="itemHeroImg" hidden alt="撮影したアイテム">
         <div class="hero-gradient"></div>
@@ -216,7 +216,7 @@
       <div class="detail-grid" id="itemDetailGrid"></div>
 
       <button class="expand-toggle" id="detailExpandBtn">
-        AI分析の詳細をすべて見る <svg class="icon" style="width:16px;height:16px"><use href="#i-chev-down"/></svg>
+        <span data-i18n="item.expandDetails">AI分析の詳細をすべて見る</span> <svg class="icon" style="width:16px;height:16px"><use href="#i-chev-down"/></svg>
       </button>
       <div class="detail-full" id="detailFull"><dl id="detailFullList"></dl></div>
 
@@ -229,7 +229,7 @@
         </div>
       </div>
 
-      <div class="section-label" style="margin-top:20px">次の人生をえらぶ</div>
+      <div class="section-label" style="margin-top:20px" data-i18n="item.chooseNextLife">次の人生をえらぶ</div>
       <div class="action-grid" id="actionGrid">
         <button class="action-btn ab-keep" data-action="keep"><div class="icon-wrap"><svg class="icon"><use href="#i-heart"/></svg></div>KEEP<br>残す</button>
         <button class="action-btn ab-sell" data-action="sell"><div class="icon-wrap"><svg class="icon"><use href="#i-tag"/></svg></div>SELL<br>売る</button>
@@ -242,7 +242,7 @@
     </section>
 
     <!-- ============================= LISTING ASSISTANT ============================= -->
-    <section class="view" id="view-listing" data-title="出品アシスタント" data-sub="AI Listing Assistant" data-back="itemcard">
+    <section class="view" id="view-listing" data-title="出品アシスタント" data-title-en="Listing Assistant" data-sub="AI Listing Assistant" data-sub-en="AI Listing Assistant" data-back="itemcard">
       <div class="lang-toggle">
         <button class="active" data-lang="ja">日本語</button>
         <button data-lang="en">English</button>
@@ -254,73 +254,73 @@
           <input type="text" id="lsTitle" value="ラルフローレン ウィメンズ ブレザー ネイビー">
         </div>
         <div class="field-two">
-          <div class="field-row"><label>ブランド</label><input type="text" id="lsBrand" value="Ralph Lauren"></div>
-          <div class="field-row"><label>サイズ</label><input type="text" id="lsSize" value="Japan 11 / US 8–10"></div>
+          <div class="field-row"><label data-i18n="listing.fieldBrand">ブランド</label><input type="text" id="lsBrand" value="Ralph Lauren"></div>
+          <div class="field-row"><label data-i18n="listing.fieldSize">サイズ</label><input type="text" id="lsSize" value="Japan 11 / US 8–10"></div>
         </div>
         <div class="field-two">
-          <div class="field-row"><label>状態</label><input type="text" id="lsCondition" value="非常に良い（Very Good）"></div>
-          <div class="field-row"><label>寸法（目安）</label><input type="text" id="lsDim" value="約 64 × 46 cm"></div>
+          <div class="field-row"><label data-i18n="listing.fieldCondition">状態</label><input type="text" id="lsCondition" value="非常に良い（Very Good）"></div>
+          <div class="field-row"><label data-i18n="listing.fieldDim">寸法（目安）</label><input type="text" id="lsDim" value="約 64 × 46 cm"></div>
         </div>
         <div class="field-row">
           <label>説明文 / Description</label>
           <textarea id="lsDesc">ラルフローレンのウィメンズ ブレザーです。深みのあるネイビーカラーで、上品なオフィスシーンにもお使いいただけます。目立った傷や汚れはなく、状態は非常に良好です。クローゼットの整理のため出品します。</textarea>
         </div>
         <div class="field-row">
-          <label>キーワード</label>
+          <label data-i18n="listing.fieldKeywords">キーワード</label>
           <div class="keyword-chips" id="lsKeywords">
             <span class="chip">ラルフローレン</span><span class="chip">ブレザー</span><span class="chip">ネイビー</span><span class="chip">レディース</span><span class="chip">Mサイズ</span>
           </div>
         </div>
         <div class="field-two">
-          <div class="field-row"><label>AI推定価格</label><input type="text" id="lsEstValue" value="¥8,000 〜 ¥12,000" disabled></div>
-          <div class="field-row"><label>出品価格</label><input type="text" id="lsAsk" value="¥9,800"></div>
+          <div class="field-row"><label data-i18n="listing.fieldEstPrice">AI推定価格</label><input type="text" id="lsEstValue" value="¥8,000 〜 ¥12,000" disabled></div>
+          <div class="field-row"><label data-i18n="listing.fieldAskPrice">出品価格</label><input type="text" id="lsAsk" value="¥9,800"></div>
         </div>
 
         <div class="field-row">
-          <label>受け渡し方法</label>
+          <label data-i18n="listing.fieldDelivery">受け渡し方法</label>
           <div class="option-list">
-            <label class="option-row"><input type="checkbox" checked><svg class="icon"><use href="#i-map-pin"/></svg><span class="opt-label">セーフ・ピックアップ地点</span></label>
-            <label class="option-row"><input type="checkbox"><svg class="icon"><use href="#i-store-pin"/></svg><span class="opt-label">コンビニ受け渡し</span></label>
-            <label class="option-row"><input type="checkbox" checked><svg class="icon"><use href="#i-truck"/></svg><span class="opt-label">宅配便で発送</span></label>
-            <label class="option-row"><input type="checkbox"><svg class="icon"><use href="#i-users"/></svg><span class="opt-label">管理人による受け渡し（コンシェルジュ）</span></label>
+            <label class="option-row"><input type="checkbox" checked><svg class="icon"><use href="#i-map-pin"/></svg><span class="opt-label" data-i18n="listing.optSafePickup">セーフ・ピックアップ地点</span></label>
+            <label class="option-row"><input type="checkbox"><svg class="icon"><use href="#i-store-pin"/></svg><span class="opt-label" data-i18n="listing.optConvenience">コンビニ受け渡し</span></label>
+            <label class="option-row"><input type="checkbox" checked><svg class="icon"><use href="#i-truck"/></svg><span class="opt-label" data-i18n="listing.optCourier">宅配便で発送</span></label>
+            <label class="option-row"><input type="checkbox"><svg class="icon"><use href="#i-users"/></svg><span class="opt-label" data-i18n="listing.optConcierge">管理人による受け渡し（コンシェルジュ）</span></label>
           </div>
         </div>
       </div>
 
-      <button class="btn btn-gold block" id="btnPublishListing" style="margin-top:18px">この内容で出品する</button>
+      <button class="btn btn-gold block" id="btnPublishListing" style="margin-top:18px" data-i18n="listing.publish">この内容で出品する</button>
     </section>
 
     <!-- ============================= LISTING SUCCESS ============================= -->
-    <section class="view" id="view-listing-success" data-title="出品完了" data-sub="" data-back="home">
+    <section class="view" id="view-listing-success" data-title="出品完了" data-title-en="Listing Published" data-sub="" data-sub-en="" data-back="home">
       <div class="success-wrap">
         <svg class="mascot mascot-sm" style="margin:0 auto 10px"><use href="#i-mascot"/></svg>
         <div class="success-badge"><svg class="icon"><use href="#i-check"/></svg></div>
-        <h2 style="font-size:1.2rem;font-weight:800">出品が完了しました！</h2>
-        <p style="color:var(--ink-faint);margin-top:8px">コミュニティのメンバーに公開されました。<br>連絡があり次第お知らせします。</p>
-        <div class="success-points"><svg class="icon" style="width:16px;height:16px"><use href="#i-sparkle"/></svg>+50 pt 獲得しました</div>
+        <h2 style="font-size:1.2rem;font-weight:800" data-i18n="success.heading">出品が完了しました！</h2>
+        <p style="color:var(--ink-faint);margin-top:8px" data-i18n="success.body" data-i18n-html>コミュニティのメンバーに公開されました。<br>連絡があり次第お知らせします。</p>
+        <div class="success-points"><svg class="icon" style="width:16px;height:16px"><use href="#i-sparkle"/></svg><span data-i18n="success.points">+50 pt 獲得しました</span></div>
         <div style="margin-top:28px;display:flex;flex-direction:column;gap:10px">
-          <button class="btn btn-primary block" data-nav="marketplace">出品を見る</button>
-          <button class="btn btn-ghost block" data-nav="home">ホームに戻る</button>
+          <button class="btn btn-primary block" data-nav="marketplace" data-i18n="success.viewListing">出品を見る</button>
+          <button class="btn btn-ghost block" data-nav="home" data-i18n="success.backHome">ホームに戻る</button>
         </div>
       </div>
     </section>
 
     <!-- ============================= INVENTORY ============================= -->
-    <section class="view" id="view-inventory" data-title="ホームインベントリ" data-sub="Home Inventory">
+    <section class="view" id="view-inventory" data-title="ホームインベントリ" data-title-en="Home Inventory" data-sub="Home Inventory" data-sub-en="Home Inventory">
       <div class="ask-chips">
-        <button class="ask-chip" data-ask="sell">売れるものは?</button>
-        <button class="ask-chip" data-ask="give">譲れるものは?</button>
-        <button class="ask-chip" data-ask="value">価値があるものは?</button>
-        <button class="ask-chip" data-ask="unused">使っていないものは?</button>
-        <button class="ask-chip" data-ask="keep">保管すべきものは?</button>
-        <button class="ask-chip" data-ask="earn">いくら稼げる?</button>
+        <button class="ask-chip" data-ask="sell" data-i18n="inventory.askSell">売れるものは?</button>
+        <button class="ask-chip" data-ask="give" data-i18n="inventory.askGive">譲れるものは?</button>
+        <button class="ask-chip" data-ask="value" data-i18n="inventory.askValue">価値があるものは?</button>
+        <button class="ask-chip" data-ask="unused" data-i18n="inventory.askUnused">使っていないものは?</button>
+        <button class="ask-chip" data-ask="keep" data-i18n="inventory.askKeep">保管すべきものは?</button>
+        <button class="ask-chip" data-ask="earn" data-i18n="inventory.askEarn">いくら稼げる?</button>
       </div>
       <div class="ai-bubble ask-answer" id="askAnswer">
         <div class="ai-avatar"><svg class="icon"><use href="#i-mascot-face"/></svg></div>
         <div class="ai-text" id="askAnswerText"></div>
       </div>
 
-      <div class="section-label" style="margin-top:18px">カテゴリー別</div>
+      <div class="section-label" style="margin-top:18px" data-i18n="inventory.byCategory">カテゴリー別</div>
       <div class="category-grid" id="categoryGrid"></div>
     </section>
 
@@ -329,131 +329,130 @@
     </section>
 
     <!-- ============================= MARKETPLACE ============================= -->
-    <section class="view" id="view-marketplace" data-title="コミュニティ・マーケットプレイス" data-sub="Trusted, not anonymous">
-      <div class="section-label" style="margin-top:0">近くの出品</div>
+    <section class="view" id="view-marketplace" data-title="コミュニティ・マーケットプレイス" data-title-en="Community Marketplace" data-sub="Trusted, not anonymous" data-sub-en="Trusted, not anonymous">
+      <div class="section-label" style="margin-top:0" data-i18n="market.nearbyListings">近くの出品</div>
       <div id="marketList"></div>
 
-      <div class="section-label">コミュニティ</div>
+      <div class="section-label" data-i18n="market.community">コミュニティ</div>
       <div class="community-card" id="communityLoggedOut">
-        <p>ログインすると、他のユーザーをフォローしたり、メッセージを送ったりできます。</p>
-        <button class="btn btn-gold block" data-nav="auth">ログイン / 新規登録</button>
+        <p data-i18n="market.communityIntro">ログインすると、他のユーザーをフォローしたり、メッセージを送ったりできます。</p>
+        <button class="btn btn-gold block" data-nav="auth" data-i18n="market.loginSignup">ログイン / 新規登録</button>
       </div>
       <div class="community-card" id="communityLoggedIn" hidden>
         <div class="community-stats">
-          <button class="community-stat" data-tab="following"><span class="num" id="statFollowing">0</span><span class="lbl">フォロー中</span></button>
-          <button class="community-stat" data-tab="followers"><span class="num" id="statFollowers">0</span><span class="lbl">フォロワー</span></button>
-          <button class="community-stat" data-tab="pending"><span class="num" id="statPending">0</span><span class="lbl">リクエスト</span></button>
+          <button class="community-stat" data-tab="following"><span class="num" id="statFollowing">0</span><span class="lbl" data-i18n="market.statFollowing">フォロー中</span></button>
+          <button class="community-stat" data-tab="followers"><span class="num" id="statFollowers">0</span><span class="lbl" data-i18n="market.statFollowers">フォロワー</span></button>
+          <button class="community-stat" data-tab="pending"><span class="num" id="statPending">0</span><span class="lbl" data-i18n="market.statPending">リクエスト</span></button>
         </div>
         <div class="community-actions">
-          <button class="btn btn-outline block" data-nav="find-people">ユーザーを探す</button>
-          <button class="btn btn-outline block" data-nav="messages-inbox">メッセージ<span class="badge-dot" id="inboxUnreadDot" hidden></span></button>
+          <button class="btn btn-outline block" data-nav="find-people" data-i18n="market.findPeople">ユーザーを探す</button>
+          <button class="btn btn-outline block" data-nav="messages-inbox"><span data-i18n="market.messages">メッセージ</span><span class="badge-dot" id="inboxUnreadDot" hidden></span></button>
         </div>
-        <button class="btn btn-ghost block" id="btnLogout">ログアウト（<span id="communityUserName"></span>）</button>
+        <button class="btn btn-ghost block" id="btnLogout">ログアウト</button>
       </div>
 
-      <div class="section-label">安全のためのしくみ</div>
+      <div class="section-label" data-i18n="market.safetySection">安全のためのしくみ</div>
       <div class="warn-card">
-        <div class="warn-head"><svg class="icon" style="width:17px;height:17px"><use href="#i-alert"/></svg>このメッセージには注意が必要です。</div>
-        <div class="warn-en">This message may be suspicious.</div>
+        <div class="warn-head"><svg class="icon" style="width:17px;height:17px"><use href="#i-alert"/></svg><span data-i18n="market.warnHead">このメッセージには注意が必要です。</span></div>
         <ul>
-          <li>プラットフォーム外での送金を求めています</li>
-          <li>「今すぐ決めてください」と急かしています</li>
-          <li>銀行口座情報を尋ねています</li>
+          <li data-i18n="market.warnItem1">プラットフォーム外での送金を求めています</li>
+          <li data-i18n="market.warnItem2">「今すぐ決めてください」と急かしています</li>
+          <li data-i18n="market.warnItem3">銀行口座情報を尋ねています</li>
         </ul>
         <div class="warn-actions">
-          <button class="btn btn-outline" style="padding:9px 16px;font-size:0.78rem">報告する</button>
-          <button class="btn btn-ghost" style="padding:9px 16px;font-size:0.78rem">ブロック</button>
+          <button class="btn btn-outline" style="padding:9px 16px;font-size:0.78rem" data-i18n="market.report">報告する</button>
+          <button class="btn btn-ghost" style="padding:9px 16px;font-size:0.78rem" data-i18n="market.block">ブロック</button>
         </div>
       </div>
 
-      <div class="section-label">セーフ・ピックアップ</div>
+      <div class="section-label" data-i18n="market.safePickup">セーフ・ピックアップ</div>
       <div class="pickup-map">
         <div class="pin p1"><svg class="icon"><use href="#i-store-pin"/></svg></div>
         <div class="pin p2"><svg class="icon"><use href="#i-recycle"/></svg></div>
         <div class="pin p3"><svg class="icon"><use href="#i-donate"/></svg></div>
       </div>
       <div class="option-list" style="margin-top:12px">
-        <label class="option-row"><svg class="icon"><use href="#i-store-pin"/></svg><span class="opt-label">コンビニ前・待ち合わせ場所</span></label>
-        <label class="option-row"><svg class="icon"><use href="#i-users"/></svg><span class="opt-label">マンション管理人による受け渡し</span></label>
-        <label class="option-row"><svg class="icon"><use href="#i-truck"/></svg><span class="opt-label">配送・宅配便</span></label>
+        <label class="option-row"><svg class="icon"><use href="#i-store-pin"/></svg><span class="opt-label" data-i18n="market.pickupConvenience">コンビニ前・待ち合わせ場所</span></label>
+        <label class="option-row"><svg class="icon"><use href="#i-users"/></svg><span class="opt-label" data-i18n="market.pickupConcierge">マンション管理人による受け渡し</span></label>
+        <label class="option-row"><svg class="icon"><use href="#i-truck"/></svg><span class="opt-label" data-i18n="market.pickupCourier">配送・宅配便</span></label>
       </div>
 
       <button class="btn btn-outline block" id="btnTrustSettings" style="margin-top:18px">
-        <svg class="icon" style="width:17px;height:17px"><use href="#i-shield"/></svg>連絡できる相手を設定する
+        <svg class="icon" style="width:17px;height:17px"><use href="#i-shield"/></svg><span data-i18n="market.trustBtn">連絡できる相手を設定する</span>
       </button>
     </section>
 
     <!-- ============================= TRUST SETTINGS ============================= -->
-    <section class="view" id="view-trust-settings" data-title="連絡できる相手" data-sub="Who can contact me?" data-back="marketplace">
-      <p style="color:var(--ink-soft);font-size:0.86rem;line-height:1.7">とくにご高齢の方は、知らない人と直接やり取りしなくて済むよう、連絡できる相手をあらかじめ絞り込むことができます。</p>
+    <section class="view" id="view-trust-settings" data-title="連絡できる相手" data-title-en="Who Can Contact Me" data-sub="Who can contact me?" data-sub-en="Who can contact me?" data-back="marketplace">
+      <p style="color:var(--ink-soft);font-size:0.86rem;line-height:1.7" data-i18n="trust.intro">とくにご高齢の方は、知らない人と直接やり取りしなくて済むよう、連絡できる相手をあらかじめ絞り込むことができます。</p>
       <div class="option-list" style="margin-top:16px" id="trustOptions">
-        <label class="option-row"><input type="radio" name="trust" checked><svg class="icon"><use href="#i-shield"/></svg><span class="opt-label">本人確認済みのユーザーのみ</span></label>
-        <label class="option-row"><input type="radio" name="trust"><svg class="icon"><use href="#i-users"/></svg><span class="opt-label">自分のコミュニティのメンバー</span></label>
-        <label class="option-row"><input type="radio" name="trust"><svg class="icon"><use href="#i-user"/></svg><span class="opt-label">知人からの紹介がある人</span></label>
-        <label class="option-row"><input type="radio" name="trust"><svg class="icon"><use href="#i-star"/></svg><span class="opt-label">評価の高いユーザーのみ</span></label>
-        <label class="option-row"><input type="radio" name="trust"><svg class="icon"><use href="#i-donate"/></svg><span class="opt-label">慈善団体のみ</span></label>
-        <label class="option-row"><input type="radio" name="trust"><svg class="icon"><use href="#i-heart"/></svg><span class="opt-label">家族・友人のみ</span></label>
+        <label class="option-row"><input type="radio" name="trust" checked><svg class="icon"><use href="#i-shield"/></svg><span class="opt-label" data-i18n="trust.verified">本人確認済みのユーザーのみ</span></label>
+        <label class="option-row"><input type="radio" name="trust"><svg class="icon"><use href="#i-users"/></svg><span class="opt-label" data-i18n="trust.community">自分のコミュニティのメンバー</span></label>
+        <label class="option-row"><input type="radio" name="trust"><svg class="icon"><use href="#i-user"/></svg><span class="opt-label" data-i18n="trust.referred">知人からの紹介がある人</span></label>
+        <label class="option-row"><input type="radio" name="trust"><svg class="icon"><use href="#i-star"/></svg><span class="opt-label" data-i18n="trust.rated">評価の高いユーザーのみ</span></label>
+        <label class="option-row"><input type="radio" name="trust"><svg class="icon"><use href="#i-donate"/></svg><span class="opt-label" data-i18n="trust.charity">慈善団体のみ</span></label>
+        <label class="option-row"><input type="radio" name="trust"><svg class="icon"><use href="#i-heart"/></svg><span class="opt-label" data-i18n="trust.family">家族・友人のみ</span></label>
       </div>
-      <button class="btn btn-gold block" style="margin-top:20px" id="btnSaveTrust">保存する</button>
+      <button class="btn btn-gold block" style="margin-top:20px" id="btnSaveTrust" data-i18n="trust.save">保存する</button>
     </section>
 
     <!-- ============================= AUTH ============================= -->
-    <section class="view" id="view-auth" data-title="ログイン" data-sub="Community" data-back="marketplace">
+    <section class="view" id="view-auth" data-title="ログイン" data-title-en="Log In" data-sub="Community" data-sub-en="Community" data-back="marketplace">
       <div class="auth-tabs">
-        <button class="active" data-auth-tab="login">ログイン</button>
-        <button data-auth-tab="signup">新規登録</button>
+        <button class="active" data-auth-tab="login" data-i18n="auth.login">ログイン</button>
+        <button data-auth-tab="signup" data-i18n="auth.signup">新規登録</button>
       </div>
 
       <form class="auth-form" id="loginForm">
-        <div class="field-row"><label>メールアドレス</label><input type="email" id="loginEmail" autocomplete="email" required></div>
-        <div class="field-row"><label>パスワード</label><input type="password" id="loginPassword" autocomplete="current-password" required></div>
+        <div class="field-row"><label data-i18n="auth.email">メールアドレス</label><input type="email" id="loginEmail" autocomplete="email" required></div>
+        <div class="field-row"><label data-i18n="auth.password">パスワード</label><input type="password" id="loginPassword" autocomplete="current-password" required></div>
         <div class="auth-error" id="loginError" hidden></div>
-        <button type="submit" class="btn btn-gold block">ログイン</button>
+        <button type="submit" class="btn btn-gold block" data-i18n="auth.login">ログイン</button>
       </form>
 
       <form class="auth-form" id="signupForm" hidden>
-        <div class="field-row"><label>表示名</label><input type="text" id="signupName" maxlength="60" required></div>
-        <div class="field-row"><label>メールアドレス</label><input type="email" id="signupEmail" autocomplete="email" required></div>
-        <div class="field-row"><label>パスワード（8文字以上）</label><input type="password" id="signupPassword" autocomplete="new-password" minlength="8" required></div>
+        <div class="field-row"><label data-i18n="auth.displayName">表示名</label><input type="text" id="signupName" maxlength="60" required></div>
+        <div class="field-row"><label data-i18n="auth.email">メールアドレス</label><input type="email" id="signupEmail" autocomplete="email" required></div>
+        <div class="field-row"><label data-i18n="auth.passwordMin">パスワード（8文字以上）</label><input type="password" id="signupPassword" autocomplete="new-password" minlength="8" required></div>
         <div class="auth-error" id="signupError" hidden></div>
-        <button type="submit" class="btn btn-gold block">アカウントを作成</button>
+        <button type="submit" class="btn btn-gold block" data-i18n="auth.createAccount">アカウントを作成</button>
       </form>
     </section>
 
     <!-- ============================= FIND PEOPLE ============================= -->
-    <section class="view" id="view-find-people" data-title="ユーザーを探す" data-sub="Find People" data-back="marketplace">
+    <section class="view" id="view-find-people" data-title="ユーザーを探す" data-title-en="Find People" data-sub="Find People" data-sub-en="Find People" data-back="marketplace">
       <div class="field-row">
-        <input type="text" id="findPeopleQuery" placeholder="表示名で検索">
+        <input type="text" id="findPeopleQuery" placeholder="表示名で検索" data-i18n-placeholder="people.searchPlaceholder">
       </div>
       <div id="findPeopleResults"></div>
     </section>
 
     <!-- ============================= FOLLOWERS / FOLLOWING / REQUESTS ============================= -->
-    <section class="view" id="view-followers" data-title="フォロワー" data-sub="" data-back="marketplace">
+    <section class="view" id="view-followers" data-title="フォロワー" data-title-en="Followers" data-sub="" data-sub-en="" data-back="marketplace">
       <div class="lang-toggle" id="followersTabs">
-        <button class="active" data-follow-tab="followers">フォロワー</button>
-        <button data-follow-tab="following">フォロー中</button>
-        <button data-follow-tab="pending">リクエスト</button>
+        <button class="active" data-follow-tab="followers" data-i18n="followers.tabFollowers">フォロワー</button>
+        <button data-follow-tab="following" data-i18n="followers.tabFollowing">フォロー中</button>
+        <button data-follow-tab="pending" data-i18n="followers.tabPending">リクエスト</button>
       </div>
       <div id="followersList"></div>
     </section>
 
     <!-- ============================= MESSAGES INBOX ============================= -->
-    <section class="view" id="view-messages-inbox" data-title="メッセージ" data-sub="Messages" data-back="marketplace">
+    <section class="view" id="view-messages-inbox" data-title="メッセージ" data-title-en="Messages" data-sub="Messages" data-sub-en="Messages" data-back="marketplace">
       <div id="inboxList"></div>
     </section>
 
     <!-- ============================= MESSAGE THREAD ============================= -->
-    <section class="view" id="view-message-thread" data-title="メッセージ" data-sub="" data-back="messages-inbox">
+    <section class="view" id="view-message-thread" data-title="メッセージ" data-title-en="Messages" data-sub="" data-sub-en="" data-back="messages-inbox">
       <div class="thread-messages" id="threadMessages"></div>
       <div class="thread-composer">
-        <input type="text" id="threadInput" placeholder="メッセージを入力" maxlength="2000">
-        <button class="btn btn-gold" id="btnSendMessage">送信</button>
+        <input type="text" id="threadInput" placeholder="メッセージを入力" maxlength="2000" data-i18n-placeholder="messages.inputPlaceholder">
+        <button class="btn btn-gold" id="btnSendMessage" data-i18n="messages.send">送信</button>
       </div>
     </section>
 
     <!-- ============================= LEGACY ============================= -->
-    <section class="view" id="view-legacy" data-title="ファミリー・レガシー" data-sub="Family Legacy" data-back="home">
+    <section class="view" id="view-legacy" data-title="ファミリー・レガシー" data-title-en="Family Legacy" data-sub="Family Legacy" data-sub-en="Family Legacy" data-back="home">
       <div class="legacy-view">
         <div class="legacy-hero">
           <div class="lh-icon"><svg class="icon"><use href="#i-sax"/></svg></div>
@@ -464,7 +463,7 @@
           <div class="lq-meta">— 田中 昭一さん（元の持ち主）</div>
         </div>
 
-        <div class="section-label">このアイテムの旅</div>
+        <div class="section-label" data-i18n="legacy.journey">このアイテムの旅</div>
         <div class="timeline">
           <div class="tl-item"><div class="tl-year">1978年</div><div class="tl-text">東京の楽器店で購入。以来ほぼ40年間、吹奏楽団で演奏。</div></div>
           <div class="tl-item"><div class="tl-year">2026年</div><div class="tl-text">つぐを通じて大学のジャズバンドに所属する学生へ。「2026年に受け取り、今は大学のジャズバンドで演奏しています。」</div></div>
@@ -473,80 +472,88 @@
         <div class="record-panel">
           <svg class="mascot mascot-xs" style="margin:0 auto 8px"><use href="#i-mascot"/></svg>
           <button class="mic-btn" id="btnMic"><svg class="icon"><use href="#i-mic"/></svg></button>
-          <div style="font-weight:700;font-size:0.86rem">物語を話してください</div>
-          <div style="font-size:0.72rem;color:var(--ink-faint);margin-top:2px">つぐみがあなたの言葉を短い物語にまとめます</div>
-          <textarea id="legacyStoryText" placeholder="ここに物語が表示されます…"></textarea>
+          <div style="font-weight:700;font-size:0.86rem" data-i18n="legacy.speakPrompt">物語を話してください</div>
+          <div style="font-size:0.72rem;color:var(--ink-faint);margin-top:2px" data-i18n="legacy.speakSub">つぐみがあなたの言葉を短い物語にまとめます</div>
+          <textarea id="legacyStoryText" placeholder="ここに物語が表示されます…" data-i18n-placeholder="legacy.storyPlaceholder"></textarea>
         </div>
 
-        <div class="section-label">次の人へ贈る相手をえらぶ</div>
+        <div class="section-label" data-i18n="legacy.chooseRecipient">次の人へ贈る相手をえらぶ</div>
         <div class="option-list">
-          <label class="option-row"><svg class="icon"><use href="#i-book"/></svg><span class="opt-label">学生・新しく趣味を始める人</span></label>
-          <label class="option-row"><svg class="icon"><use href="#i-users"/></svg><span class="opt-label">若い家族</span></label>
-          <label class="option-row"><svg class="icon"><use href="#i-star"/></svg><span class="opt-label">コレクター</span></label>
-          <label class="option-row"><svg class="icon"><use href="#i-heart"/></svg><span class="opt-label">本当に必要としている人</span></label>
+          <label class="option-row"><svg class="icon"><use href="#i-book"/></svg><span class="opt-label" data-i18n="legacy.recipientStudent">学生・新しく趣味を始める人</span></label>
+          <label class="option-row"><svg class="icon"><use href="#i-users"/></svg><span class="opt-label" data-i18n="legacy.recipientFamily">若い家族</span></label>
+          <label class="option-row"><svg class="icon"><use href="#i-star"/></svg><span class="opt-label" data-i18n="legacy.recipientCollector">コレクター</span></label>
+          <label class="option-row"><svg class="icon"><use href="#i-heart"/></svg><span class="opt-label" data-i18n="legacy.recipientNeed">本当に必要としている人</span></label>
         </div>
-        <button class="btn btn-gold block" style="margin-top:16px">次の人生へ贈る</button>
+        <button class="btn btn-gold block" style="margin-top:16px" data-i18n="legacy.giveNext">次の人生へ贈る</button>
       </div>
     </section>
 
     <!-- ============================= PROFILE / SETTINGS ============================= -->
-    <section class="view" id="view-profile" data-title="マイページ" data-sub="Profile & Settings">
+    <section class="view" id="view-profile" data-title="マイページ" data-title-en="My Page" data-sub="Profile & Settings" data-sub-en="Profile & Settings">
       <div class="profile-header">
         <div class="avatar-ring"><svg class="icon" style="width:28px;height:28px"><use href="#i-user"/></svg></div>
         <div>
           <div class="p-name">田中 美咲さん</div>
           <div class="p-badges">
-            <span class="verify-badge"><svg class="icon"><use href="#i-check-circle"/></svg>本人確認済み</span>
-            <span class="verify-badge blue"><svg class="icon"><use href="#i-phone"/></svg>電話確認済み</span>
-            <span class="verify-badge gold"><svg class="icon"><use href="#i-star"/></svg>評価 4.9</span>
+            <span class="verify-badge"><svg class="icon"><use href="#i-check-circle"/></svg><span data-i18n="profile.verified">本人確認済み</span></span>
+            <span class="verify-badge blue"><svg class="icon"><use href="#i-phone"/></svg><span data-i18n="profile.phoneVerified">電話確認済み</span></span>
+            <span class="verify-badge gold"><svg class="icon"><use href="#i-star"/></svg><span data-i18n="profile.ratingLabel">評価</span> 4.9</span>
           </div>
         </div>
       </div>
 
       <div class="impact-grid">
-        <div class="impact-card"><div class="ic-num">1,240pt</div><div class="ic-lbl">セカンドライフポイント</div></div>
-        <div class="impact-card"><div class="ic-num">18点</div><div class="ic-lbl">次の人へ渡した物</div></div>
-        <div class="impact-card"><div class="ic-num">¥32,400</div><div class="ic-lbl">これまでの収益</div></div>
-        <div class="impact-card"><div class="ic-num">47.2kg</div><div class="ic-lbl">廃棄削減の推定量</div></div>
+        <div class="impact-card"><div class="ic-num">1,240pt</div><div class="ic-lbl" data-i18n="home.impactPoints">セカンドライフポイント</div></div>
+        <div class="impact-card"><div class="ic-num">18点</div><div class="ic-lbl" data-i18n="home.impactPassed">次の人へ渡した物</div></div>
+        <div class="impact-card"><div class="ic-num">¥32,400</div><div class="ic-lbl" data-i18n="home.impactEarned">これまでの収益</div></div>
+        <div class="impact-card"><div class="ic-num">47.2kg</div><div class="ic-lbl" data-i18n="home.impactWaste">廃棄削減の推定量</div></div>
       </div>
 
-      <div class="section-label">achievement バッジ</div>
+      <div class="section-label" data-i18n="profile.achievementBadges">achievement バッジ</div>
       <div class="badge-grid">
-        <div class="ach-badge earned"><div class="ab-circle"><svg class="icon" style="width:22px;height:22px"><use href="#i-sparkle"/></svg></div><div class="ab-name">はじめての一歩</div></div>
-        <div class="ach-badge earned"><div class="ab-circle"><svg class="icon" style="width:22px;height:22px"><use href="#i-recycle"/></svg></div><div class="ab-name">もったいない博士</div></div>
-        <div class="ach-badge earned"><div class="ab-circle"><svg class="icon" style="width:22px;height:22px"><use href="#i-users"/></svg></div><div class="ab-name">コミュニティの星</div></div>
-        <div class="ach-badge"><div class="ab-circle"><svg class="icon" style="width:22px;height:22px"><use href="#i-scroll"/></svg></div><div class="ab-name">レガシーの語り部</div></div>
+        <div class="ach-badge earned"><div class="ab-circle"><svg class="icon" style="width:22px;height:22px"><use href="#i-sparkle"/></svg></div><div class="ab-name" data-i18n="profile.badge1">はじめての一歩</div></div>
+        <div class="ach-badge earned"><div class="ab-circle"><svg class="icon" style="width:22px;height:22px"><use href="#i-recycle"/></svg></div><div class="ab-name" data-i18n="profile.badge2">もったいない博士</div></div>
+        <div class="ach-badge earned"><div class="ab-circle"><svg class="icon" style="width:22px;height:22px"><use href="#i-users"/></svg></div><div class="ab-name" data-i18n="profile.badge3">コミュニティの星</div></div>
+        <div class="ach-badge"><div class="ab-circle"><svg class="icon" style="width:22px;height:22px"><use href="#i-scroll"/></svg></div><div class="ab-name" data-i18n="profile.badge4">レガシーの語り部</div></div>
       </div>
 
-      <div class="section-label">信頼できる代理人（Trusted Helper）</div>
+      <div class="section-label" data-i18n="profile.trustedHelper">信頼できる代理人（Trusted Helper）</div>
       <div class="helper-card">
         <div class="settings-row" style="border:none;padding:0">
           <svg class="icon"><use href="#i-users"/></svg>
-          <div class="sr-text"><div class="sr-title">田中 健太さん（息子）</div><div class="sr-sub">出品の確認・連絡対応・受け渡し手配を代行できます</div></div>
+          <div class="sr-text"><div class="sr-title">田中 健太さん（息子）</div><div class="sr-sub" data-i18n="profile.helperSub">出品の確認・連絡対応・受け渡し手配を代行できます</div></div>
         </div>
-        <button class="btn btn-outline block" style="margin-top:12px">代理人を追加・編集する</button>
+        <button class="btn btn-outline block" style="margin-top:12px" data-i18n="profile.addHelper">代理人を追加・編集する</button>
       </div>
 
-      <div class="section-label">アクセシビリティ</div>
+      <div class="section-label" data-i18n="profile.accessibility">アクセシビリティ</div>
       <div class="settings-list">
         <div class="settings-row">
           <svg class="icon"><use href="#i-type"/></svg>
-          <div class="sr-text"><div class="sr-title">文字を大きくする</div><div class="sr-sub">Large text mode</div></div>
+          <div class="sr-text"><div class="sr-title" data-i18n="profile.largeText">文字を大きくする</div><div class="sr-sub" data-i18n="profile.largeTextSub">Large text mode</div></div>
           <label class="switch"><input type="checkbox" id="toggleLargeText"><span class="track"></span></label>
         </div>
         <div class="settings-row">
           <svg class="icon"><use href="#i-mic"/></svg>
-          <div class="sr-text"><div class="sr-title">音声ガイド</div><div class="sr-sub">Voice guidance reads the screen aloud</div></div>
+          <div class="sr-text"><div class="sr-title" data-i18n="profile.voiceGuide">音声ガイド</div><div class="sr-sub" data-i18n="profile.voiceGuideSub">Voice guidance reads the screen aloud</div></div>
           <label class="switch"><input type="checkbox" id="toggleVoiceGuide"><span class="track"></span></label>
         </div>
         <div class="settings-row">
           <svg class="icon"><use href="#i-users"/></svg>
-          <div class="sr-text"><div class="sr-title">ファミリー・ヘルパーモード</div><div class="sr-sub">Let a trusted helper manage on your behalf</div></div>
+          <div class="sr-text"><div class="sr-title" data-i18n="profile.helperMode">ファミリー・ヘルパーモード</div><div class="sr-sub" data-i18n="profile.helperModeSub">Let a trusted helper manage on your behalf</div></div>
           <label class="switch"><input type="checkbox" id="toggleHelperMode"><span class="track"></span></label>
         </div>
         <div class="settings-row">
           <svg class="icon"><use href="#i-phone"/></svg>
-          <div class="sr-text"><div class="sr-title">日本語サポートに電話する</div><div class="sr-sub">平日 9:00〜18:00 / 0120-XXX-XXX</div></div>
+          <div class="sr-text"><div class="sr-title" data-i18n="profile.phoneSupport">日本語サポートに電話する</div><div class="sr-sub" data-i18n="profile.phoneSupportSub">平日 9:00〜18:00 / 0120-XXX-XXX</div></div>
+        </div>
+        <div class="settings-row">
+          <svg class="icon"><use href="#i-type"/></svg>
+          <div class="sr-text"><div class="sr-title" data-i18n="profile.language">表示言語</div><div class="sr-sub">日本語 / English</div></div>
+          <div class="lang-toggle" style="margin:0">
+            <button data-ui-lang="ja">日本語</button>
+            <button data-ui-lang="en">English</button>
+          </div>
         </div>
       </div>
     </section>
@@ -555,11 +562,11 @@
 
   <!-- ============================= TAB BAR ============================= -->
   <nav class="tabbar">
-    <button class="tab-btn active" data-nav="home"><svg class="icon"><use href="#i-home"/></svg><span>ホーム</span></button>
-    <button class="tab-btn" data-nav="inventory"><svg class="icon"><use href="#i-box"/></svg><span>持ち物</span></button>
-    <button class="tab-fab" id="fabCamera" aria-label="写真を撮る"><svg class="icon"><use href="#i-camera"/></svg></button>
-    <button class="tab-btn" data-nav="marketplace"><svg class="icon"><use href="#i-store"/></svg><span>マーケット</span></button>
-    <button class="tab-btn" data-nav="profile"><svg class="icon"><use href="#i-user"/></svg><span>マイページ</span></button>
+    <button class="tab-btn active" data-nav="home"><svg class="icon"><use href="#i-home"/></svg><span data-i18n="nav.home">ホーム</span></button>
+    <button class="tab-btn" data-nav="inventory"><svg class="icon"><use href="#i-box"/></svg><span data-i18n="nav.inventory">持ち物</span></button>
+    <button class="tab-fab" id="fabCamera" aria-label="写真を撮る" data-i18n-aria="nav.takePhoto"><svg class="icon"><use href="#i-camera"/></svg></button>
+    <button class="tab-btn" data-nav="marketplace"><svg class="icon"><use href="#i-store"/></svg><span data-i18n="nav.market">マーケット</span></button>
+    <button class="tab-btn" data-nav="profile"><svg class="icon"><use href="#i-user"/></svg><span data-i18n="nav.profile">マイページ</span></button>
   </nav>
 
   <div id="toast"></div>

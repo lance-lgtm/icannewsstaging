@@ -23,32 +23,43 @@ const PROMPT = `You are the recognition engine for "TSUGU" (つぐ), a Japanese 
 
 Look closely at the attached photo and identify the single main item in it as specifically as possible: exact product/brand if visible (logos, wordmarks, embossing, labels), otherwise your best general identification (e.g. "stainless steel vacuum-insulated tumbler" rather than just "cup").
 
+TSUGU has a Japanese/English UI toggle, so every field below is requested in BOTH languages — fill in genuine, natural translations for each pair, not placeholders.
+
 Respond with ONLY a single JSON object (no markdown fences, no commentary before or after) with exactly this shape:
 
 {
   "titleJa": string,          // e.g. "YETI ランブラー タンブラー"
   "titleEn": string,          // e.g. "YETI Rambler Tumbler"
   "brand": string,            // brand/maker name as printed, or "不明" if not identifiable
+  "brandEn": string,          // same, or "Unknown" if not identifiable
   "brandLine": string,        // e.g. "YETI / Insulated Tumbler"
   "colorJa": string,          // color in natural Japanese, e.g. "マットブラック"
+  "colorEn": string,          // same color in natural English, e.g. "Matte Black"
   "colorEstimate": boolean,   // true if inferring color from lighting/photo rather than certain
-  "sizeLabel": string,        // size/spec summary appropriate to the item type (capacity, clothing size, case diameter, etc.), or "—" if not applicable
+  "sizeLabel": string,        // size/spec summary appropriate to the item type (capacity, clothing size, case diameter, etc.) in Japanese, or "—" if not applicable
+  "sizeLabelEn": string,      // same in English, or "—"
   "sizeEstimate": boolean,
-  "dimensions": string,       // approximate physical dimensions, e.g. "約26×9×9cm"
+  "dimensions": string,       // approximate physical dimensions in Japanese, e.g. "約26×9×9cm"
+  "dimensionsEn": string,     // same in English, e.g. "Approx. 26 × 9 × 9 cm"
   "dimensionsEstimate": boolean,
   "condition": string,        // Japanese condition assessment, e.g. "非常に良い（目立った傷なし）"
   "conditionEn": string,      // same in English
   "estValueText": string,     // estimated Japanese resale value range, e.g. "¥3,000〜¥5,000", or "不明" if you cannot estimate
-  "askPriceText": string,     // a reasonable suggested asking price within that range, e.g. "¥4,000"; if recommending GIVE/DONATE, use "無料でお譲りします"
+  "estValueTextEn": string,   // same range with an en dash, e.g. "¥3,000–¥5,000", or "Unknown"
+  "askPriceText": string,     // a reasonable suggested asking price within that range, e.g. "¥4,000"; if recommending GIVE/DONATE, use "無料でお譲りします" (this one stays Japanese — it's shown as-is)
   "descriptionJa": string,    // 2-4 natural Japanese sentences suitable for a secondhand marketplace listing
-  "descriptionEn": string,    // same description in English
+  "descriptionEn": string,    // same description in natural English, not a literal translation
   "keywords": [string, ...],  // 3-5 short Japanese search keywords
-  "full": [[string, string], ...], // [label, value] pairs in Japanese, covering as many of these as you can meaningfully determine: 種類 (type), メーカー (maker), ロゴ (visible logo/markings), モデル (model), シリアル番号 (serial number, or "検出されず"/"該当なし"), 推定年代 (estimated age), 素材 (material), カラー / カラーウェイ (color/colorway), パターン (pattern), スタイル (style), 視認できる傷 (visible damage — describe honestly, or say none visible), 付属品 (visible accessories, or "なし"). Omit a row entirely rather than guessing wildly if you have no basis for it.
+  "keywordsEn": [string, ...],// the same 3-5 concepts as short English search keywords
+  "full": [[string, string, string], ...], // [labelKey, valueJa, valueEn] triples. labelKey MUST be one of exactly these strings: "type","maker","logo","model","serial","age","material","colorway","pattern","style","damage","accessories" — covering as many as you can meaningfully determine (type=item category, maker=brand/manufacturer, logo=visible logo/markings, model=model name/number, serial=serial number or "検出されず"/"Not detected", age=estimated age, material=material, colorway=color/colorway, pattern=pattern, style=style, damage=visible damage described honestly or none visible, accessories=visible accessories or "なし"/"None"). Omit a row entirely rather than guessing wildly if you have no basis for it.
   "recommendation": {
     "action": one of "keep" | "sell" | "give" | "gift" | "donate" | "recycle" | "dispose",
     "tagJa": string,   // e.g. "おすすめ · SELL"
+    "tagEn": string,   // e.g. "Recommended · SELL"
     "title": string,   // short Japanese headline, e.g. "売ってみましょう"
-    "text": string     // 1-2 Japanese sentences explaining WHY this action, referencing condition/brand/demand
+    "titleEn": string, // same headline in English, e.g. "Consider selling it"
+    "text": string,    // 1-2 Japanese sentences explaining WHY this action, referencing condition/brand/demand
+    "textEn": string   // same explanation in natural English
   }
 }
 

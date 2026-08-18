@@ -155,6 +155,14 @@ experience end to end:
   incoming requests, remove an existing follower or unfollow someone
   you follow, and message anyone you're connected with. Reachable from
   the Marketplace tab.
+- **Bilingual UI** (Japanese/English) — a "表示言語 / Display Language"
+  toggle in Profile switches every screen's chrome, toasts, and dynamic
+  content (Community, Marketplace, Inventory) between the two languages,
+  persisted in `localStorage`. It's independent from the Listing
+  Assistant's own JA/EN content toggle, since you might browse the app in
+  English while still drafting a Japanese listing. `functions/api/analyze.js`
+  asks the vision model for both languages in a single request, so real
+  AI recognition results are bilingual too, not just the mock fallback.
 
 ## Visual system
 
