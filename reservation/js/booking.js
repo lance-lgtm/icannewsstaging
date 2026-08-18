@@ -26,8 +26,7 @@
     els.stepConfirm = document.getElementById("step-confirm");
     els.selectedDateLabel = document.getElementById("selected-date-label");
     els.slotStatus = document.getElementById("slot-status");
-    els.slotsAm = document.getElementById("slots-am");
-    els.slotsPm = document.getElementById("slots-pm");
+    els.slotSessions = document.getElementById("slot-sessions");
     els.selectionSummary = document.getElementById("selection-summary");
     els.form = document.getElementById("booking-form");
     els.formError = document.getElementById("form-error");
@@ -215,8 +214,7 @@
   function loadSlots(iso) {
     els.slotStatus.innerHTML = statusHtml("空き状況を確認中…", "Checking availability…");
     els.slotStatus.classList.remove("error");
-    els.slotsAm.innerHTML = "";
-    els.slotsPm.innerHTML = "";
+    els.slotSessions.innerHTML = "";
 
     apiGet({ action: "slots", date: iso })
       .then((res) => {
@@ -234,14 +232,26 @@
       });
   }
 
+  function sessionsForDate(iso) {
+    const weekday = new Date(iso + "T00:00:00").getDay();
+    return CONFIG.SESSIONS_BY_WEEKDAY[weekday] || [];
+  }
+
   function renderSlots(iso) {
     const now = jstNow();
     const isToday = toISODate(now) === iso;
     const nowMin = now.getHours() * 60 + now.getMinutes();
 
-    CONFIG.SESSIONS.forEach((session) => {
-      const container = session.id === "am" ? els.slotsAm : els.slotsPm;
-      container.innerHTML = "";
+    els.slotSessions.innerHTML = "";
+    sessionsForDate(iso).forEach((session) => {
+      const group = document.createElement("div");
+      group.className = "slot-group";
+      group.innerHTML = `
+        <h3><span class="jp">${session.labelJa}</span><span class="en">${session.labelEn}</span> <span class="session-range">${session.start}–${session.end}</span></h3>
+      `;
+      const grid = document.createElement("div");
+      grid.className = "slot-grid";
+
       generateSessionSlots(session).forEach((time) => {
         const taken = state.takenTimes.has(time);
         const past = isToday && minutesOfDay(time) <= nowMin;
@@ -253,8 +263,11 @@
         if (!taken && !past) {
           btn.addEventListener("click", () => selectSlot(time));
         }
-        container.appendChild(btn);
+        grid.appendChild(btn);
       });
+
+      group.appendChild(grid);
+      els.slotSessions.appendChild(group);
     });
   }
 

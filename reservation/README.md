@@ -4,15 +4,19 @@ A bilingual (Japanese / English), mobile-first appointment booking page for
 **Dr. Keiko Lee (リー啓子医師)** at the **Saiseikai Chuo Hospital Kenshin
 Center (済生会中央病院 健診センター)**.
 
-- Clinic days: **Wednesdays & Fridays**
-- Hours: **10:00–13:00** and **14:00–17:00**, in **10-minute** slots
+- Clinic days: **Wednesdays & Fridays**, with different hours per day:
+  - Wednesday: **10:00–13:40** and **14:00–17:00**
+  - Friday: **12:00–17:00** only (no morning session)
+  - All in **10-minute** slots
 - Pink color theme, designed for phones first
 - No login for patients — pick a date, pick a time, fill in a short form
 - One-tap **Add to Calendar** (Google Calendar or .ics) right after booking
 - Optional **24-hour email reminder** before the appointment
 - Patients can **check their own upcoming appointment** by name + phone,
   with no login (`lookup.html`)
-- A lightweight, key-protected staff page (`admin.html`) to view and cancel bookings
+- A lightweight, key-protected staff page (`admin.html`) to view and cancel
+  bookings, plus a searchable **patient directory** (by name or phone) built
+  from booking history, for quickly booking a returning patient's next visit
 
 It's plain HTML/CSS/JS (same style as the rest of this repo, no build
 step) plus a small **Google Apps Script** backend that uses a Google
@@ -161,14 +165,25 @@ once. Add an email here too if you want this booking to get the 24-hour
 reminder (see below) — it's optional, same as when a patient books
 online.
 
+### Patient search
+
+Below the Add Booking form, a **Patient Search** box lets staff find a
+returning patient by typing part of their name or phone number — built
+automatically from booking history, no separate data entry needed.
+Clicking **Book next appointment** on a result fills the Add Booking form
+above with that patient's name, furigana, phone, and email, so staff only
+need to pick the new date and time.
+
 ## Design notes
 
 - **Bilingual by default**: every label shows Japanese first with
   English underneath, rather than a language toggle — meant to be
   understandable at a glance either way.
 - **Big tap targets, 10-minute grid**: time slots render as a button
-  grid (Morning 10:00–13:00, Afternoon 14:00–17:00), already-booked or
-  past slots are greyed out and disabled.
+  grid, with sessions determined by the selected date's day of week
+  (`SESSIONS_BY_WEEKDAY` in `js/config.js` and `apps-script/Code.gs` —
+  keep both in sync if hours ever change again). Already-booked or past
+  slots are greyed out and disabled.
 - **Timezone**: all date/time logic (both frontend and backend) is
   pinned to `Asia/Tokyo`, so it behaves correctly even if a visitor's
   phone is set to a different timezone.

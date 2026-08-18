@@ -39,7 +39,19 @@
 .booking-info .b-name { font-weight: 700; }
 .booking-info .b-kana,
 .booking-info .b-phone,
-.booking-info .b-note { color: var(--muted); font-size: 0.82rem; }
+.booking-info .b-note,
+.booking-info .b-last { color: var(--muted); font-size: 0.82rem; }
+
+.booking-info .b-next {
+  display: inline-block;
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: var(--pink-100);
+  color: var(--pink-700);
+  margin-top: 4px;
+}
 .booking-info .b-status-tag {
   display: inline-block;
   font-size: 0.7rem;
@@ -62,6 +74,36 @@
   white-space: nowrap;
 }
 .cancel-btn:disabled { opacity: 0.5; cursor: wait; }
+
+.use-btn {
+  border: 1px solid var(--pink-400);
+  color: var(--pink-700);
+  background: #fff;
+  border-radius: 8px;
+  padding: 6px 10px;
+  font-size: 0.78rem;
+  cursor: pointer;
+  white-space: nowrap;
+  font-family: inherit;
+}
+.use-btn:hover { background: var(--pink-50); }
+
+.patient-search-input {
+  width: 100%;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 10px 12px;
+  font-size: 0.9rem;
+  font-family: inherit;
+  background: #fff;
+  color: var(--ink);
+  margin-bottom: 10px;
+}
+.patient-search-input:focus {
+  outline: none;
+  border-color: var(--pink-400);
+  box-shadow: 0 0 0 3px rgba(232, 68, 127, 0.15);
+}
 
 .booking-info .b-blocks {
   display: inline-block;

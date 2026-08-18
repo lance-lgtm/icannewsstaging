@@ -30,7 +30,7 @@
  * with no real patient) from the admin page for visits that need more
  * than one slot.
  *
- * Keep SESSIONS / SLOT_MINUTES / OPEN_WEEKDAYS below in sync with
+ * Keep SESSIONS_BY_WEEKDAY / SLOT_MINUTES below in sync with
  * reservation/js/config.js if the clinic's hours ever change.
  */
 
@@ -39,15 +39,20 @@
 // live deployment is actually running — the editor and "Run" button only
 // affect the script project itself, never a deployed /exec URL, so this is
 // the only reliable way to confirm a redeploy actually took effect.
-const CODE_VERSION = "2026-08-11-phone-fix-4-apostrophe";
+const CODE_VERSION = "2026-08-11-per-weekday-sessions-and-patients";
 
-const SESSIONS = [
-  { id: "am", start: "10:00", end: "13:00" },
-  { id: "pm", start: "14:00", end: "17:00" },
-];
+// Sessions differ by day of week, keyed by JS weekday number (0=Sun...6=Sat).
+// Keep in sync with reservation/js/config.js SESSIONS_BY_WEEKDAY.
+const SESSIONS_BY_WEEKDAY = {
+  3: [
+    { id: "am", start: "10:00", end: "13:40" },
+    { id: "pm", start: "14:00", end: "17:00" },
+  ],
+  5: [{ id: "pm", start: "12:00", end: "17:00" }],
+};
 const SLOT_MINUTES = 10;
 const MAX_BLOCKS = 6; // staff can reserve up to 6 x 10min = 60 min at once
-const OPEN_WEEKDAYS = [3, 5]; // Wed, Fri
+const OPEN_WEEKDAYS = Object.keys(SESSIONS_BY_WEEKDAY).map(Number); // [3, 5]
 const TIMEZONE = "Asia/Tokyo";
 
 const BOOKINGS_SHEET = "Bookings";
@@ -168,6 +173,7 @@ function doGet(e) {
     if (action === "slots") return jsonOut(handleSlots(e.parameter.date));
     if (action === "closedDates") return jsonOut(handleClosedDates());
     if (action === "list") return jsonOut(handleList(e.parameter.key));
+    if (action === "patients") return jsonOut(handlePatients(e.parameter.key));
     if (action === "myBookings") return jsonOut(handleMyBookings(e.parameter.name, e.parameter.phone));
     return jsonOut({ error: "unknown_action" });
   } catch (err) {
@@ -233,6 +239,60 @@ function handleList(key) {
   };
 }
 
+/**
+ * Staff-only: a deduplicated patient directory built from booking history,
+ * so staff can search by name/phone and reuse contact details for a
+ * patient's next appointment instead of re-typing them. Patients are keyed
+ * by phone number (falling back to name if no phone is on file); contact
+ * details come from their most recently created booking.
+ */
+function handlePatients(key) {
+  if (!isAdmin(key)) return { error: "unauthorized" };
+  const todayIso = Utilities.formatDate(new Date(), TIMEZONE, "yyyy-MM-dd");
+  const byKey = new Map();
+
+  readBookings().forEach((b) => {
+    const k = normalizePhoneForCompare(b.phone) || normalizeNameForCompare(b.name);
+    if (!k) return;
+    const existing = byKey.get(k) || {
+      name: "",
+      kana: "",
+      phone: "",
+      email: "",
+      lastCreatedAt: "",
+      lastDateTime: "",
+      nextDateTime: "",
+    };
+    if (b.createdAt >= existing.lastCreatedAt) {
+      existing.name = b.name;
+      existing.kana = b.kana;
+      existing.phone = b.phone;
+      existing.email = b.email;
+      existing.lastCreatedAt = b.createdAt;
+    }
+    const dt = b.date + " " + b.time;
+    if (dt > existing.lastDateTime) existing.lastDateTime = dt;
+    if (b.status === "booked" && b.date >= todayIso) {
+      if (!existing.nextDateTime || dt < existing.nextDateTime) existing.nextDateTime = dt;
+    }
+    byKey.set(k, existing);
+  });
+
+  const patients = Array.from(byKey.values())
+    .map((p) => ({
+      name: p.name,
+      kana: p.kana,
+      phone: p.phone,
+      email: p.email,
+      nextDate: p.nextDateTime ? p.nextDateTime.split(" ")[0] : "",
+      nextTime: p.nextDateTime ? p.nextDateTime.split(" ")[1] : "",
+      lastDate: p.lastDateTime ? p.lastDateTime.split(" ")[0] : "",
+    }))
+    .sort((a, b) => a.name.localeCompare(b.name, "ja"));
+
+  return { patients };
+}
+
 /** Public lookup: patient enters name + phone to see their own upcoming bookings. */
 function handleMyBookings(name, phone) {
   const n = normalizeNameForCompare(name);
@@ -267,7 +327,7 @@ function handleBook(body) {
   if (email && !isValidEmail(email)) return { ok: false, error: "invalid_email" };
   if (!isValidDateFormat(date)) return { ok: false, error: "invalid_date" };
   if (!isClinicOpenDate(date)) return { ok: false, error: "closed_date" };
-  if (!isValidSlotTime(time)) return { ok: false, error: "invalid_time" };
+  if (!isValidSlotTime(date, time)) return { ok: false, error: "invalid_time" };
   if (isPastDateTime(date, time)) return { ok: false, error: "past" };
 
   const lock = LockService.getScriptLock();
@@ -324,7 +384,7 @@ function handleAdminBook(body) {
 
   const requestedTimes = expandSlotTimes(time, blocks);
   for (const t of requestedTimes) {
-    if (!isValidSlotTime(t)) return { ok: false, error: "out_of_range" };
+    if (!isValidSlotTime(date, t)) return { ok: false, error: "out_of_range" };
   }
 
   const lock = LockService.getScriptLock();
@@ -564,9 +624,16 @@ function isClinicOpenDate(dateStr) {
   return closed.indexOf(dateStr) === -1;
 }
 
-function isValidSlotTime(timeStr) {
+/** Sessions for a given date, based on its day of week. Empty array if none configured. */
+function getSessionsForDate(dateStr) {
+  const weekday = new Date(dateStr + "T00:00:00+09:00").getDay();
+  return SESSIONS_BY_WEEKDAY[weekday] || [];
+}
+
+function isValidSlotTime(dateStr, timeStr) {
   if (!/^\d{2}:\d{2}$/.test(timeStr)) return false;
-  for (const session of SESSIONS) {
+  const sessions = getSessionsForDate(dateStr);
+  for (const session of sessions) {
     const slots = generateSessionSlots(session);
     if (slots.indexOf(timeStr) !== -1) return true;
   }
