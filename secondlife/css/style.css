@@ -189,6 +189,21 @@ img, svg { display: block; }
 }
 .points-pill .icon { width: 15px; height: 15px; }
 
+.lang-quick-toggle {
+  flex-shrink: 0;
+  border: 1.5px solid var(--line);
+  background: var(--card);
+  color: var(--ink-soft);
+  border-radius: var(--r-pill);
+  width: 34px;
+  height: 34px;
+  font-weight: 800;
+  font-size: calc(0.66rem * var(--scale));
+  letter-spacing: 0.02em;
+  box-shadow: var(--shadow-sm);
+}
+.lang-quick-toggle:active { transform: scale(0.93); }
+
 main#views {
   flex: 1;
   position: relative;

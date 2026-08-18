@@ -51,6 +51,8 @@
     document.documentElement.lang = lang;
     applyI18n();
     $all("[data-ui-lang]").forEach((b) => b.classList.toggle("active", b.dataset.uiLang === lang));
+    const quickToggle = $("#langQuickToggle");
+    if (quickToggle) quickToggle.textContent = lang === "ja" ? "EN" : "JA";
 
     // Re-render whatever dynamic content is currently on screen, so the
     // toggle takes effect immediately instead of only on next navigation.
@@ -1114,6 +1116,8 @@
   document.documentElement.lang = state.lang;
   applyI18n();
   $all("[data-ui-lang]").forEach((b) => b.classList.toggle("active", b.dataset.uiLang === state.lang));
+  $("#langQuickToggle").textContent = state.lang === "ja" ? "EN" : "JA";
+  $("#langQuickToggle").addEventListener("click", () => setLanguage(state.lang === "ja" ? "en" : "ja"));
   loadPrefs();
   loadSession();
   updateCommunityUI();
