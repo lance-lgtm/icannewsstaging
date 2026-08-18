@@ -25,10 +25,7 @@ const CONFIG = {
   // the session end time (e.g. end "13:40" means the last slot starts at
   // 13:30 and runs to 13:40).
   SESSIONS_BY_WEEKDAY: {
-    3: [
-      { id: "am", labelJa: "午前", labelEn: "Morning", start: "10:00", end: "13:40" },
-      { id: "pm", labelJa: "午後", labelEn: "Afternoon", start: "14:00", end: "17:00" },
-    ],
+    3: [{ id: "am", labelJa: "午前", labelEn: "Morning", start: "10:00", end: "13:40" }],
     5: [
       { id: "pm", labelJa: "午後", labelEn: "Afternoon", start: "12:00", end: "17:00" },
     ],

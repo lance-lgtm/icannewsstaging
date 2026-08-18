@@ -5,7 +5,7 @@ A bilingual (Japanese / English), mobile-first appointment booking page for
 Center (済生会中央病院 健診センター)**.
 
 - Clinic days: **Wednesdays & Fridays**, with different hours per day:
-  - Wednesday: **10:00–13:40** and **14:00–17:00**
+  - Wednesday: **10:00–13:40** only (no afternoon session)
   - Friday: **12:00–17:00** only (no morning session)
   - All in **10-minute** slots
 - Pink color theme, designed for phones first

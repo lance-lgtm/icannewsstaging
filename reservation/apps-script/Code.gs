@@ -39,15 +39,12 @@
 // live deployment is actually running — the editor and "Run" button only
 // affect the script project itself, never a deployed /exec URL, so this is
 // the only reliable way to confirm a redeploy actually took effect.
-const CODE_VERSION = "2026-08-11-per-weekday-sessions-and-patients";
+const CODE_VERSION = "2026-08-11-wed-am-only";
 
 // Sessions differ by day of week, keyed by JS weekday number (0=Sun...6=Sat).
 // Keep in sync with reservation/js/config.js SESSIONS_BY_WEEKDAY.
 const SESSIONS_BY_WEEKDAY = {
-  3: [
-    { id: "am", start: "10:00", end: "13:40" },
-    { id: "pm", start: "14:00", end: "17:00" },
-  ],
+  3: [{ id: "am", start: "10:00", end: "13:40" }],
   5: [{ id: "pm", start: "12:00", end: "17:00" }],
 };
 const SLOT_MINUTES = 10;
