@@ -149,6 +149,58 @@ select:focus {
   margin-bottom: 14px;
 }
 
+.view-toggle {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 10px;
+}
+.view-toggle-btn {
+  flex: 1;
+  border: 1px solid var(--border);
+  background: #fff;
+  color: var(--muted);
+  border-radius: 10px;
+  padding: 8px 10px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: inherit;
+}
+.view-toggle-btn.active {
+  border-color: var(--pink-500);
+  background: var(--pink-500);
+  color: #fff;
+}
+
+.timetable-session-label {
+  margin: 16px 0 6px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--pink-700);
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 6px;
+}
+.timetable-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 0;
+  border-bottom: 1px dashed var(--border);
+  font-size: 0.9rem;
+}
+.timetable-time { font-weight: 700; min-width: 52px; }
+.timetable-name { flex: 1; }
+.timetable-row.free .timetable-time,
+.timetable-row.free .timetable-name { color: var(--muted); }
+.timetable-row.booked .timetable-name { font-weight: 700; }
+.timetable-row.booked .timetable-name .b-phone {
+  font-weight: 400;
+  color: var(--muted);
+  font-size: 0.82rem;
+}
+.timetable-row.continued { opacity: 0.55; }
+.timetable-row.continued .timetable-time { font-weight: 400; }
+
 .filter-row {
   display: flex;
   align-items: center;

@@ -146,6 +146,13 @@ system, so don't share the admin URL or key outside clinic staff. For
 anything beyond quick front-desk lookups, staff can also open the Google
 Sheet directly.
 
+A **List / Timetable** toggle switches between the flat list above and a
+day-view schedule for the date picked in the filter — every 10-minute
+slot for that date, showing the patient's name where booked or
+"Available" where free, with a **Cancel** button on booked slots. A
+multi-block booking (see below) shows its name once on the starting
+slot and a "↳" marker on the slots it continues through.
+
 ### Adding a booking or blocking off time
 
 The same staff page has an **Add Booking / Block Time** form for cases
