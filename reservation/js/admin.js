@@ -8,6 +8,7 @@
 
   const els = {};
   let allBookings = [];
+  let currentView = "list";
 
   document.addEventListener("DOMContentLoaded", init);
 
@@ -19,11 +20,14 @@
     els.loginBtn = document.getElementById("login-btn");
     els.loginError = document.getElementById("login-error");
     els.refreshBtn = document.getElementById("refresh-btn");
+    els.viewListBtn = document.getElementById("view-list-btn");
+    els.viewTimetableBtn = document.getElementById("view-timetable-btn");
     els.filterDate = document.getElementById("filter-date");
     els.filterTodayBtn = document.getElementById("filter-today-btn");
     els.filterClearBtn = document.getElementById("filter-clear-btn");
     els.listStatus = document.getElementById("list-status");
     els.bookingsList = document.getElementById("bookings-list");
+    els.timetableList = document.getElementById("timetable-list");
 
     els.addBookingForm = document.getElementById("add-booking-form");
     els.abDate = document.getElementById("ab-date");
@@ -61,6 +65,8 @@
       els.filterDate.value = "";
       applyFilter();
     });
+    els.viewListBtn.addEventListener("click", () => switchView("list"));
+    els.viewTimetableBtn.addEventListener("click", () => switchView("timetable"));
     els.abDate.addEventListener("change", () => populateTimeOptions());
     els.patientSearch.addEventListener("input", () => renderPatients());
 
@@ -172,8 +178,27 @@
     return toISODate(new Date(jstStr));
   }
 
+  function switchView(view) {
+    currentView = view;
+    els.viewListBtn.classList.toggle("active", view === "list");
+    els.viewTimetableBtn.classList.toggle("active", view === "timetable");
+    els.bookingsList.hidden = view !== "list";
+    els.timetableList.hidden = view !== "timetable";
+    els.filterClearBtn.hidden = view === "timetable" || !els.filterDate.value;
+    if (view === "timetable" && !els.filterDate.value) {
+      els.filterDate.value = todayIsoJst();
+    }
+    applyFilter();
+  }
+
   function applyFilter() {
     const filterDate = els.filterDate.value;
+
+    if (currentView === "timetable") {
+      renderTimetable(filterDate || todayIsoJst());
+      return;
+    }
+
     els.filterClearBtn.hidden = !filterDate;
 
     if (filterDate) {
@@ -187,6 +212,92 @@
     const todayIso = todayIsoJst();
     const upcoming = allBookings.filter((b) => b.date >= todayIso);
     renderBookings(upcoming.length > 0 ? upcoming : allBookings, { filtered: false });
+  }
+
+  // ---------- Timetable view ----------
+
+  function renderTimetable(dateIso) {
+    els.timetableList.innerHTML = "";
+
+    const d = new Date(dateIso + "T00:00:00");
+    const heading = document.createElement("div");
+    heading.className = "booking-day";
+    heading.textContent = `${dateIso} (${WEEKDAY_JA[d.getDay()]}/${WEEKDAY_EN[d.getDay()]})`;
+    els.timetableList.appendChild(heading);
+
+    const sessions = CONFIG.SESSIONS_BY_WEEKDAY[d.getDay()] || [];
+    if (sessions.length === 0) {
+      const msg = document.createElement("p");
+      msg.className = "status-msg";
+      msg.innerHTML = statusHtml("この日は休診日です。", "The clinic is closed on this date.");
+      els.timetableList.appendChild(msg);
+      return;
+    }
+
+    const slotMap = new Map();
+    allBookings
+      .filter((b) => b.date === dateIso && b.status === "booked")
+      .forEach((b) => {
+        expandTimes(b.time, b.blocks).forEach((t, i) => {
+          slotMap.set(t, { booking: b, isStart: i === 0 });
+        });
+      });
+
+    sessions.forEach((session) => {
+      const sessionLabel = document.createElement("div");
+      sessionLabel.className = "timetable-session-label";
+      sessionLabel.innerHTML = statusHtml(session.labelJa, session.labelEn);
+      els.timetableList.appendChild(sessionLabel);
+
+      generateSessionSlots(session).forEach((time) => {
+        const entry = slotMap.get(time);
+        const row = document.createElement("div");
+        row.className =
+          "timetable-row" + (entry ? " booked" : " free") + (entry && !entry.isStart ? " continued" : "");
+
+        const timeEl = document.createElement("div");
+        timeEl.className = "timetable-time";
+        timeEl.textContent = time;
+
+        const nameEl = document.createElement("div");
+        nameEl.className = "timetable-name";
+        if (entry && entry.isStart) {
+          nameEl.innerHTML =
+            escapeHtml(entry.booking.name) +
+            (entry.booking.phone ? ` <span class="b-phone">${escapeHtml(entry.booking.phone)}</span>` : "");
+        } else if (entry) {
+          nameEl.textContent = "↳";
+        } else {
+          nameEl.innerHTML = statusHtml("空き", "Available");
+        }
+
+        row.appendChild(timeEl);
+        row.appendChild(nameEl);
+
+        if (entry && entry.isStart) {
+          const cancelBtn = document.createElement("button");
+          cancelBtn.type = "button";
+          cancelBtn.className = "cancel-btn";
+          cancelBtn.innerHTML = statusHtml("キャンセル", "Cancel");
+          cancelBtn.addEventListener("click", () => onCancel(entry.booking.id, cancelBtn));
+          row.appendChild(cancelBtn);
+        }
+
+        els.timetableList.appendChild(row);
+      });
+    });
+  }
+
+  /** Every 10-minute slot time a booking with the given start time and block count covers. */
+  function expandTimes(startTime, blocks) {
+    const out = [];
+    let m = minutesOf(startTime);
+    const n = Math.max(1, blocks || 1);
+    for (let i = 0; i < n; i++) {
+      out.push(String(Math.floor(m / 60)).padStart(2, "0") + ":" + String(m % 60).padStart(2, "0"));
+      m += CONFIG.SLOT_MINUTES;
+    }
+    return out;
   }
 
   function renderBookings(bookings, opts) {
